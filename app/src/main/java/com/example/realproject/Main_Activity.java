@@ -47,6 +47,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     String firstDate;
     String lastDate;
 
+    // Main_Activity에 모두 다 넣어야한다
+    // Frag2(cardview), Frag2_listview(ListView) main_activity에 넣고
+    // databasehelper 다시 수정
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
