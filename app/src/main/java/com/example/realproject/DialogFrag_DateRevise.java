@@ -165,15 +165,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     DBmanager.updateUser(id, values);
 
                     Toast.makeText(getActivity(), "수정되었습니다", Toast.LENGTH_LONG).show();
-
-                    // 수정하고 activity restart해서 프로필 변경된거 띄우기 위해
-                    // 공부하고 넣자
-                    Intent intent = getActivity().getIntent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                            | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    getActivity().finish();
-
-                    startActivity(intent);
+                    ((Main_Activity)getActivity()).setUserProfile();
                     dismiss();
 
                 }

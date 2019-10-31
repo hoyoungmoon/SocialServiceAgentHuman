@@ -67,11 +67,13 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                              Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.frag2_listview, container, false);
-        mAdapter = new ListViewAdapter(this);
-
         mListView = rootView.findViewById(R.id.listview);
+
+        mAdapter = new ListViewAdapter(this);
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);
+
+
         // listView scroll 할때 밖의 ScrollView의 영향 받지 않도록
         mListView.setOnTouchListener(new ListView.OnTouchListener() {
             @Override
@@ -120,10 +122,12 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                 .setPositiveButton("확인", new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
-                    { DBManger.deleteFirstVacation(firstVacation);
-                    reloadListView();
-                    dialog.dismiss();}
-
+                    {
+                        DBManger.deleteFirstVacation(firstVacation);
+                        ((Main_Activity)getActivity()).setRemainVac();
+                        reloadListView();
+                        dialog.dismiss();
+                    }
                 })
                 .setNegativeButton("취소", new DialogInterface.OnClickListener()
                 {

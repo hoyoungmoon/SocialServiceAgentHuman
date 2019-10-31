@@ -1,5 +1,6 @@
 package com.example.realproject;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -49,6 +50,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
     String limitStartDate;
     String limitLastDate;
+    int numberOfYear;
 
     FirstVacation firstVacation = null;
     public vacationDBManager DBManger = null;
@@ -63,6 +65,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         if(getArguments() != null){
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
+            numberOfYear = getArguments().getInt("numberOfYear");
         }
         firstVacation = new FirstVacation(); // 이거 onCreate 때 넣어야하나?
     }
@@ -201,13 +204,8 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 saveFirstVacation(firstVacation);
 
                 Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_LONG).show();
+                ((Main_Activity)getActivity()).setRemainVac();
                 dismiss();
-
-                Intent intent = getActivity().getIntent();
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK
-                        | Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                getActivity().finish();
-                startActivity(intent);
             }
         }
         else if(view == cancelButton){

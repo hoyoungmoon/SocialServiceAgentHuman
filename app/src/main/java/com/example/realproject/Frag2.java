@@ -32,7 +32,6 @@ public class Frag2 extends Fragment implements View.OnClickListener{
     TextView firstVacRemain;
     TextView secondVacRemain;
     TextView sickVacRemain;
-    int count = 0;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -104,8 +103,6 @@ public class Frag2 extends Fragment implements View.OnClickListener{
                 dialog.show(fg, "dialog");
                 break;
             case R.id.spendButton_2:
-                count++;
-                secondVacRemain.setText(String.valueOf(count));
                 break;
             case R.id.spendButton_3:
                 break;

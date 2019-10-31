@@ -185,8 +185,11 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
                 if (dateCalendar != null) {
                     firstVacation.setStartDate(dateCalendar.getTime());
                 }
-
                 revise(firstVacation);
+                ((Main_Activity)getActivity()).setRemainVac();
+
+
+
                 Toast.makeText(getActivity(), "수정되었습니다", Toast.LENGTH_LONG).show();
                 dismiss();
             }

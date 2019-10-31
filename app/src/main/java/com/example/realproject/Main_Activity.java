@@ -12,7 +12,10 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -27,15 +30,27 @@ import com.google.android.material.navigation.NavigationView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
-public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     vacationDBManager DBmanager = null;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate", "mealCost", "trafficCost"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
+
+    private String firstDate;
+    private String lastDate;
+    private String pivotDate;
+    private String firstRemain;
+    private String secondRemain;
+
+    TextView firstVacRemain;
+    TextView secondVacRemain;
+    TextView sickVacRemain;
+
     private TextView nickNameTextView;
     private TextView dDayTextView;
     private TextView servicePeriodTextView;
@@ -44,8 +59,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView thisMonthVac;
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
-    String firstDate;
-    String lastDate;
+
+    Cursor cursor_user;
+    Cursor cursor_vac;
 
     // Main_Activity에 모두 다 넣어야한다
     // Frag2(cardview), Frag2_listview(ListView) main_activity에 넣고
@@ -66,6 +82,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
 
+        LinearLayout listButton_1 = findViewById(R.id.listButton);
+        LinearLayout listButton_2 = findViewById(R.id.listButton_2);
+        LinearLayout listButton_3 = findViewById(R.id.listButton_3);
+        Button spendButton = findViewById(R.id.spendButton);
+        Button spendButton_2 = findViewById(R.id.spendButton_2);
+        Button spendButton_3 = findViewById(R.id.spendButton_3);
+        firstVacRemain = findViewById(R.id.first_vacation_remain);
+        secondVacRemain = findViewById(R.id.second_vacation_remain);
+        sickVacRemain = findViewById(R.id.sick_vacation_remain);
+
+        listButton_1.setOnClickListener(this);
+        listButton_2.setOnClickListener(this);
+        listButton_3.setOnClickListener(this);
+        spendButton.setOnClickListener(this);
+        spendButton_2.setOnClickListener(this);
+        spendButton_3.setOnClickListener(this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -78,32 +110,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        Cursor cursor_user = DBmanager.query(userColumns, vacationDBManager.TABLE_USER, null, null, null, null, null);
-        Cursor cursor_vac = DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
-        cursor_user.moveToFirst();
-        firstDate = cursor_user.getString(2);
-        lastDate = cursor_user.getString(3);
-        nickNameTextView.setText(cursor_user.getString(1));
-        servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
-        dDayTextView.setText("D-" + countDdayfromToday(lastDate));
-        progressBar.setProgress(getPercentage(firstDate, lastDate));
-        cursor_user.close();
-
-
-        Fragment frag2 = new Frag2();
-        Bundle bundle = new Bundle(4);
-        bundle.putString("firstDate", firstDate);
-        bundle.putString("lastDate", lastDate);
-        bundle.putString("firstRemain", getRemainVac(cursor_vac, 1));
-        bundle.putString("secondRemain", getRemainVac(cursor_vac, 2));
-        frag2.setArguments(bundle);
-        cursor_vac.close();
-
-        FragmentManager fm = getSupportFragmentManager();
-        FragmentTransaction ft = fm.beginTransaction();
-        ft.add(R.id.fragment_container, frag2);
-        ft.commit();
+        setUserProfile();
+        setRemainVac();
     }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -121,7 +131,112 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         return false;
     }
 
-    public int countDdayfromToday(String lastDate) {
+    public void setUserProfile(){
+        Cursor c = DBmanager.query(userColumns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+        c.moveToFirst();
+        firstDate = c.getString(2);
+        lastDate = c.getString(3);
+        nickNameTextView.setText(c.getString(1));
+        servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
+        dDayTextView.setText("D-" + countDdayFromToday(lastDate));
+        progressBar.setProgress(getPercentage(firstDate, lastDate));
+
+        Calendar cal = Calendar.getInstance();
+        try {
+            cal.setTime(formatter.parse(firstDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        cal.add(Calendar.YEAR, 1);
+        Date pivotTime = cal.getTime();
+        pivotDate = formatter.format(pivotTime);
+    }
+
+    public void setRemainVac() {
+        try {
+            Cursor c =  DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
+            double firstCount = 0;
+            double secondCount = 0;
+            long firstTime = formatter.parse(firstDate).getTime();
+            long lastTime = formatter.parse(lastDate).getTime();
+            long pivotTime = formatter.parse(pivotDate).getTime();
+            while (c.moveToNext()) {
+                String startDate = c.getString(2);
+                long startTime = formatter.parse(startDate).getTime();
+                if (startTime - firstTime >= 0 && pivotTime - startTime >= 0) {
+                    firstCount += c.getDouble(4);
+                } else if (startTime - pivotTime > 0 && lastTime - startTime >= 0) {
+                    secondCount += c.getDouble(4);
+                }
+            }
+            c.close();
+                firstVacRemain.setText("" + firstCount);
+                secondVacRemain.setText("" + secondCount);
+        }
+        catch(ParseException e){
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        FragmentManager fg = getSupportFragmentManager();
+        FragmentTransaction ft = fg.beginTransaction();
+        Frag2_save dialog;
+
+        switch (view.getId()) {
+            // 1년차 휴가 2년차 휴가 listview에 나타나는것 다르게
+            case R.id.listButton:
+                setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
+                        firstDate, pivotDate, false);
+                break;
+
+            case R.id.listButton_2:
+                setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
+                        pivotDate, lastDate, false);
+                break;
+
+            case R.id.listButton_3:
+                setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
+                        firstDate, lastDate, true);
+                break;
+
+            // 1년차 연가, 2년차 연가 datePickerDialog 제한 어떻게 할지 결정하자. (그냥 소집~소집해제 or 소집~(소집+1)~소집해제)
+            case R.id.spendButton:
+                dialog = new Frag2_save().newInstance(firstDate, pivotDate);
+                dialog.show(fg, "dialog");
+                break;
+
+            case R.id.spendButton_2:
+                dialog = new Frag2_save().newInstance(pivotDate, lastDate);
+                dialog.show(fg, "dialog");
+                break;
+
+            case R.id.spendButton_3:
+                break;
+        }
+    }
+
+    public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
+                            String lowerBoundDate, String upperBoundDate, boolean isSickListView){
+        ImageView imageView = findViewById(imageId);
+        Fragment fragment;
+        Frag2_listview frag = (Frag2_listview) fg.findFragmentByTag("filled");
+        if(frag == null){
+            imageView.setImageResource(R.drawable.ic_expand_less);
+            fragment = new Frag2_listview(lowerBoundDate, upperBoundDate, isSickListView);
+            ft.replace(viewId, fragment, "filled");
+        }
+        else{
+            imageView.setImageResource(R.drawable.ic_expand_more);
+            fragment = new BlankFragment();
+            ft.replace(viewId, fragment,"unfilled");
+        }
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.commit();
+    }
+
+    public int countDdayFromToday(String lastDate) {
         Calendar today = Calendar.getInstance();
         long todayTime = today.getTime().getTime();
         try {
@@ -149,33 +264,4 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public String getRemainVac(Cursor c, int numberOfYear) {
-        try {
-            double firstCount = 0;
-            double secondCount = 0;
-            Calendar cal = Calendar.getInstance();
-            cal.setTime(formatter.parse(firstDate));
-            cal.add(Calendar.YEAR, 1);
-            long firstTime = formatter.parse(firstDate).getTime();
-            long lastTime = formatter.parse(lastDate).getTime();
-            long pivotTime = cal.getTime().getTime();
-            while (c.moveToNext()) {
-                String startDate = c.getString(2);
-                long startTime = formatter.parse(startDate).getTime();
-                if (startTime - firstTime >= 0 && pivotTime - startTime >= 0) {
-                    firstCount += c.getDouble(4);
-                } else if (startTime - pivotTime > 0 && lastTime - startTime >= 0) {
-                    secondCount += c.getDouble(4);
-                }
-            }
-            if (numberOfYear == 1) {
-                return "" + firstCount;
-            } else {
-                return "" + secondCount;
-            }
-        }
-        catch(ParseException e){
-            return " ";
-        }
-    }
 }
