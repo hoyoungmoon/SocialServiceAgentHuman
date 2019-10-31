@@ -170,10 +170,39 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
             }
             c.close();
-                firstVacRemain.setText("" + firstCount);
-                secondVacRemain.setText("" + secondCount);
+            firstVacRemain.setText(converMinuteToProperUnit((int)firstCount));
+            secondVacRemain.setText(converMinuteToProperUnit((int)secondCount));
         }
         catch(ParseException e){
+        }
+    }
+
+    // 나중에 년차 별로 받는 연가 수량 넣어야함
+    String converMinuteToProperUnit(int useMinute){
+        int minute = (15 * 480) - useMinute;
+        if(minute < 0) return "남은휴가없음";
+        else {
+            int day = minute / 480;
+            minute %= 480;
+            if (minute == 240) {
+                return ((double)day + 0.5) + "일";
+            } else {
+                int hour = minute / 60;
+                minute %= 60;
+                if (hour != 0) {
+                    if (minute != 0) {
+                        return day + "일 " + hour + "시간 " + minute + "분";
+                    } else {
+                        return day + "일" + hour + "시간";
+                    }
+                } else {
+                    if (minute != 0) {
+                        return day + "일 " + minute + "분";
+                    } else {
+                        return day + "일";
+                    }
+                }
+            }
         }
     }
 
