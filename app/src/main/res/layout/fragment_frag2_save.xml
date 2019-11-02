@@ -14,6 +14,7 @@
         android:id="@+id/et_startDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:focusable="false"
         android:textSize="15sp"
         android:hint="시작일" />
 
@@ -55,21 +56,35 @@
             android:layout_height="wrap_content"/>
     </RadioGroup>
 
+    <RadioGroup
+        android:id="@+id/radioGroup_sickVacationType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/radio_sickVac_allDay"
+            android:text="병가 (8시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_sickVac_halfDay"
+            android:text="병가조퇴 (4시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_sickVac_outing"
+            android:text="병가외출 (10분단위)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RadioGroup>
+
     <LinearLayout
         android:id="@+id/linear_outingSetter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:visibility="gone">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="외출 시각"/>
-        <EditText
-            android:id="@+id/et_outingStart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="외출 시각"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -80,8 +95,8 @@
             android:orientation="horizontal">
             <NumberPicker
                 android:id="@+id/picker_outingLength"
-                android:layout_width="40dp"
-                android:layout_height="60dp"/>
+                android:layout_width="50dp"
+                android:layout_height="75dp"/>
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,14 +109,14 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Button
-            android:id="@+id/button_save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="저 장"/>
-        <Button
             android:id="@+id/button_cancel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="취 소"/>
+        <Button
+        android:id="@+id/button_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="저 장"/>
     </LinearLayout>
 </LinearLayout>

@@ -38,28 +38,45 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
-    String[] columns = new String[] {"id", "vacation", "startDate", "type", "count"};
+    private String[] columns = new String[] {"id", "vacation", "startDate", "type", "count"};
     public vacationDBManager DBManger = null;
-    ListView mListView = null;
-    ListViewAdapter mAdapter = null;
+    private ListView mListView = null;
+    private ListViewAdapter mAdapter = null;
 
-    String lowerBoundDate;
-    String upperBoundDate;
-    Date lowerDate;
-    Date upperDate;
-    long lowerDiff = -1;
-    long upperDiff = -1;
-    boolean isSickListView;
+    private Date lowerDate;
+    private Date upperDate;
+    private long lowerDiff = -1;
+    private long upperDiff = -1;
+    private String limitStartDate;
+    private String limitLastDate;
+    private String firstDate;
+    private String lastDate;
+    private int numOfYear;
 
-    public Frag2_listview(String lowerBoundDate, String upperBoundDate, boolean isSickListView) {
-        this.lowerBoundDate = lowerBoundDate;
-        this.upperBoundDate = upperBoundDate;
-        this.isSickListView = isSickListView;
+    public Frag2_listview() {}
+
+    public static Frag2_listview newInstance(String param1, String param2, String param3, String param4, int param5){
+        Frag2_listview dialog = new Frag2_listview();
+        Bundle bundle = new Bundle(3);
+        bundle.putString("limitStartDate", param1);
+        bundle.putString("limitLastDate", param2);
+        bundle.putString("firstDate", param3);
+        bundle.putString("lastDate", param4);
+        bundle.putInt("numOfYear", param5);
+        dialog.setArguments(bundle);
+        return dialog;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getArguments() != null){
+            limitStartDate = getArguments().getString("limitStartDate");
+            limitLastDate = getArguments().getString("limitLastDate");
+            firstDate = getArguments().getString("firstDate");
+            lastDate = getArguments().getString("lastDate");
+            numOfYear = getArguments().getInt("numOfYear");
+        }
     }
 
     @Override
@@ -74,7 +91,6 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         mListView.setAdapter(mAdapter);
 
 
-        // listView scroll 할때 밖의 ScrollView의 영향 받지 않도록
         mListView.setOnTouchListener(new ListView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -98,7 +114,6 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         });
         return rootView;
     }
-
 
     @Override
     public void onMenuBtnClick(int position){
@@ -143,20 +158,20 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     public void onReviseBtnClick(int position) {
         FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
         int id = firstVacation.getId();
-        FragmentManager childFragmentManager = getFragmentManager();
-        Frag2_revise dialog = new Frag2_revise(firstVacation, id);
-        dialog.show(childFragmentManager, "dialog");
+        FragmentManager fg = getFragmentManager();
+        Frag2_revise dialog = new Frag2_revise().newInstance(limitStartDate, limitLastDate, firstDate,
+                lastDate, numOfYear, firstVacation, id);
+        dialog.show(fg, "dialog");
     }
 
-    // 생성자에서 type, upperDate, lowerDate 적어서 query에서 걸러서 listview에 나타내게 하자.
-    // 또한 cardView에도 각각 걸러내진 것만 sum해서 남은 휴가 나오게하자
-    public void setListItemView(ListViewAdapter mAdapter) {
+    public void setListItemView(ListViewAdapter mAdapter){
         DBManger = vacationDBManager.getInstance(getActivity());
         Cursor c = DBManger.query(columns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
         Date startDate = null;
+
         try{
-        lowerDate = formatter.parse(lowerBoundDate);
-        upperDate = formatter.parse(upperBoundDate);}
+        lowerDate = formatter.parse(limitStartDate);
+        upperDate = formatter.parse(limitLastDate);}
         catch(ParseException e){
             e.printStackTrace();
         }
@@ -170,7 +185,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            if(isSickListView){
+            if(numOfYear == 3){
                 if(lowerDiff >= 0 && upperDiff >= 0 && type.equals("병가")){
                     int id = c.getInt(0);
                     String vacation = c.getString(1);
@@ -179,7 +194,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                 }
             }
             else{
-                if(lowerDiff >= 0 && upperDiff >= 0){
+                if(lowerDiff >= 0 && upperDiff >= 0 && !type.equals("병가")){
                 int id = c.getInt(0);
                 String vacation = c.getString(1);
                 double count = c.getDouble(4);

@@ -42,10 +42,14 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     private EditText lastDateEditText;
     private EditText mealCostEditText;
     private EditText trafficCostEditText;
+    private EditText totalFirstVacEditText;
+    private EditText totalSecondVacEditText;
+    private EditText totalSickVacEditText;
     private Button saveButton;
     private Button cancelButton;
 
-    private static String[] columns = new String[] {"id", "nickName", "firstDate", "lastDate", "mealCost", "trafficCost"};
+    private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
+            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac"};
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     DatePickerDialog firstDatePickerDialog;
@@ -76,6 +80,12 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         mealCostEditText.setInputType(TYPE_CLASS_NUMBER);
         trafficCostEditText = view.findViewById(R.id.et_trafficCost);
         trafficCostEditText.setInputType(TYPE_CLASS_NUMBER);
+        totalFirstVacEditText = view.findViewById(R.id.et_totalFirstVac);
+        totalFirstVacEditText.setInputType(TYPE_CLASS_NUMBER);
+        totalSecondVacEditText = view.findViewById(R.id.et_totalSecondVac);
+        totalSecondVacEditText.setInputType(TYPE_CLASS_NUMBER);
+        totalSickVacEditText = view.findViewById(R.id.et_totalSickVac);
+        totalSickVacEditText.setInputType(TYPE_CLASS_NUMBER);
 
         saveButton = view.findViewById(R.id.btn_save);
         cancelButton = view.findViewById(R.id.btn_cancel);
@@ -89,6 +99,9 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             lastDateEditText.setText(c.getString(3));
             mealCostEditText.setText(c.getString(4));
             trafficCostEditText.setText(c.getString(5));
+            totalFirstVacEditText.setText(c.getString(6));
+            totalSecondVacEditText.setText(c.getString(7));
+            totalSickVacEditText.setText(c.getString(8));
         }
 
         firstDateEditText.setOnClickListener(this);
@@ -146,6 +159,9 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                 }
                 user.setMealCost(Integer.parseInt(mealCostEditText.getText().toString()));
                 user.setTrafficCost(Integer.parseInt(trafficCostEditText.getText().toString()));
+                user.setTotalFirstVac(Integer.parseInt(totalFirstVacEditText.getText().toString()));
+                user.setTotalSecondVac(Integer.parseInt(totalSecondVacEditText.getText().toString()));
+                user.setTotalSickVac(Integer.parseInt(totalSickVacEditText.getText().toString()));
 
                 if(DBmanager.getDataCount(TABLE_USER) == 0){
                     DBmanager.insertUser(user);
@@ -162,10 +178,16 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     values.put("lastDate", formatter.format(user.getLastDate()));
                     values.put("mealCost", user.getMealCost());
                     values.put("trafficCost", user.getTrafficCost());
+                    values.put("totalFirstVac", user.getTotalFirstVac());
+                    values.put("totalSecondVac", user.getTotalSecondVac());
+                    values.put("totalSickVac", user.getTotalSickVac());
                     DBmanager.updateUser(id, values);
 
                     Toast.makeText(getActivity(), "수정되었습니다", Toast.LENGTH_LONG).show();
                     ((Main_Activity)getActivity()).setUserProfile();
+                    if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0){
+                        ((Main_Activity)getActivity()).setRemainVac();
+                    }
                     dismiss();
 
                 }

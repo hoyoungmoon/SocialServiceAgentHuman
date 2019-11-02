@@ -293,6 +293,7 @@
                                         android:textSize="24sp" />
 
                                     <TextView
+                                        android:id="@+id/first_vacation_total"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="/15"
@@ -390,6 +391,7 @@
                                         android:textSize="24sp" />
 
                                     <TextView
+                                        android:id="@+id/second_vacation_total"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="/15"
@@ -478,15 +480,15 @@
                                 <LinearLayout
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content">
-
                                     <TextView
+                                        android:id="@+id/sick_vacation_remain"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="14일"
                                         android:textSize="24sp" />
 
                                     <TextView
-                                        android:id="@+id/sick_vacation_remain"
+                                        android:id="@+id/sick_vacation_total"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="/15"

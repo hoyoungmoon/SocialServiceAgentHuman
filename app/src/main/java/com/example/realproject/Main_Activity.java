@@ -38,19 +38,23 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     vacationDBManager DBmanager = null;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
-    private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate", "mealCost", "trafficCost"};
+    private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
+            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
 
     private String firstDate;
     private String lastDate;
     private String pivotDate;
-    private String firstRemain;
-    private String secondRemain;
+    private int totalFirstVac;
+    private int totalSecondVac;
+    private int totalSickVac;
 
-    TextView firstVacRemain;
-    TextView secondVacRemain;
-    TextView sickVacRemain;
-
+    private TextView firstVacRemain;
+    private TextView secondVacRemain;
+    private TextView sickVacRemain;
+    private TextView firstVacTotal;
+    private TextView secondVacTotal;
+    private TextView sickVacTotal;
     private TextView nickNameTextView;
     private TextView dDayTextView;
     private TextView servicePeriodTextView;
@@ -60,12 +64,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
 
-    Cursor cursor_user;
-    Cursor cursor_vac;
-
-    // Main_Activity에 모두 다 넣어야한다
-    // Frag2(cardview), Frag2_listview(ListView) main_activity에 넣고
-    // databasehelper 다시 수정
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -91,6 +89,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         firstVacRemain = findViewById(R.id.first_vacation_remain);
         secondVacRemain = findViewById(R.id.second_vacation_remain);
         sickVacRemain = findViewById(R.id.sick_vacation_remain);
+        firstVacTotal = findViewById(R.id.first_vacation_total);
+        secondVacTotal = findViewById(R.id.second_vacation_total);
+        sickVacTotal = findViewById(R.id.sick_vacation_total);
 
         listButton_1.setOnClickListener(this);
         listButton_2.setOnClickListener(this);
@@ -111,9 +112,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         });
 
         setUserProfile();
-        setRemainVac();
+        if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0){
+            setRemainVac();
+        }
     }
-
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -121,87 +123,105 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         FragmentManager fg = getSupportFragmentManager();
         switch (menuItem.getItemId()) {
             // 소집일 식비 각각 gone 으로 없앨지 말지
+            case R.id.profile:
+                dialog.show(fg, "dialog");
+                break;
             case R.id.date:
                 dialog.show(fg, "dialog");
                 break;
             case R.id.cost:
                 dialog.show(fg, "dialog");
                 break;
+            case R.id.vacation:
+                break;
         }
         return false;
     }
 
     public void setUserProfile(){
-        Cursor c = DBmanager.query(userColumns, vacationDBManager.TABLE_USER, null, null, null, null, null);
-        c.moveToFirst();
-        firstDate = c.getString(2);
-        lastDate = c.getString(3);
-        nickNameTextView.setText(c.getString(1));
-        servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
-        dDayTextView.setText("D-" + countDdayFromToday(lastDate));
-        progressBar.setProgress(getPercentage(firstDate, lastDate));
 
-        Calendar cal = Calendar.getInstance();
-        try {
-            cal.setTime(formatter.parse(firstDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
+        if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+            Cursor c = DBmanager.query(userColumns, vacationDBManager.TABLE_USER,
+                null, null, null, null, null);
+            c.moveToFirst();
+            firstDate = c.getString(2);
+            lastDate = c.getString(3);
+
+            totalFirstVac = c.getInt(6);
+            totalSecondVac = c.getInt(7);
+            totalSickVac = c.getInt(8);
+
+            nickNameTextView.setText(c.getString(1));
+            servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
+            dDayTextView.setText(countDdayFromToday(lastDate));
+            progressBar.setProgress(getPercentage(firstDate, lastDate));
+
+            firstVacTotal.setText("/" + totalFirstVac);
+            secondVacTotal.setText("/" + totalSecondVac);
+            sickVacTotal.setText("/" + totalSickVac);
+
+            Calendar cal = Calendar.getInstance();
+            try {
+                cal.setTime(formatter.parse(firstDate));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            cal.add(Calendar.YEAR, 1);
+            Date pivotTime = cal.getTime();
+            pivotDate = formatter.format(pivotTime);
+            c.close();
         }
-        cal.add(Calendar.YEAR, 1);
-        Date pivotTime = cal.getTime();
-        pivotDate = formatter.format(pivotTime);
+        else{
+            DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
+            FragmentManager fg = getSupportFragmentManager();
+            dialog.show(fg, "dialog");
+        }
     }
 
     public void setRemainVac() {
         try {
-            Cursor c =  DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
-            double firstCount = 0;
-            double secondCount = 0;
+            Cursor c =  DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST,
+                    null, null, null, null, null);
+            double firstCount = (double)totalFirstVac * 480;
+            double secondCount = (double)totalSecondVac * 480;
+            double thirdCount = (double)totalSickVac * 480;
             long firstTime = formatter.parse(firstDate).getTime();
             long lastTime = formatter.parse(lastDate).getTime();
             long pivotTime = formatter.parse(pivotDate).getTime();
             while (c.moveToNext()) {
                 String startDate = c.getString(2);
                 long startTime = formatter.parse(startDate).getTime();
-                if (startTime - firstTime >= 0 && pivotTime - startTime >= 0) {
-                    firstCount += c.getDouble(4);
+                if(c.getString(3).equals("병가")){
+                    thirdCount -= c.getDouble(4);
+                }
+                else if (startTime - firstTime >= 0 && pivotTime - startTime >= 0) {
+                    firstCount -= c.getDouble(4);
                 } else if (startTime - pivotTime > 0 && lastTime - startTime >= 0) {
-                    secondCount += c.getDouble(4);
+                    secondCount -= c.getDouble(4);
                 }
             }
             c.close();
-            firstVacRemain.setText(converMinuteToProperUnit((int)firstCount));
-            secondVacRemain.setText(converMinuteToProperUnit((int)secondCount));
+            firstVacRemain.setText(convertMinuteToProperUnit((int)firstCount));
+            secondVacRemain.setText(convertMinuteToProperUnit((int)secondCount));
+            sickVacRemain.setText(convertMinuteToProperUnit((int)thirdCount));
         }
         catch(ParseException e){
         }
     }
 
     // 나중에 년차 별로 받는 연가 수량 넣어야함
-    String converMinuteToProperUnit(int useMinute){
-        int minute = (15 * 480) - useMinute;
+    String convertMinuteToProperUnit(int minute){
         if(minute < 0) return "남은휴가없음";
         else {
             int day = minute / 480;
             minute %= 480;
-            if (minute == 240) {
-                return ((double)day + 0.5) + "일";
-            } else {
+            if (minute == 240)  return ((double)day + 0.5) + "일";
+            else {
                 int hour = minute / 60;
                 minute %= 60;
-                if (hour != 0) {
-                    if (minute != 0) {
-                        return day + "일 " + hour + "시간 " + minute + "분";
-                    } else {
-                        return day + "일" + hour + "시간";
-                    }
-                } else {
-                    if (minute != 0) {
-                        return day + "일 " + minute + "분";
-                    } else {
-                        return day + "일";
-                    }
-                }
+                if (hour != 0) return minute != 0 ? day + "일 " + hour + "시간 "
+                        + minute + "분" : day + "일" + hour + "시간";
+                else return minute != 0 ? day + "일 " + minute + "분" : day + "일";
             }
         }
     }
@@ -217,43 +237,46 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             // 1년차 휴가 2년차 휴가 listview에 나타나는것 다르게
             case R.id.listButton:
                 setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
-                        firstDate, pivotDate, false);
+                        firstDate, pivotDate, 1);
                 break;
 
             case R.id.listButton_2:
                 setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
-                        pivotDate, lastDate, false);
+                        pivotDate, lastDate, 2);
                 break;
 
             case R.id.listButton_3:
                 setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
-                        firstDate, lastDate, true);
+                        firstDate, lastDate, 3);
                 break;
 
             // 1년차 연가, 2년차 연가 datePickerDialog 제한 어떻게 할지 결정하자. (그냥 소집~소집해제 or 소집~(소집+1)~소집해제)
             case R.id.spendButton:
-                dialog = new Frag2_save().newInstance(firstDate, pivotDate);
+                dialog = new Frag2_save().newInstance(firstDate, pivotDate, 1);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_2:
-                dialog = new Frag2_save().newInstance(pivotDate, lastDate);
+                dialog = new Frag2_save().newInstance(pivotDate, lastDate, 2);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_3:
+                dialog = new Frag2_save().newInstance(firstDate, lastDate, 3);
+                dialog.show(fg, "dialog");
                 break;
         }
     }
 
     public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
-                            String lowerBoundDate, String upperBoundDate, boolean isSickListView){
+                            String lowerBoundDate, String upperBoundDate, int numOfYear){
         ImageView imageView = findViewById(imageId);
         Fragment fragment;
         Frag2_listview frag = (Frag2_listview) fg.findFragmentByTag("filled");
         if(frag == null){
             imageView.setImageResource(R.drawable.ic_expand_less);
-            fragment = new Frag2_listview(lowerBoundDate, upperBoundDate, isSickListView);
+            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
+                    lastDate, numOfYear);
             ft.replace(viewId, fragment, "filled");
         }
         else{
@@ -265,16 +288,27 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         ft.commit();
     }
 
-    public int countDdayFromToday(String lastDate) {
+    public void refreshListView(int viewId, int imageId, String limitStartDate, String limitLastDate, int numOfYear){
+        FragmentManager fg = getSupportFragmentManager();
+        FragmentTransaction ft = fg.beginTransaction();
+        ImageView imageView =findViewById(imageId);
+        imageView.setImageResource(R.drawable.ic_expand_less);
+        Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
+                lastDate, numOfYear);
+        ft.replace(viewId, fragment, "filled");
+        ft.commit();
+    }
+
+    public String countDdayFromToday(String lastDate) {
         Calendar today = Calendar.getInstance();
         long todayTime = today.getTime().getTime();
         try {
             long lastTime = formatter.parse(lastDate).getTime();
             long count = (lastTime - todayTime);
-            return (int) (count / (60 * 60 * 24 * 1000));
+            return "D-" + (int) (count / (60 * 60 * 24 * 1000));
         } catch (ParseException e) {
             e.printStackTrace();
-            return -1;
+            return "";
         }
     }
 

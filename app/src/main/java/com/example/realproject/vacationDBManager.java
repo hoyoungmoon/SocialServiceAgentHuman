@@ -22,11 +22,12 @@ public class vacationDBManager {
             "type TEXT, " + "count DOUBLE );";
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS " + TABLE_USER + "(" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT, " + "nickName TEXT, " + "firstDate DATE, " +
-            "lastDate DATE, " + "mealCost INTEGER, " + "trafficCost INTEGER );";
+            "lastDate DATE, " + "mealCost INTEGER, " + "trafficCost INTEGER, " + "totalFirstVac INTEGER, " +
+        "totalSecondVac INTEGER, " + "totalSickVac INTEGER );";
 
     static final int FIRST_VERSION = 1;
 
-    Context mContext = null;
+    Context mContext;
     private static vacationDBManager mDBmanager = null;
     private SQLiteDatabase mDatabase;
 

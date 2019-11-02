@@ -9,6 +9,9 @@ public class User {
     private Date lastDate;
     private int mealCost;
     private int trafficCost;
+    private int totalFirstVac;
+    private int totalSecondVac;
+    private int totalSickVac;
 
     public int getId() {
         return id;
@@ -58,6 +61,30 @@ public class User {
         this.trafficCost = trafficCost;
     }
 
-    public User(){};
+    public User(){}
+
+    public int getTotalFirstVac() {
+        return totalFirstVac;
+    }
+
+    public void setTotalFirstVac(int totalFirstVac) {
+        this.totalFirstVac = totalFirstVac;
+    }
+
+    public int getTotalSecondVac() {
+        return totalSecondVac;
+    }
+
+    public void setTotalSecondVac(int totalSecondVac) {
+        this.totalSecondVac = totalSecondVac;
+    }
+
+    public int getTotalSickVac() {
+        return totalSickVac;
+    }
+
+    public void setTotalSickVac(int totalSickVac) {
+        this.totalSickVac = totalSickVac;
+    }
 
 }

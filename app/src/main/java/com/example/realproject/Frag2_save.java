@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -35,26 +37,23 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
     private EditText startDateEditText;
     private EditText vacationEditText;
-    private EditText outingStartEditText;
     private Button saveButton;
     private Button cancelButton;
     private RadioGroup vacationTypeRadioGroup;
+    private RadioGroup sickVacationTypeRadioGroup;
     private NumberPicker outingLengthPicker;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
 
-
     DatePickerDialog datePickerDialog;
-    TimePickerDialog timePickerDialog;
     Calendar dateCalendar;
 
-    String limitStartDate;
-    String limitLastDate;
-    int numberOfYear;
+    private String limitStartDate;
+    private String limitLastDate;
+    private int numberOfYear;
 
-    FirstVacation firstVacation = null;
+    private FirstVacation firstVacation = null;
     public vacationDBManager DBManger = null;
-    ListViewAdapter mAdapter;
 
     public Frag2_save() {}
 
@@ -65,7 +64,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         if(getArguments() != null){
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
-            numberOfYear = getArguments().getInt("numberOfYear");
+            numberOfYear = getArguments().getInt("numOfYear");
         }
         firstVacation = new FirstVacation(); // 이거 onCreate 때 넣어야하나?
     }
@@ -75,24 +74,43 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_frag2_save, container, false);
 
-
         startDateEditText = view.findViewById(R.id.et_startDate);
         startDateEditText.setInputType(InputType.TYPE_NULL);
         vacationEditText = view.findViewById(R.id.et_vacation);
-
-        outingStartEditText = view.findViewById(R.id.et_outingStart);
-        outingStartEditText.setInputType(InputType.TYPE_NULL);
 
         saveButton = view.findViewById(R.id.button_save);
         cancelButton = view.findViewById(R.id.button_cancel);
 
         vacationTypeRadioGroup = view.findViewById(R.id.radioGroup_vacationType);
+        sickVacationTypeRadioGroup = view.findViewById(R.id.radioGroup_sickVacationType);
+        vacationTypeRadioGroup.check(R.id.radio_allDay);
+        sickVacationTypeRadioGroup.check(R.id.radio_sickVac_allDay);
         final LinearLayout outingSetter = view.findViewById(R.id.linear_outingSetter);
+
+        if(numberOfYear ==3){
+            vacationTypeRadioGroup.setVisibility(GONE);
+            sickVacationTypeRadioGroup.setVisibility(VISIBLE);
+        }
+        else{
+            vacationTypeRadioGroup.setVisibility(VISIBLE);
+            sickVacationTypeRadioGroup.setVisibility(GONE);
+        }
 
         vacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 if(i == R.id.radio_outing){
+                    outingSetter.setVisibility(VISIBLE);
+                }
+                else{
+                    outingSetter.setVisibility(GONE);
+                }
+            }
+        });
+        sickVacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if(i == R.id.radio_sickVac_outing){
                     outingSetter.setVisibility(VISIBLE);
                 }
                 else{
@@ -113,7 +131,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         saveButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
         startDateEditText.setOnClickListener(this);
-        outingStartEditText.setOnClickListener(this);
         Calendar newCalendar = Calendar.getInstance();
         datePickerDialog = new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {
@@ -134,17 +151,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             e.printStackTrace();
         }
 
-
-        timePickerDialog = new TimePickerDialog(getActivity(),
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        int h = hourOfDay;
-                        int m = minute;
-                        outingStartEditText.setText(h + " : " + m);
-                    }
-                }, newCalendar.get(Calendar.HOUR_OF_DAY), newCalendar.get(Calendar.MINUTE), true);
-
         return view;
     }
 
@@ -153,60 +159,80 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         if (view == startDateEditText) {
             datePickerDialog.show();
         }
-        else if(view == outingStartEditText){
-            timePickerDialog.show();
-        }
         else if(view == saveButton){
-            String getEdit = vacationEditText.getText().toString();
+            firstVacation = new FirstVacation();
             String getDate = startDateEditText.getText().toString();
 
             if(getDate.getBytes().length <= 0){
                blankAlert("시작일을 입력해주세요");
             }
-            else if(getEdit.getBytes().length <= 0){
-               blankAlert("휴가사유를 입력해주세요");
+
+            if(numberOfYear == 3){
+                firstVacation.setType("병가");
+                // 병가 종류에 따라 count 넣기
+                int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
+                int idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
+                switch (idx) {
+                    case 0:
+                        firstVacation.setCount(480);
+                        break;
+                    case 1:
+                        firstVacation.setCount(240);
+                        break;
+                    case 2:
+                        int index = outingLengthPicker.getValue();
+                        firstVacation.setCount(Double.parseDouble(outingLengthPicker.getDisplayedValues()[index]));
+                        break;
+                }
             }
             else {
-                firstVacation = new FirstVacation();
                 int radioButtonId = vacationTypeRadioGroup.getCheckedRadioButtonId();
                 int idx = vacationTypeRadioGroup.indexOfChild(vacationTypeRadioGroup.findViewById(radioButtonId));
-                switch(idx){
+                switch (idx) {
                     case 0:
                         firstVacation.setType("연가");
+                        firstVacation.setCount(480);
                         break;
                     case 1:
                         firstVacation.setType("오전반가");
+                        firstVacation.setCount(240);
                         break;
                     case 2:
                         firstVacation.setType("오후반가");
+                        firstVacation.setCount(240);
                         break;
                     case 3:
                         firstVacation.setType("외출");
+                        int index = outingLengthPicker.getValue();
+                        firstVacation.setCount(Double.parseDouble(outingLengthPicker.getDisplayedValues()[index]));
                         break;
                 }
-                firstVacation.setVacation(vacationEditText.getText().toString().trim());
+            }
 
-                if(radioButtonId == R.id.radio_allDay){
-                    firstVacation.setCount(480);  // 8시간 * 60(분/시간) = 480분
-                }
-                else if(radioButtonId == R.id.radio_halfAfternoon || radioButtonId == R.id.radio_halfMorning){
-                    firstVacation.setCount(240); // 4시간 * 60(분/시간) = 240분
-                }
-                else{
-                    int index = outingLengthPicker.getValue();
-                    firstVacation.setCount(Double.parseDouble(outingLengthPicker.getDisplayedValues()[index]));
-                }
-
+            firstVacation.setVacation(vacationEditText.getText().toString().trim());
                 if (dateCalendar != null) {
                     firstVacation.setStartDate(dateCalendar.getTime());
                 }
 
                 saveFirstVacation(firstVacation);
 
-                Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_SHORT).show();
                 ((Main_Activity)getActivity()).setRemainVac();
+
+                if(numberOfYear == 1) {
+                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
+                            R.id.first_vacation_image, limitStartDate, limitLastDate, 1);
+                }
+                else if(numberOfYear == 2){
+                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_2,
+                            R.id.first_vacation_image, limitStartDate, limitLastDate, 2);
+                }
+                else {
+                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_3,
+                            R.id.sick_vacation_image, limitStartDate, limitLastDate, 3);
+                }
                 dismiss();
-            }
+
         }
         else if(view == cancelButton){
             dismiss();
@@ -238,11 +264,12 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 .show();
     }
 
-    public static Frag2_save newInstance(String param1, String param2){
+    public static Frag2_save newInstance(String param1, String param2, int param3){
         Frag2_save dialog = new Frag2_save();
-        Bundle bundle = new Bundle(2);
+        Bundle bundle = new Bundle(3);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
+        bundle.putInt("numOfYear", param3);
         dialog.setArguments(bundle);
         return dialog;
     }

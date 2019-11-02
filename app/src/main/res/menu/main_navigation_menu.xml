@@ -13,5 +13,13 @@
             android:id="@+id/cost"
             android:title="식비/교통비 변경"
             />
+        <item
+            android:id="@+id/vacation"
+            android:title="휴가 일수 변경"
+            />
+        <item
+            android:id="@+id/delete_profile"
+            android:title="프로필 초기화"
+            />
     </group>
 </menu>
