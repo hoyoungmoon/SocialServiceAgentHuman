@@ -140,6 +140,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                     {
                         DBManger.deleteFirstVacation(firstVacation);
                         ((Main_Activity)getActivity()).setRemainVac();
+                        ((Main_Activity)getActivity()).setThisMonthInfo();
                         reloadListView();
                         dialog.dismiss();
                     }
@@ -175,7 +176,6 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         catch(ParseException e){
             e.printStackTrace();
         }
-
         while (c.moveToNext()) {
             String type = c.getString(3);
             try {
@@ -186,19 +186,25 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                 e.printStackTrace();
             }
             if(numOfYear == 3){
-                if(lowerDiff >= 0 && upperDiff >= 0 && type.equals("병가")){
-                    int id = c.getInt(0);
-                    String vacation = c.getString(1);
-                    double count = c.getDouble(4);
-                    mAdapter.addItem(id, vacation, startDate, type, count);
+                if(lowerDiff >= 0 && upperDiff >= 0){
+                    if(type.equals("병가")||type.equals("오전지참")
+                            ||type.equals("오후조퇴")||type.equals("병가외출")) {
+                        int id = c.getInt(0);
+                        String vacation = c.getString(1);
+                        double count = c.getDouble(4);
+                        mAdapter.addItem(id, vacation, startDate, type, count);
+                    }
                 }
             }
             else{
-                if(lowerDiff >= 0 && upperDiff >= 0 && !type.equals("병가")){
-                int id = c.getInt(0);
-                String vacation = c.getString(1);
-                double count = c.getDouble(4);
-                mAdapter.addItem(id, vacation, startDate, type, count);
+                if(lowerDiff >= 0 && upperDiff >= 0){
+                    if(type.equals("연가")||type.equals("오전반가")
+                            ||type.equals("오후반가")||type.equals("외출")) {
+                        int id = c.getInt(0);
+                        String vacation = c.getString(1);
+                        double count = c.getDouble(4);
+                        mAdapter.addItem(id, vacation, startDate, type, count);
+                    }
                 }
             }
         }

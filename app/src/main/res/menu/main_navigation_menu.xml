@@ -21,5 +21,9 @@
             android:id="@+id/delete_profile"
             android:title="프로필 초기화"
             />
+        <item
+            android:id="@+id/manual"
+            android:title="해당 어플 휴가 및 월급 계산 방식"
+            />
     </group>
 </menu>

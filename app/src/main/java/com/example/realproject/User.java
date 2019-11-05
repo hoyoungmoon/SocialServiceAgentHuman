@@ -12,6 +12,7 @@ public class User {
     private int totalFirstVac;
     private int totalSecondVac;
     private int totalSickVac;
+    private int payDay;
 
     public int getId() {
         return id;
@@ -87,4 +88,11 @@ public class User {
         this.totalSickVac = totalSickVac;
     }
 
+    public int getPayDay() {
+        return payDay;
+    }
+
+    public void setPayDay(int payDay) {
+        this.payDay = payDay;
+    }
 }

@@ -168,18 +168,24 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             }
 
             if(numberOfYear == 3){
-                firstVacation.setType("병가");
                 // 병가 종류에 따라 count 넣기
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 int idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
                     case 0:
+                        firstVacation.setType("병가");
                         firstVacation.setCount(480);
                         break;
                     case 1:
+                        firstVacation.setType("오전지참");
                         firstVacation.setCount(240);
                         break;
                     case 2:
+                        firstVacation.setType("오후조퇴");
+                        firstVacation.setCount(240);
+                        break;
+                    case 3:
+                        firstVacation.setType("병가외출");
                         int index = outingLengthPicker.getValue();
                         firstVacation.setCount(Double.parseDouble(outingLengthPicker.getDisplayedValues()[index]));
                         break;
@@ -218,6 +224,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
                 Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_SHORT).show();
                 ((Main_Activity)getActivity()).setRemainVac();
+                ((Main_Activity)getActivity()).setThisMonthInfo();
 
                 if(numberOfYear == 1) {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,

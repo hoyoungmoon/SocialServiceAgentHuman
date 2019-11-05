@@ -35,6 +35,11 @@
                 android:text="Alleyoops"
                 android:textColor="#FFFFFF"
                 android:textSize="30sp" />
+            <ImageButton
+                android:id="@+id/btn_rank_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="ShowPopup"/>
             <TextView
                 android:id="@+id/tv_dDay"
                 android:layout_width="0dp"
@@ -83,13 +88,24 @@
                     android:paddingTop="10dp"
                     android:paddingBottom="10dp"
                     android:orientation="vertical">
-                    <TextView
-                        android:layout_width="wrap_content"
+                    <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="이번달 급여"
-                        android:layout_marginBottom="5dp"
-                        android:textColor="#a3aaab"
-                        android:textSize="12sp" />
+                        android:orientation="horizontal"
+                        android:gravity="center"
+                        android:layout_marginBottom="5dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="이번달 급여"
+                            android:textColor="#a3aaab"
+                            android:textSize="12sp" />
+                        <ImageButton
+                            android:id="@+id/btn_pay_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
                     <TextView
                         android:id="@+id/tv_salary"
                         android:text="468,000 KRW"
@@ -128,7 +144,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
-                            android:paddingEnd="25dp">
+                            android:layout_marginEnd="25dp">
 
                             <TextView
                                 android:text="외출"

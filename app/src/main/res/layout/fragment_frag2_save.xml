@@ -67,8 +67,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <RadioButton
-            android:id="@+id/radio_sickVac_halfDay"
-            android:text="병가조퇴 (4시간)"
+            android:id="@+id/radio_sickVac_halfMorning"
+            android:text="오전지참 (4시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_sickVac_halfAfternoon"
+            android:text="오후조퇴 (4시간)"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
         <RadioButton

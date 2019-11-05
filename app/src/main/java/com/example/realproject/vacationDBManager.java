@@ -23,7 +23,7 @@ public class vacationDBManager {
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS " + TABLE_USER + "(" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT, " + "nickName TEXT, " + "firstDate DATE, " +
             "lastDate DATE, " + "mealCost INTEGER, " + "trafficCost INTEGER, " + "totalFirstVac INTEGER, " +
-        "totalSecondVac INTEGER, " + "totalSickVac INTEGER );";
+        "totalSecondVac INTEGER, " + "totalSickVac INTEGER, " + "payDay INTEGER );";
 
     static final int FIRST_VERSION = 1;
 
@@ -62,6 +62,10 @@ public class vacationDBManager {
         values.put("lastDate", formatter.format(user.getLastDate()));
         values.put("mealCost", user.getMealCost());
         values.put("trafficCost", user.getTrafficCost());
+        values.put("totalFirstVac", user.getTotalFirstVac());
+        values.put("totalSecondVac", user.getTotalSecondVac());
+        values.put("totalSickVac", user.getTotalSickVac());
+        values.put("payDay", user.getPayDay());
         return mDatabase.insert(TABLE_USER, null, values);
     }
 
