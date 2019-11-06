@@ -52,17 +52,20 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     private String firstDate;
     private String lastDate;
     private int numOfYear;
+    private String searchStartDate;
 
     public Frag2_listview() {}
 
-    public static Frag2_listview newInstance(String param1, String param2, String param3, String param4, int param5){
+    public static Frag2_listview newInstance(String param1, String param2, String param3, String param4,
+                                             int param5, String param6){
         Frag2_listview dialog = new Frag2_listview();
-        Bundle bundle = new Bundle(3);
+        Bundle bundle = new Bundle(6);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
         bundle.putString("firstDate", param3);
         bundle.putString("lastDate", param4);
         bundle.putInt("numOfYear", param5);
+        bundle.putString("searchStartDate", param6);
         dialog.setArguments(bundle);
         return dialog;
     }
@@ -76,6 +79,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
             firstDate = getArguments().getString("firstDate");
             lastDate = getArguments().getString("lastDate");
             numOfYear = getArguments().getInt("numOfYear");
+            searchStartDate = getArguments().getString("searchStartDate");
         }
     }
 
@@ -140,7 +144,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                     {
                         DBManger.deleteFirstVacation(firstVacation);
                         ((Main_Activity)getActivity()).setRemainVac();
-                        ((Main_Activity)getActivity()).setThisMonthInfo();
+                        ((Main_Activity)getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
                         dialog.dismiss();
                     }
@@ -161,7 +165,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         int id = firstVacation.getId();
         FragmentManager fg = getFragmentManager();
         Frag2_revise dialog = new Frag2_revise().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, numOfYear, firstVacation, id);
+                lastDate, numOfYear, firstVacation, id, searchStartDate);
         dialog.show(fg, "dialog");
     }
 

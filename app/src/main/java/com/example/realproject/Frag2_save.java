@@ -51,11 +51,23 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     private String limitStartDate;
     private String limitLastDate;
     private int numberOfYear;
+    private String searchStartDate;
 
     private FirstVacation firstVacation = null;
     public vacationDBManager DBManger = null;
 
     public Frag2_save() {}
+
+    public static Frag2_save newInstance(String param1, String param2, int param3, String param4){
+        Frag2_save dialog = new Frag2_save();
+        Bundle bundle = new Bundle(4);
+        bundle.putString("limitStartDate", param1);
+        bundle.putString("limitLastDate", param2);
+        bundle.putInt("numOfYear", param3);
+        bundle.putString("searchStartDate", param4);
+        dialog.setArguments(bundle);
+        return dialog;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,6 +77,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
             numberOfYear = getArguments().getInt("numOfYear");
+            searchStartDate = getArguments().getString("searchStartDate");
         }
         firstVacation = new FirstVacation(); // 이거 onCreate 때 넣어야하나?
     }
@@ -224,8 +237,9 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
                 Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_SHORT).show();
                 ((Main_Activity)getActivity()).setRemainVac();
-                ((Main_Activity)getActivity()).setThisMonthInfo();
+                ((Main_Activity)getActivity()).setThisMonthInfo(searchStartDate);
 
+                // 저장하고 listview 보여주는 것
                 if(numberOfYear == 1) {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
                             R.id.first_vacation_image, limitStartDate, limitLastDate, 1);
@@ -271,15 +285,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 .show();
     }
 
-    public static Frag2_save newInstance(String param1, String param2, int param3){
-        Frag2_save dialog = new Frag2_save();
-        Bundle bundle = new Bundle(3);
-        bundle.putString("limitStartDate", param1);
-        bundle.putString("limitLastDate", param2);
-        bundle.putInt("numOfYear", param3);
-        dialog.setArguments(bundle);
-        return dialog;
-    }
 }
 
 

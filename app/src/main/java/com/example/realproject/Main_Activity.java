@@ -69,6 +69,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private int totalSickVac;
     private int payDay;
 
+    private String searchStartDate;
+
     private TextView firstVacRemain;
     private TextView secondVacRemain;
     private TextView sickVacRemain;
@@ -78,6 +80,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView nickNameTextView;
     private TextView dDayTextView;
     private TextView servicePeriodTextView;
+    private TextView searchPeriodTextView;
+    private ImageView goToNextPeriod;
+    private ImageView goToPreviousPeriod;
     private TextView salaryTextView;
     private TextView thisMonthOuting;
     private TextView thisMonthVac;
@@ -96,6 +101,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         nickNameTextView = findViewById(R.id.tv_nickName);
         dDayTextView = findViewById(R.id.tv_dDay);
         servicePeriodTextView = findViewById(R.id.tv_servicePeriod);
+        searchPeriodTextView = findViewById(R.id.tv_search_period);
+        goToNextPeriod = findViewById(R.id.iv_search_next_period);
+        goToPreviousPeriod = findViewById(R.id.iv_search_previous_period);
         salaryTextView = findViewById(R.id.tv_salary);
         thisMonthOuting = findViewById(R.id.thisMonthOuting);
         thisMonthVac = findViewById(R.id.thisMonthVac);
@@ -121,6 +129,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         spendButton.setOnClickListener(this);
         spendButton_2.setOnClickListener(this);
         spendButton_3.setOnClickListener(this);
+        goToNextPeriod.setOnClickListener(this);
+        goToPreviousPeriod.setOnClickListener(this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -137,7 +147,73 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0){
             setRemainVac();
         }
-        setThisMonthInfo();
+        searchStartDate = dateFormat.format(Calendar.getInstance().getTime());
+        setThisMonthInfo(searchStartDate);
+    }
+
+    @Override
+    public void onClick(View view) {
+
+        Calendar calendar = Calendar.getInstance();
+        FragmentManager fg = getSupportFragmentManager();
+        FragmentTransaction ft = fg.beginTransaction();
+        Frag2_save dialog;
+
+        switch (view.getId()) {
+            case R.id.listButton:
+                setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
+                        firstDate, pivotDate, 1);
+                break;
+
+            case R.id.listButton_2:
+                setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
+                        pivotPlusOneDate, lastDate, 2);
+                break;
+
+            case R.id.listButton_3:
+                setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
+                        firstDate, lastDate, 3);
+                break;
+
+            // 1년차 연가, 2년차 연가 datePickerDialog 제한 어떻게 할지 결정하자. (그냥 소집~소집해제 or 소집~(소집+1)~소집해제)
+            case R.id.spendButton:
+                dialog = new Frag2_save().newInstance(firstDate, pivotDate, 1, searchStartDate);
+                dialog.show(fg, "dialog");
+                break;
+
+            case R.id.spendButton_2:
+                dialog = new Frag2_save().newInstance(pivotPlusOneDate, lastDate, 2, searchStartDate);
+                dialog.show(fg, "dialog");
+                break;
+
+            case R.id.spendButton_3:
+                dialog = new Frag2_save().newInstance(firstDate, lastDate, 3, searchStartDate);
+                dialog.show(fg, "dialog");
+                break;
+
+            case R.id.iv_search_next_period:
+                // 다음 period를 setThisMonthInfo(firstDate, lastDate) 식으로 넣어서 textView에 뜨도록
+                try {
+                    calendar.setTime(dateFormat.parse(searchStartDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                calendar.add(MONTH, 1);
+                searchStartDate = dateFormat.format(calendar.getTime());
+                setThisMonthInfo(searchStartDate);
+                break;
+
+            case R.id.iv_search_previous_period:
+                try {
+                    calendar.setTime(dateFormat.parse(searchStartDate));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                calendar.add(MONTH, -1);
+                searchStartDate = dateFormat.format(calendar.getTime());
+                setThisMonthInfo(searchStartDate);
+                break;
+        }
     }
 
     public void ShowPopup(View v){
@@ -248,27 +324,32 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     }
 
 
-    public void setThisMonthInfo(){
+    public void setThisMonthInfo(String searchDate){
         Calendar cal = Calendar.getInstance();
         Calendar c = Calendar.getInstance();
-        int year = cal.get(YEAR);
-        int month = cal.get(MONTH) + 1;
-        int tmp = (year * 10000) + (month * 100) + (payDay);
-        int temp;
-        c.set(year, month - 1, payDay);
         try {
+            cal.setTime(dateFormat.parse(searchDate));
+            int year = cal.get(YEAR);
+            int month = cal.get(MONTH) + 1;
+            int tmp = (year * 10000) + (month * 100) + (payDay);
+            int temp;
+            c.set(year, month - 1, payDay);
             Date compareDate = dateFormat.parse(tmp + "");
             long diff = cal.getTimeInMillis() - compareDate.getTime();
             // 이번달 월급날이 지난것
             if(diff > 0){
                 c.add(MONTH, 1);
+                c.add(DATE, -1);
                 temp = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                searchPeriodTextView.setText(tmp + "~" + temp);
                 setThisMonthSpendVac(tmp, temp);
             }
             // 이번달 월급날이 지나지 않은것
             else{
                 c.add(MONTH, -1);
+                c.add(DATE, -1);
                 temp = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                searchPeriodTextView.setText(temp + "~" + tmp);
                 setThisMonthSpendVac(temp, tmp);
             }
         } catch (ParseException e) {
@@ -316,7 +397,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 Date startDate = formatter.parse(c.getString(2));
                 long lowerDiff = startDate.getTime() - first_payDate.getTime();
                 long upperDiff = last_payDate.getTime() - startDate.getTime();
-                if(lowerDiff >= 0 && upperDiff > 0){
+                if(lowerDiff >= 0 && upperDiff >= 0){
                     if(type.equals("연가")){
                         numberOfMeal--;
                         numberOfTraffic--;
@@ -348,7 +429,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                         sum_sickVac += count;
                     }
                 }
-                Toast.makeText(this, numberOfEntire +" "+numberOfWork+" "+numberOfMeal+" "+numberOfTraffic, Toast.LENGTH_SHORT).show();
             }
         } catch (ParseException e) {
             e.printStackTrace();
@@ -389,47 +469,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    @Override
-    public void onClick(View view) {
-
-        FragmentManager fg = getSupportFragmentManager();
-        FragmentTransaction ft = fg.beginTransaction();
-        Frag2_save dialog;
-
-        switch (view.getId()) {
-            case R.id.listButton:
-                setThisMonthInfo();
-                setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
-                        firstDate, pivotDate, 1);
-                break;
-
-            case R.id.listButton_2:
-                setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
-                        pivotPlusOneDate, lastDate, 2);
-                break;
-
-            case R.id.listButton_3:
-                setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
-                        firstDate, lastDate, 3);
-                break;
-
-            // 1년차 연가, 2년차 연가 datePickerDialog 제한 어떻게 할지 결정하자. (그냥 소집~소집해제 or 소집~(소집+1)~소집해제)
-            case R.id.spendButton:
-                dialog = new Frag2_save().newInstance(firstDate, pivotDate, 1);
-                dialog.show(fg, "dialog");
-                break;
-
-            case R.id.spendButton_2:
-                dialog = new Frag2_save().newInstance(pivotPlusOneDate, lastDate, 2);
-                dialog.show(fg, "dialog");
-                break;
-
-            case R.id.spendButton_3:
-                dialog = new Frag2_save().newInstance(firstDate, lastDate, 3);
-                dialog.show(fg, "dialog");
-                break;
-        }
-    }
 
     public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
                             String lowerBoundDate, String upperBoundDate, int numOfYear){
@@ -439,7 +478,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         if(frag == null){
             imageView.setImageResource(R.drawable.ic_expand_less);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, numOfYear);
+                    lastDate, numOfYear, searchStartDate);
             ft.replace(viewId, fragment, "filled");
         }
         else{
@@ -457,7 +496,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         ImageView imageView =findViewById(imageId);
         imageView.setImageResource(R.drawable.ic_expand_less);
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, numOfYear);
+                lastDate, numOfYear, searchStartDate);
         ft.replace(viewId, fragment, "filled");
         ft.commit();
     }

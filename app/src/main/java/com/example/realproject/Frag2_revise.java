@@ -50,21 +50,23 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
 
-    String limitStartDate;
-    String limitLastDate;
-    String firstDate;
-    String lastDate;
-    int numOfYear;
-    FirstVacation firstVacation;
-    int id;
+    private String limitStartDate;
+    private String limitLastDate;
+    private String firstDate;
+    private String lastDate;
+    private int numOfYear;
+    private FirstVacation firstVacation;
+    private int id;
+    private String searchStartDate;
     public vacationDBManager DBmanager = null;
 
     public Frag2_revise() {
     }
 
-    public static Frag2_revise newInstance(String param1, String param2, String param3, String param4, int param5, FirstVacation param6, int param7){
+    public static Frag2_revise newInstance(String param1, String param2, String param3, String param4,
+                                           int param5, FirstVacation param6, int param7, String param8){
         Frag2_revise dialog = new Frag2_revise();
-        Bundle bundle = new Bundle(7);
+        Bundle bundle = new Bundle(8);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
         bundle.putString("firstDate", param3);
@@ -72,6 +74,7 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
         bundle.putInt("numOfYear", param5);
         bundle.putParcelable("firstVacation", param6);
         bundle.putInt("id", param7);
+        bundle.putString("searchStartDate", param8);
         dialog.setArguments(bundle);
         return dialog;
     }
@@ -88,6 +91,7 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
             numOfYear = getArguments().getInt("numOfYear");
             firstVacation = getArguments().getParcelable("firstVacation");
             id = getArguments().getInt("id");
+            searchStartDate = getArguments().getString("searchStartDate");
         }
     }
 
@@ -224,7 +228,7 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
 
                 revise(firstVacation);
                 ((Main_Activity)getActivity()).setRemainVac();
-                ((Main_Activity)getActivity()).setThisMonthInfo();
+                ((Main_Activity)getActivity()).setThisMonthInfo(searchStartDate);
                 if(numOfYear == 1) {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
                             R.id.first_vacation_image, limitStartDate, limitLastDate, numOfYear);
