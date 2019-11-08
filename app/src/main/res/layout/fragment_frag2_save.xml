@@ -14,7 +14,6 @@
         android:id="@+id/et_startDate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:focusable="false"
         android:textSize="15sp"
         android:hint="시작일" />
 
@@ -27,6 +26,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="선택"/>
 
     <RadioGroup
@@ -87,9 +87,9 @@
         android:id="@+id/linear_outingSetter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:orientation="vertical"
         android:visibility="gone">
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -98,20 +98,62 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
-            <NumberPicker
-                android:id="@+id/picker_outingLength"
-                android:layout_width="50dp"
-                android:layout_height="75dp"/>
+            <ImageButton
+                android:src="@drawable/ic_minus_black_24dp"
+                android:id="@+id/button_outing_minus"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/et_outingLength"
+                android:layout_width="45dp"
                 android:layout_height="wrap_content"
-                android:text="분"/>
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="10분"/>
+            <ImageButton
+                android:src="@drawable/ic_add_black_24dp"
+                android:id="@+id/button_outing_plus"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
         </LinearLayout>
-
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linear_vacationSetter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="사용 일수"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:src="@drawable/ic_minus_black_24dp"
+                android:id="@+id/button_vacation_minus"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+            <TextView
+                android:id="@+id/et_vacationLength"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="1일"/>
+            <ImageButton
+                android:src="@drawable/ic_add_black_24dp"
+                android:id="@+id/button_vacation_plus"
+                android:layout_width="35dp"
+                android:layout_height="35dp"/>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
         <Button
             android:id="@+id/button_cancel"

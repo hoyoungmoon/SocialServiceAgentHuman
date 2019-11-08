@@ -138,63 +138,62 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
 
     @Override
     public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.et_firstDate:
-                firstDatePickerDialog.show();
-                break;
-            case R.id.et_lastDate:
-                lastDatePickerDialog.show();
-                break;
-            case R.id.btn_save:
-                // db에 user data가 있으면 수정으로 없으면 저장으로
-                // 빈칸있으면 경고
-                User user = new User();
-                user.setNickName(nickNameEditText.getText().toString());
-                try {
+        try {
+            switch (view.getId()) {
+                case R.id.et_firstDate:
+                    firstDatePickerDialog.show();
+                    break;
+                case R.id.et_lastDate:
+                    lastDatePickerDialog.show();
+                    break;
+                case R.id.btn_save:
+                    // db에 user data가 있으면 수정으로 없으면 저장으로
+                    // 빈칸있으면 경고
+                    User user = new User();
+                    user.setNickName(nickNameEditText.getText().toString());
                     user.setFirstDate(formatter.parse(firstDateEditText.getText().toString()));
                     user.setLastDate(formatter.parse(lastDateEditText.getText().toString()));
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                user.setMealCost(Integer.parseInt(mealCostEditText.getText().toString()));
-                user.setTrafficCost(Integer.parseInt(trafficCostEditText.getText().toString()));
-                user.setTotalFirstVac(Integer.parseInt(totalFirstVacEditText.getText().toString()));
-                user.setTotalSecondVac(Integer.parseInt(totalSecondVacEditText.getText().toString()));
-                user.setTotalSickVac(Integer.parseInt(totalSickVacEditText.getText().toString()));
-                user.setPayDay(Integer.parseInt(payDayEditText.getText().toString()));
+                    user.setMealCost(Integer.parseInt(mealCostEditText.getText().toString()));
+                    user.setTrafficCost(Integer.parseInt(trafficCostEditText.getText().toString()));
+                    user.setTotalFirstVac(Integer.parseInt(totalFirstVacEditText.getText().toString()));
+                    user.setTotalSecondVac(Integer.parseInt(totalSecondVacEditText.getText().toString()));
+                    user.setTotalSickVac(Integer.parseInt(totalSickVacEditText.getText().toString()));
+                    user.setPayDay(Integer.parseInt(payDayEditText.getText().toString()));
 
-                if(DBmanager.getDataCount(TABLE_USER) == 0){
-                    DBmanager.insertUser(user);
-                    Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_LONG).show();
-                    dismiss();
-                }
-                else{
-                    Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
-                    c.moveToFirst();
-                    int id= c.getInt(0);
-                    ContentValues values = new ContentValues();
-                    values.put("nickName", user.getNickName());
-                    values.put("firstDate", formatter.format(user.getFirstDate()));
-                    values.put("lastDate", formatter.format(user.getLastDate()));
-                    values.put("mealCost", user.getMealCost());
-                    values.put("trafficCost", user.getTrafficCost());
-                    values.put("totalFirstVac", user.getTotalFirstVac());
-                    values.put("totalSecondVac", user.getTotalSecondVac());
-                    values.put("totalSickVac", user.getTotalSickVac());
-                    values.put("payDay", user.getPayDay());
-                    DBmanager.updateUser(id, values);
+                    if (DBmanager.getDataCount(TABLE_USER) == 0) {
+                        DBmanager.insertUser(user);
+                        Toast.makeText(getActivity(), "저장되었습니다", Toast.LENGTH_LONG).show();
+                        dismiss();
+                    } else {
+                        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+                        c.moveToFirst();
+                        int id = c.getInt(0);
+                        ContentValues values = new ContentValues();
+                        values.put("nickName", user.getNickName());
+                        values.put("firstDate", formatter.format(user.getFirstDate()));
+                        values.put("lastDate", formatter.format(user.getLastDate()));
+                        values.put("mealCost", user.getMealCost());
+                        values.put("trafficCost", user.getTrafficCost());
+                        values.put("totalFirstVac", user.getTotalFirstVac());
+                        values.put("totalSecondVac", user.getTotalSecondVac());
+                        values.put("totalSickVac", user.getTotalSickVac());
+                        values.put("payDay", user.getPayDay());
+                        DBmanager.updateUser(id, values);
 
-                    Toast.makeText(getActivity(), "수정되었습니다", Toast.LENGTH_SHORT).show();
-                    ((Main_Activity)getActivity()).setUserProfile();
-                    if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0){
-                        ((Main_Activity)getActivity()).setRemainVac();
+                        Toast.makeText(getActivity(), "수정되었습니다", Toast.LENGTH_SHORT).show();
+                        ((Main_Activity) getActivity()).setUserProfile();
+                        if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+                            ((Main_Activity) getActivity()).setRemainVac();
+                        }
+                        dismiss();
                     }
+                    break;
+                case R.id.btn_cancel:
                     dismiss();
-                }
-                break;
-            case R.id.btn_cancel:
-                dismiss();
-                break;
+                    break;
+            }
+        }
+        catch(ParseException e) {
         }
     }
 

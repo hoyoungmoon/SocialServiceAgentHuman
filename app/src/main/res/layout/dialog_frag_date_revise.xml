@@ -3,10 +3,11 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+
+
         <LinearLayout
+            android:id="@+id/group_nickName"
+            android:visibility="gone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
@@ -18,6 +19,13 @@
                 android:id="@+id/et_nickName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/group_firstLastDate"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -34,6 +42,13 @@
                 android:id="@+id/et_lastDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/group_mealTrafficCost"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -50,6 +65,13 @@
                 android:id="@+id/et_trafficCost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/group_vacation"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -74,6 +96,13 @@
                 android:id="@+id/et_totalSickVac"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/group_payDay"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -82,6 +111,7 @@
                 android:id="@+id/et_payDay"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
+        </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -97,6 +127,4 @@
                     android:layout_height="wrap_content"
                     android:text="수정"/>
             </LinearLayout>
-        </LinearLayout>
-    </ScrollView>
 </LinearLayout>
