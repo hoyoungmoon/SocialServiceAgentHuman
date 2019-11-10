@@ -205,7 +205,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
                 calendar.add(MONTH, 1);
                 searchStartDate = dateFormat.format(calendar.getTime());
-                setThisMonthInfo(searchStartDate);
+                if(!setThisMonthInfo(searchStartDate)) {
+                    calendar.add(MONTH, -1);
+                    searchStartDate = dateFormat.format(calendar.getTime());
+                }
                 break;
 
             case R.id.iv_search_previous_period:
@@ -216,7 +219,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
                 calendar.add(MONTH, -1);
                 searchStartDate = dateFormat.format(calendar.getTime());
-                setThisMonthInfo(searchStartDate);
+                if(!setThisMonthInfo(searchStartDate)) {
+                    calendar.add(MONTH, 1);
+                    searchStartDate = dateFormat.format(calendar.getTime());
+                }
                 break;
         }
     }
@@ -357,7 +363,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     }
 
 
-    public void setThisMonthInfo(String searchDate){
+    public boolean setThisMonthInfo(String searchDate){
+        int first, last, entireLength;
         Calendar cal = Calendar.getInstance();
         Calendar c = Calendar.getInstance();
         try {
@@ -369,26 +376,81 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             Date compareDate = dateFormat.parse(tmp + "");
             long diff = cal.getTimeInMillis() - compareDate.getTime();
             // 이번달 월급날이 지난것
-            if(diff > 0){
+            if (diff >= 0) {
                 c.add(MONTH, 1);
                 c.add(DATE, -1);
-                int first = tmp;
-                int last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
-                searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
-                setThisMonthSpendVac(first, last);
+                first = tmp;
+                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                entireLength = getDateLength(first, last);
+                first = checkFirstDayInclude(first);
+                last = checkLastDayInclude(last);
             }
             // 이번달 월급날이 지나지 않은것
-            else{
+            else {
                 c.add(MONTH, -1);
-                int first = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                first = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
                 c.add(MONTH, 1);
                 c.add(DATE, -1);
-                int last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                entireLength = getDateLength(first, last);
+                first = checkFirstDayInclude(first);
+                last = checkLastDayInclude(last);
+            }
+            if(last - first >= 0) {
                 searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
-                setThisMonthSpendVac(first, last);
+                setThisMonthSpendVac(first, last, entireLength);
+                return true;
+            }else{
+                return false;
             }
         } catch (ParseException e) {
             e.printStackTrace();
+            return false;
+        }
+    }
+
+    public int getDateLength(int first, int last){
+        Date first_payDate = null;
+        Date last_payDate = null;
+        try {
+            first_payDate = dateFormat.parse(first + "");
+            last_payDate = dateFormat.parse(last + "");
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return (int)(((last_payDate.getTime() - first_payDate.getTime()) / (24 * 60 * 60 * 1000)) + 1);
+    }
+
+    public int checkFirstDayInclude(int first){
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(formatter.parse(firstDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int firstDateToInt = ((calendar.get(YEAR) * 10000) + ((calendar.get(MONTH) + 1) * 100)) + calendar.get(DATE);
+        if(first - firstDateToInt > 0){
+            return first;
+        }
+        else{
+            return firstDateToInt;
+        }
+    }
+
+    // 이거 왜 오류나는지 알아보기이이!!!!!!
+    public int checkLastDayInclude(int last){
+        Calendar calendar = Calendar.getInstance();
+        try {
+            calendar.setTime(formatter.parse(lastDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        int lastDateToInt = ((calendar.get(YEAR) * 10000) + ((calendar.get(MONTH) + 1) * 100)) + calendar.get(DATE);
+        if(last - lastDateToInt < 0){
+            return last;
+        }
+        else{
+            return lastDateToInt;
         }
     }
 
@@ -412,41 +474,41 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         else return payDependsOnRank2019[3];
     }
 
-    public void setThisMonthSpendVac(int first_tmp, int last_tmp) throws ParseException{
+    public void setThisMonthSpendVac(int first_tmp, int last_tmp, int entireLength) throws ParseException{
         // 소집일 소집해제일이 끼어있는지 주의
         Calendar cal = Calendar.getInstance();
         double sum_sickVac = 0;
         double sum_Vac = 0;
         double sum_outing = 0;
         // 출근횟수 구하기
-        int numberOfEntire = 0; // 전체 날짜수
+        int numberOfEntire; // 전체 날짜수
         int numberOfWork; // 출근횟수 넣기 (토, 일, 공휴일 빼고 카운트)
-        int numberOfMeal = 0;
-        int numberOfTraffic = 0;
+        int numberOfMeal;
+        int numberOfTraffic;
         double pay = 0;
         boolean isPromoted = false;
-        int payBeforePromotion = 0;
+        int payBeforePromotion;
         int payAfterPromotion = 0;
         int numberOfAfterPromotion = 0;
 
         Date first_payDate = dateFormat.parse(first_tmp + "");
         Date last_payDate = dateFormat.parse(last_tmp + "");
-        numberOfEntire = (int)((last_payDate.getTime() - first_payDate.getTime()) / (24 * 60 * 60 * 1000));
+        numberOfEntire = getDateLength(first_tmp, last_tmp);
         numberOfWork = numberOfEntire;
         Date searchDate = first_payDate;
 
         payBeforePromotion = payDependsOnMonth(searchDate);
-        double checkPromotion = (double)(payDependsOnMonth(searchDate)/numberOfEntire);
+        double checkPromotion = (double)(payDependsOnMonth(searchDate)/entireLength);
 
-        while(searchDate.compareTo(last_payDate) != 0){
+        while(searchDate.compareTo(last_payDate) <= 0){
             cal.setTime(searchDate);
             String onlyMonthAndDate = dateFormat.format(searchDate).substring(4);
             if(cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
                     Arrays.asList(listOfHoliday).contains(onlyMonthAndDate)){
                 numberOfWork--;
             }
-            double payPerDay = (double)(payDependsOnMonth(searchDate)/numberOfEntire);
-            if(checkPromotion != payPerDay || isPromoted){
+            double payPerDay = (double)(payDependsOnMonth(searchDate)/entireLength);
+            if((checkPromotion != payPerDay) || isPromoted){
                 isPromoted = true;
                 payAfterPromotion = payDependsOnMonth(searchDate);
                 numberOfAfterPromotion++;
@@ -455,6 +517,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             cal.add(DATE, 1);
             searchDate = cal.getTime();
         }
+
         numberOfMeal = numberOfWork;
         numberOfTraffic = numberOfWork;
 
@@ -500,16 +563,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac.setText(convertMinuteToProperUnit((int)sum_sickVac));
         thisMonthOuting.setText(convertMinuteToProperUnit((int)sum_outing));
         String sumOfPay = Integer.toString( (int)pay+ (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic));
-        salaryTextView.setText(sumOfPay.substring(0, 3) + "," + sumOfPay.substring(3) + " KRW");
+        salaryTextView.setText(sumOfPay + " KRW");
         if(isPromoted){
             rankInfoTextView.setText("("+ payBeforePromotion +"원 * " + "(" + (numberOfEntire-numberOfAfterPromotion)
-                    + "/" + numberOfEntire + ")) + " + "("+ payAfterPromotion +"원 * " + "(" + (numberOfAfterPromotion)
-                    + "/" + numberOfEntire + ")) + " + "(" + mealCost + "원 * " + numberOfMeal + "일) + (" +
+                    + "/" + entireLength + ")) + " + "("+ payAfterPromotion +"원 * " + "(" + (numberOfAfterPromotion)
+                    + "/" + entireLength + ")) + " + "(" + mealCost + "원 * " + numberOfMeal + "일) + (" +
                     trafficCost + "원 * " + numberOfTraffic + "일)");
         }
         else {
-            rankInfoTextView.setText("("+ payBeforePromotion +"원 * " + "(" + (numberOfEntire-numberOfAfterPromotion)
-                    + "/" + numberOfEntire + ")) + " + "(" + mealCost + "원 * " + numberOfMeal + "일) + (" +
+            rankInfoTextView.setText("("+ payBeforePromotion +"원 * " + "(" + numberOfEntire
+                    + "/" + entireLength + ")) + " + "(" + mealCost + "원 * " + numberOfMeal + "일) + (" +
                     trafficCost + "원 * " + numberOfTraffic + "일)");
         }
     }
