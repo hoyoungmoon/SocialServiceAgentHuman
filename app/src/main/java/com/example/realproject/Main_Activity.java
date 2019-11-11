@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -56,6 +57,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             "yyyyMMdd", Locale.ENGLISH);
     private static final SimpleDateFormat dateFormat_dot = new SimpleDateFormat(
             "yyyy.MM.dd", Locale.ENGLISH);
+    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###");
     private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
@@ -562,8 +564,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthVac.setText(convertMinuteToProperUnit((int)sum_Vac));
         thisMonthSickVac.setText(convertMinuteToProperUnit((int)sum_sickVac));
         thisMonthOuting.setText(convertMinuteToProperUnit((int)sum_outing));
-        String sumOfPay = Integer.toString( (int)pay+ (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic));
-        salaryTextView.setText(sumOfPay + " KRW");
+        int sumOfPay = (int) Math.round((pay+ (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic))/100.0) * 100;
+        salaryTextView.setText(decimalFormat.format(sumOfPay) + " KRW");
         if(isPromoted){
             rankInfoTextView.setText("("+ payBeforePromotion +"원 * " + "(" + (numberOfEntire-numberOfAfterPromotion)
                     + "/" + entireLength + ")) + " + "("+ payAfterPromotion +"원 * " + "(" + (numberOfAfterPromotion)

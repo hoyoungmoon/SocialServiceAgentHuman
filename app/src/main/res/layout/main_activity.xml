@@ -303,7 +303,7 @@
                             android:id="@+id/first_vacation_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -406,7 +406,7 @@
                             android:id="@+id/second_vacation_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -509,7 +509,7 @@
                             android:id="@+id/sick_vacation_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
+                            android:layout_marginTop="6dp"
                             android:orientation="horizontal">
 
                             <LinearLayout

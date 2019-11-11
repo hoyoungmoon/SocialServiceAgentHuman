@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -39,7 +40,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private String[] columns = new String[] {"id", "vacation", "startDate", "type", "count"};
-    public vacationDBManager DBManger = null;
+    public vacationDBManager DBmanager = null;
     private ListView mListView = null;
     private ListViewAdapter mAdapter = null;
 
@@ -135,6 +136,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     @Override
     public void onDeleteBtnClick(int position) {
         final FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
+        Log.d("DeleteBtnClick", position + "" + firstVacation.getVacation());
         new AlertDialog.Builder(getActivity())
                 .setMessage("삭제하시겠습니까?")
                 .setCancelable(false)
@@ -142,7 +144,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        DBManger.deleteFirstVacation(firstVacation);
+                        DBmanager.deleteFirstVacation(firstVacation);
                         ((Main_Activity)getActivity()).setRemainVac();
                         ((Main_Activity)getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
@@ -170,8 +172,8 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     }
 
     public void setListItemView(ListViewAdapter mAdapter){
-        DBManger = vacationDBManager.getInstance(getActivity());
-        Cursor c = DBManger.query(columns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
+        DBmanager = vacationDBManager.getInstance(getActivity());
+        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
         Date startDate = null;
 
         try{
@@ -216,9 +218,9 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     }
 
     public void reloadListView(){
-        ListViewAdapter adapter = new ListViewAdapter(this);
-        setListItemView(adapter);
-        mListView.setAdapter(adapter);
+       mAdapter = new ListViewAdapter(this);
+        setListItemView(mAdapter);
+        mListView.setAdapter(mAdapter);
     }
 }
 

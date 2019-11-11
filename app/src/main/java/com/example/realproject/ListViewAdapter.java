@@ -49,7 +49,7 @@ public class ListViewAdapter extends BaseAdapter {
         return position ;
     }
 
-    //
+
     public void addItem(int id, String vacation, Date startDate, String type, double count){
         FirstVacation item = new FirstVacation();
 

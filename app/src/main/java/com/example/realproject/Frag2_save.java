@@ -226,12 +226,13 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             }
         }
         else if(view == saveButton){
+            int idx;
             firstVacation = new FirstVacation();
 
             if(numberOfYear == 3){
                 // 병가 종류에 따라 count 넣기
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
-                int idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
+                idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
                     case 0:
                         firstVacation.setType("병가");
@@ -253,7 +254,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             }
             else {
                 int radioButtonId = vacationTypeRadioGroup.getCheckedRadioButtonId();
-                int idx = vacationTypeRadioGroup.indexOfChild(vacationTypeRadioGroup.findViewById(radioButtonId));
+                idx = vacationTypeRadioGroup.indexOfChild(vacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
                     case 0:
                         firstVacation.setType("연가");
@@ -283,7 +284,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                     firstVacation.setStartDate(dateCalendar.getTime());
                 }
 
-                if(vacationLength != 1){
+                if(vacationLength != 1 && idx == 0){
                     dateCalendar.add(DATE, -1);
                     for(int i = 1; i <= vacationLength; i++){
                         firstVacation.setVacation(vacationEditText.getText().toString().trim() + " (" + i + "/" + vacationLength + ")");
