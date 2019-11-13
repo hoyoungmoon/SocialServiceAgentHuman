@@ -136,7 +136,6 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     @Override
     public void onDeleteBtnClick(int position) {
         final FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
-        Log.d("DeleteBtnClick", position + "" + firstVacation.getVacation());
         new AlertDialog.Builder(getActivity())
                 .setMessage("삭제하시겠습니까?")
                 .setCancelable(false)

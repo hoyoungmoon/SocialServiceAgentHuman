@@ -43,14 +43,14 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"
                 android:layout_gravity="center_vertical"
-                android:onClick="ShowPopup_rank"/>
+                android:onClick="toolTipRank"/>
             <TextView
                 android:id="@+id/tv_dDay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="right"
-                android:text="D-36"
+                android:text="D-365"
                 android:textColor="#FFFFFF"
                 android:textSize="30sp" />
         </LinearLayout>
@@ -72,7 +72,8 @@
         <GridLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:paddingTop="7dp"
+            android:paddingBottom="10dp"
             android:rowCount="3"
             android:columnCount="1">
 
@@ -126,14 +127,14 @@
                         android:src="@drawable/ic_navigate_next_black_24dp"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:clickable="true"
                         android:tint="#a3aaab"/>
                     <ImageView
                         android:id="@+id/btn_pay_info"
                         android:src="@drawable/ic_info_outline_black_24dp"
                         android:layout_width="17dp"
                         android:layout_height="wrap_content"
-                        android:onClick="ShowPopup_pay"/>
+                        android:clickable="true"
+                        android:onClick="toolTipRank"/>
                 </LinearLayout>
 
             </androidx.cardview.widget.CardView>

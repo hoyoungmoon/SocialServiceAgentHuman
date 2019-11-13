@@ -18,9 +18,12 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+
+import org.w3c.dom.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,6 +66,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         DBmanager = vacationDBManager.getInstance(getActivity());
     }
 
@@ -119,7 +123,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     }
 
     public DatePickerDialog setDatePickerDialog(EditText dateEditText){
-        final EditText someDateEditText = dateEditText;
+        final TextView someDateEditText = dateEditText;
         Calendar newCalendar = Calendar.getInstance();
         DatePickerDialog returnDialog =  new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {

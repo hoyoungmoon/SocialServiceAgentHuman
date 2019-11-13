@@ -68,7 +68,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     private String searchStartDate;
 
     private FirstVacation firstVacation = null;
-    public vacationDBManager DBManger = null;
+    public vacationDBManager DBmanager= null;
 
     public Frag2_save() {}
 
@@ -87,7 +87,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBManger = vacationDBManager.getInstance(getActivity());
+        DBmanager = vacationDBManager.getInstance(getActivity());
         if(getArguments() != null){
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
@@ -164,7 +164,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 }
             }
         });
-
 
         saveButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
@@ -328,7 +327,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     }
 
     public void saveFirstVacation(FirstVacation firstVacation) {
-        DBManger.insertFirstVacation(firstVacation);
+        DBmanager.insertFirstVacation(firstVacation);
 
     }
 
