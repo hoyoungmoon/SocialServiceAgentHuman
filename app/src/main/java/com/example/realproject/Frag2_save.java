@@ -297,20 +297,19 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                     saveFirstVacation(firstVacation);
                 }
 
-                Toast.makeText(getActivity(), "저장되었습니다" + getDate, Toast.LENGTH_SHORT).show();
                 ((Main_Activity) getActivity()).setRemainVac();
                 ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
 
                 // 저장하고 listview 보여주는 것
                 if (numberOfYear == 1) {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
-                            R.id.first_vacation_image, limitStartDate, limitLastDate, 1);
+                            R.id.first_vacation_image, limitStartDate, limitLastDate, 1, "list1");
                 } else if (numberOfYear == 2) {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_2,
-                            R.id.first_vacation_image, limitStartDate, limitLastDate, 2);
+                            R.id.first_vacation_image, limitStartDate, limitLastDate, 2, "list2");
                 } else {
                     ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_3,
-                            R.id.sick_vacation_image, limitStartDate, limitLastDate, 3);
+                            R.id.sick_vacation_image, limitStartDate, limitLastDate, 3, "list3");
                 }
                 dismiss();
             }

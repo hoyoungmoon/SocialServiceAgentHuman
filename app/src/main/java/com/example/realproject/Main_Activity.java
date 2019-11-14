@@ -10,11 +10,14 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.app.Dialog;
 import android.database.Cursor;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -101,6 +104,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
 
+    private TextView progressPercentage;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +124,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthVac = findViewById(R.id.thisMonthVac);
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
+        progressPercentage = findViewById(R.id.progress_percentage);
 
         LinearLayout listButton_1 = findViewById(R.id.listButton);
         LinearLayout listButton_2 = findViewById(R.id.listButton_2);
@@ -159,6 +165,29 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             searchStartDate = dateFormat.format(Calendar.getInstance().getTime());
             setThisMonthInfo(searchStartDate);
         }
+
+        progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Display display = getWindowManager().getDefaultDisplay();
+                Point size = new Point();
+                display.getSize(size);
+                int screenWidth = size.x;
+                int barWidth = screenWidth - 160;
+
+                float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
+                progressPercentage.setText(String.format("%.3f",getPercentage()) + "%");
+                if(position_X < 80){
+                    progressPercentage.setX(80);
+                }
+                else if(position_X > screenWidth - 280){
+                    progressPercentage.setX(screenWidth - 280);
+                }
+                else {
+                    progressPercentage.setX((progressBar.getX() + (barWidth * getPercentage() / 100)) - 40);
+                }
+            }
+        });
     }
 
     @Override
@@ -172,17 +201,17 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         switch (view.getId()) {
             case R.id.listButton:
                 setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
-                        firstDate, pivotDate, 1);
+                        firstDate, pivotDate, 1, "list1");
                 break;
 
             case R.id.listButton_2:
                 setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
-                        pivotPlusOneDate, lastDate, 2);
+                        pivotPlusOneDate, lastDate, 2, "list2");
                 break;
 
             case R.id.listButton_3:
                 setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
-                        firstDate, lastDate, 3);
+                        firstDate, lastDate, 3, "list3");
                 break;
 
             case R.id.spendButton:
@@ -314,7 +343,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             nickNameTextView.setText(c.getString(1));
             servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
             dDayTextView.setText(countDdayFromToday());
-            progressBar.setProgress(getPercentage());
+            progressBar.setProgress((int)getPercentage());
 
             firstVacTotal.setText(" / " + totalFirstVac);
             secondVacTotal.setText(" / " + totalSecondVac);
@@ -618,33 +647,40 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
 
     public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
-                            String lowerBoundDate, String upperBoundDate, int numOfYear){
+                            String lowerBoundDate, String upperBoundDate, int numOfYear, String tag){
         ImageView imageView = findViewById(imageId);
         Fragment fragment;
-        Frag2_listview frag = (Frag2_listview) fg.findFragmentByTag("filled");
-        if(frag == null){
+        Frag2_listview listFrag = (Frag2_listview) fg.findFragmentByTag(tag);
+        BlankFragment blankFrag = (BlankFragment) fg.findFragmentByTag(tag + "blank");
+        if(listFrag == null && blankFrag == null){
             imageView.setImageResource(R.drawable.ic_expand_less);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
                     lastDate, numOfYear, searchStartDate);
-            ft.replace(viewId, fragment, "filled");
+            ft.replace(viewId, fragment, tag);
+        }
+        else if(listFrag == null && blankFrag != null){
+            imageView.setImageResource(R.drawable.ic_expand_less);
+            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
+                    lastDate, numOfYear, searchStartDate);
+            ft.replace(viewId, fragment, tag);
         }
         else{
             imageView.setImageResource(R.drawable.ic_expand_more);
             fragment = new BlankFragment();
-            ft.replace(viewId, fragment,"unfilled");
+            ft.replace(viewId, fragment,tag + "blank");
         }
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
     }
 
-    public void refreshListView(int viewId, int imageId, String limitStartDate, String limitLastDate, int numOfYear){
+    public void refreshListView(int viewId, int imageId, String limitStartDate, String limitLastDate, int numOfYear, String tag){
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
         ImageView imageView =findViewById(imageId);
         imageView.setImageResource(R.drawable.ic_expand_less);
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
-        ft.replace(viewId, fragment, "filled");
+        ft.replace(viewId, fragment, tag);
         ft.commit();
     }
 
@@ -661,16 +697,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         return count > 0 ? "D-" + (int) ((count / (60 * 60 * 24 * 1000)) + 1) : "소집해제";
     }
 
-    public int getPercentage() {
+    public float getPercentage() {
         Calendar today = Calendar.getInstance();
         long todayTime = today.getTime().getTime();
         try {
             long firstTime = formatter.parse(firstDate).getTime();
             long lastTime = formatter.parse(lastDate).getTime();
-            long entire = (lastTime - firstTime) / (60 * 60 * 24 * 1000);
-            long part = (todayTime - firstTime) / (60 * 60 * 24 * 1000);
+            float entire = (lastTime - firstTime) / (60 * 60 * 24 * 1000);
+            float part = (todayTime - firstTime) / (60 * 60 * 24 * 1000);
             if(entire > 0) {
-                return (int) (100 * part / entire);
+                return (100 * part / entire);
             }
             else{
                 return 100;
