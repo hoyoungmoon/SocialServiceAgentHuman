@@ -317,4 +317,5 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
             }
         }
     }
+
 }

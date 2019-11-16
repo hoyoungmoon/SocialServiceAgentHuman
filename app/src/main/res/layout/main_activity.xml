@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawer_layout"
@@ -256,6 +257,7 @@
             android:layout_marginBottom="5dp"/>
 
         <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
@@ -267,6 +269,7 @@
                 android:rowCount="3">
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/vacCardView_1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="5dp"
@@ -286,6 +289,7 @@
                             android:id="@+id/listButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:paddingBottom="6dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:orientation="horizontal">
@@ -311,7 +315,6 @@
                             android:id="@+id/first_vacation_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
                             android:orientation="horizontal">
 
                             <LinearLayout
@@ -370,6 +373,7 @@
                 </LinearLayout>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/vacCardView_2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="5dp"
@@ -473,6 +477,7 @@
                     android:orientation="vertical"></LinearLayout>
 
                 <androidx.cardview.widget.CardView
+                    android:id="@+id/vacCardView_3"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:cardCornerRadius="5dp"
@@ -492,6 +497,7 @@
                             android:id="@+id/listButton_3"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:paddingBottom="6dp"
                             android:clickable="true"
                             android:focusable="true"
                             android:orientation="horizontal">
@@ -517,7 +523,6 @@
                             android:id="@+id/sick_vacation_box"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="6dp"
                             android:orientation="horizontal">
 
                             <LinearLayout

@@ -3,6 +3,7 @@ package com.example.realproject;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
+import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -13,10 +14,13 @@ import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
@@ -26,6 +30,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,6 +53,7 @@ import java.util.Locale;
 import it.sephiroth.android.library.tooltip.Tooltip;
 
 import static android.icu.text.DateTimePatternGenerator.DAY;
+import static android.view.View.FOCUS_UP;
 import static android.view.View.VISIBLE;
 import static java.lang.String.valueOf;
 import static java.util.Calendar.DATE;
@@ -103,14 +109,19 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView thisMonthVac;
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
-
     private TextView progressPercentage;
+
+    private ScrollView scrollView;
+    private CardView vacCard1;
+    private CardView vacCard2;
+    private CardView vacCard3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         DBmanager = vacationDBManager.getInstance(this);
+
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         nickNameTextView = findViewById(R.id.tv_nickName);
@@ -125,6 +136,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
         progressPercentage = findViewById(R.id.progress_percentage);
+        scrollView = findViewById(R.id.scrollView);
+        vacCard1 = findViewById(R.id.vacCardView_1);
+        vacCard2 = findViewById(R.id.vacCardView_2);
+        vacCard3 = findViewById(R.id.vacCardView_3);
 
         LinearLayout listButton_1 = findViewById(R.id.listButton);
         LinearLayout listButton_2 = findViewById(R.id.listButton_2);
@@ -169,19 +184,15 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                Display display = getWindowManager().getDefaultDisplay();
-                Point size = new Point();
-                display.getSize(size);
-                int screenWidth = size.x;
-                int barWidth = screenWidth - 160;
 
+                int barWidth = progressBar.getRight() - progressBar.getLeft();
                 float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
                 progressPercentage.setText(String.format("%.3f",getPercentage()) + "%");
                 if(position_X < 80){
                     progressPercentage.setX(80);
                 }
-                else if(position_X > screenWidth - 280){
-                    progressPercentage.setX(screenWidth - 280);
+                else if(position_X > barWidth - 160){
+                    progressPercentage.setX(barWidth - 160);
                 }
                 else {
                     progressPercentage.setX((progressBar.getX() + (barWidth * getPercentage() / 100)) - 40);
@@ -284,8 +295,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     calendar.setTime(formatter.parse(lastDate));
                     rank = "병장";
                 }
-                toolTipText = ("<b>계급</b> : " + rank + "<br><br>" + "<b>현재 기본급</b> : "
-                        + currentPay + "원<br><br>" + "<b>다음 진급일</b> : " + dateFormat_dot.format(calendar.getTime()));
+                toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
+                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | " + dateFormat_dot.format(calendar.getTime()));
             } else if (view == toolTipPay) {
                 setThisMonthInfo(searchStartDate);
             }
@@ -555,16 +566,26 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthOuting.setText(convertMinuteToProperUnit((int)sum_outing));
         int sumOfPay = (int) Math.round((pay+ (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic))/100.0) * 100;
         salaryTextView.setText(decimalFormat.format(sumOfPay) + " KRW");
+        int sumOfMeal = mealCost * numberOfMeal;
+        int sumOfTraffic = trafficCost * numberOfTraffic;
+        int sumOfBeforePromotion = payBeforePromotion * (numberOfEntire - numberOfAfterPromotion) / entireLength;
+        int sumOfAfterPromotion = payAfterPromotion * numberOfAfterPromotion / entireLength;
+        int sumOfNoPromotion = payBeforePromotion * numberOfEntire / entireLength;
+
         if(isPromoted){
-            toolTipText = ("<b>진급전</b> : "+ payBeforePromotion +"원 * " + "(" + (numberOfEntire-numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급후</b> : "+ payAfterPromotion +"원 * " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b> : " + mealCost + "원 * " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b> : " +
-                    trafficCost + "원 * " + numberOfTraffic + "일");
+            toolTipText = ("<b>진급전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
+                    + decimalFormat.format(payBeforePromotion) +"원 x " + "(" + (numberOfEntire-numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급후</b><br>"+ decimalFormat.format(sumOfAfterPromotion)
+                    + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) +"원 x " + "(" + (numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
+                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
+                    + decimalFormat.format(trafficCost) + "원 * " + numberOfTraffic + "일");
         }
         else {
-            toolTipText = ("<b>기본급여</b> : "+ payBeforePromotion +"원 * " + "(" + numberOfEntire
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b> : " + mealCost + "원 * " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b> : " +
-                    trafficCost + "원 * " + numberOfTraffic + "일");
+            toolTipText = ("<b>기본급여</b><br>"+ decimalFormat.format(sumOfNoPromotion) + "원 <b>|</b> " + decimalFormat.format(payBeforePromotion) +"원 x "
+                    + "(" + numberOfEntire + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
+                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
+                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일");
         }
     }
 
@@ -644,6 +665,25 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
         }
     }
+    // ====================== 고치기 ================================
+    // 넣은 view의 높이 만큼 위로 올라감
+    private void scrollToView(final ScrollView scrollViewParent, final View view) {
+        // Get deepChild Offset
+        Point childOffset = new Point();
+        getDeepChildOffset(scrollViewParent, view.getParent(), view, childOffset);
+        // Scroll to child.
+        scrollViewParent.smoothScrollTo(0, childOffset.y);
+    }
+
+    private void getDeepChildOffset(final ViewGroup mainParent, final ViewParent parent, final View child, final Point accumulatedOffset) {
+        ViewGroup parentGroup = (ViewGroup) parent;
+        accumulatedOffset.y += child.getTop();
+        if (parentGroup.equals(mainParent)) {
+            return;
+        }
+        getDeepChildOffset(mainParent, parentGroup.getParent(), parentGroup, accumulatedOffset);
+    }
+    // ======================================================
 
 
     public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
@@ -652,17 +692,20 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         Fragment fragment;
         Frag2_listview listFrag = (Frag2_listview) fg.findFragmentByTag(tag);
         BlankFragment blankFrag = (BlankFragment) fg.findFragmentByTag(tag + "blank");
+
         if(listFrag == null && blankFrag == null){
             imageView.setImageResource(R.drawable.ic_expand_less);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
                     lastDate, numOfYear, searchStartDate);
             ft.replace(viewId, fragment, tag);
+            Log.d("getTop", scrollView.getTop() +" "+imageView.getTop()+" "+vacCard1.getTop()+" "+vacCard2.getTop()+" "+vacCard3.getTop()+" ");
         }
         else if(listFrag == null && blankFrag != null){
             imageView.setImageResource(R.drawable.ic_expand_less);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
                     lastDate, numOfYear, searchStartDate);
             ft.replace(viewId, fragment, tag);
+            Log.d("getTop", scrollView.getTop() +" "+imageView.getTop()+" "+vacCard1.getTop()+" "+vacCard2.getTop()+" "+vacCard3.getTop()+" ");
         }
         else{
             imageView.setImageResource(R.drawable.ic_expand_more);
@@ -716,4 +759,5 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             return -1;
         }
     }
+
 }

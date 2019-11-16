@@ -74,7 +74,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
     public static Frag2_save newInstance(String param1, String param2, int param3, String param4){
         Frag2_save dialog = new Frag2_save();
-        dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         Bundle bundle = new Bundle(4);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
@@ -88,6 +87,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DBmanager = vacationDBManager.getInstance(getActivity());
+        setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         if(getArguments() != null){
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
@@ -348,6 +348,8 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 .show();
     }
 
+
 }
+
 
 
