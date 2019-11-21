@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    android:padding="15dp"
+    tools:context=".Frag2_save">
+
+    <EditText
+        android:id="@+id/et_startDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:hint="시작일" />
+
+    <EditText
+        android:id="@+id/et_vacation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:hint="간단한 사유를 입력하세요" />
+    <TextView
+        android:layout_width="230dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginStart="5dp"
+        android:text="선택"/>
+
+    <RadioGroup
+        android:id="@+id/radioGroup_vacationType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <RadioButton
+            android:id="@+id/radio_allDay"
+            android:text="연가 (8시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_halfMorning"
+            android:text="오전반가 (4시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_halfAfternoon"
+            android:text="오후반가 (4시간)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <RadioButton
+            android:id="@+id/radio_outing"
+            android:text="외출 (10분단위)"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    </RadioGroup>
+
+
+
+    <LinearLayout
+        android:id="@+id/linear_outingSetter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="외출 시간"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:src="@drawable/ic_minus_black_24dp"
+                android:background="#ffffff"
+                android:id="@+id/button_outing_minus"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+            <TextView
+                android:id="@+id/et_outingLength"
+                android:layout_width="35dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="10분"/>
+            <ImageButton
+                android:src="@drawable/ic_add_black_24dp"
+                android:background="#ffffff"
+                android:id="@+id/button_outing_plus"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linear_vacationSetter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="사용 일수"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
+                android:src="@drawable/ic_minus_black_24dp"
+                android:id="@+id/button_vacation_minus"
+                android:background="#ffffff"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+            <TextView
+                android:id="@+id/et_vacationLength"
+                android:layout_width="35dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:gravity="center"
+                android:text="1일"/>
+            <ImageButton
+                android:src="@drawable/ic_add_black_24dp"
+                android:id="@+id/button_vacation_plus"
+                android:background="#ffffff"
+                android:layout_width="30dp"
+                android:layout_height="30dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/button_cancel"
+            android:background="#ffffff"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:text="취소"/>
+        <Button
+            android:id="@+id/button_save"
+            android:background="#ffffff"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:text="저장"/>
+    </LinearLayout>
+</LinearLayout>

@@ -21,6 +21,12 @@
         <item name="android:fontFamily">@font/nanum_bareun_font</item>
     </style>
 
+    <style name="NumberPickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textSize">30sp</item>
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
     <style name="ToolTipLayoutCustomStyle">
         <item name="ttlm_padding">25dp</item>
         <item name="ttlm_strokeColor">#E7E7E7</item>

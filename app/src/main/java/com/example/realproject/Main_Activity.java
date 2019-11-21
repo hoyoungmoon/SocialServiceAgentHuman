@@ -4,35 +4,31 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.app.Dialog;
+
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Point;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.ViewTreeObserver;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 // 밝은회색 3c5c75
 // 진한회색 0b1c2d
@@ -52,16 +48,13 @@ import java.util.Locale;
 
 import it.sephiroth.android.library.tooltip.Tooltip;
 
-import static android.icu.text.DateTimePatternGenerator.DAY;
-import static android.view.View.FOCUS_UP;
+import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static java.lang.String.valueOf;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;
 import static java.util.Calendar.SUNDAY;
 import static java.util.Calendar.YEAR;
-import static java.util.Calendar.getAvailableCalendarTypes;
 
 public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
@@ -79,6 +72,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private static final int[] payDependsOnRank2019 = new int[]{306100, 331300, 366200, 405700};
     private static String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0512", "0606", "0815",
             "1003", "1009", "1225"};
+    public static Context mContext;
     private String firstDate;
     private String lastDate;
     private String pivotDate;
@@ -111,17 +105,17 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private ProgressBar progressBar;
     private TextView progressPercentage;
 
-    private ScrollView scrollView;
-    private CardView vacCard1;
-    private CardView vacCard2;
-    private CardView vacCard3;
+    private LinearLayout vacCard1;
+    private LinearLayout vacCard2;
+    private LinearLayout vacCard3;
+    private LinearLayout container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         DBmanager = vacationDBManager.getInstance(this);
-
+        mContext = this;
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         nickNameTextView = findViewById(R.id.tv_nickName);
@@ -136,16 +130,14 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
         progressPercentage = findViewById(R.id.progress_percentage);
-        scrollView = findViewById(R.id.scrollView);
         vacCard1 = findViewById(R.id.vacCardView_1);
         vacCard2 = findViewById(R.id.vacCardView_2);
         vacCard3 = findViewById(R.id.vacCardView_3);
+        container = findViewById(R.id.fragment_container_1);
 
-        LinearLayout listButton_1 = findViewById(R.id.listButton);
-        LinearLayout listButton_2 = findViewById(R.id.listButton_2);
-        LinearLayout listButton_3 = findViewById(R.id.listButton_3);
 
-        Button spendButton = findViewById(R.id.spendButton);
+
+        Button spendButton = findViewById(R.id.spendButton_1);
         Button spendButton_2 = findViewById(R.id.spendButton_2);
         Button spendButton_3 = findViewById(R.id.spendButton_3);
         firstVacRemain = findViewById(R.id.first_vacation_remain);
@@ -155,18 +147,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         secondVacTotal = findViewById(R.id.second_vacation_total);
         sickVacTotal = findViewById(R.id.sick_vacation_total);
 
-        listButton_1.setOnClickListener(this);
-        listButton_2.setOnClickListener(this);
-        listButton_3.setOnClickListener(this);
+        vacCard1.setOnClickListener(this);
+        vacCard2.setOnClickListener(this);
+        vacCard3.setOnClickListener(this);
         spendButton.setOnClickListener(this);
         spendButton_2.setOnClickListener(this);
         spendButton_3.setOnClickListener(this);
         goToNextPeriod.setOnClickListener(this);
         goToPreviousPeriod.setOnClickListener(this);
 
+        /*
+        screen size 받아서 minHeight setting 하는 방법 생각해보기
+        ConstraintLayout constraintLayout = findViewById(R.id.ConstraintLayout3);
+        constraintLayout.setMinHeight
+        */
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         ImageView nav_button = findViewById(R.id.navigation_drawer_button);
         nav_button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,31 +170,30 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 drawer.openDrawer(Gravity.LEFT);
             }
         });
+
         setUserProfile();
         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
             setRemainVac();
             searchStartDate = dateFormat.format(Calendar.getInstance().getTime());
             setThisMonthInfo(searchStartDate);
+            progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+
+                    int barWidth = progressBar.getRight() - progressBar.getLeft();
+                    float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
+                    progressPercentage.setText(String.format("%.3f", getPercentage()) + "%");
+                    if(position_X < 80){
+                        progressPercentage.setX(80);
+                    } else if(position_X > barWidth - 160){
+                        progressPercentage.setX(barWidth - 160);
+                    } else {
+                        progressPercentage.setX((progressBar.getX() + (barWidth * getPercentage() / 100)) - 40);
+                    }
+                }
+            });
         }
 
-        progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-
-                int barWidth = progressBar.getRight() - progressBar.getLeft();
-                float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
-                progressPercentage.setText(String.format("%.3f",getPercentage()) + "%");
-                if(position_X < 80){
-                    progressPercentage.setX(80);
-                }
-                else if(position_X > barWidth - 160){
-                    progressPercentage.setX(barWidth - 160);
-                }
-                else {
-                    progressPercentage.setX((progressBar.getX() + (barWidth * getPercentage() / 100)) - 40);
-                }
-            }
-        });
     }
 
     @Override
@@ -210,22 +205,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         Frag2_save dialog;
 
         switch (view.getId()) {
-            case R.id.listButton:
-                setListView(R.id.fragment_container_1, R.id.first_vacation_image, fg, ft,
+            case R.id.vacCardView_1:
+                setListView(R.id.first_vacation_image, ft,
                         firstDate, pivotDate, 1, "list1");
                 break;
 
-            case R.id.listButton_2:
-                setListView(R.id.fragment_container_2, R.id.second_vacation_image, fg, ft,
+            case R.id.vacCardView_2:
+                setListView(R.id.second_vacation_image, ft,
                         pivotPlusOneDate, lastDate, 2, "list2");
                 break;
 
-            case R.id.listButton_3:
-                setListView(R.id.fragment_container_3, R.id.sick_vacation_image, fg, ft,
+            case R.id.vacCardView_3:
+                setListView(R.id.sick_vacation_image, ft,
                         firstDate, lastDate, 3, "list3");
                 break;
 
-            case R.id.spendButton:
+            case R.id.spendButton_1:
                 dialog = new Frag2_save().newInstance(firstDate, pivotDate, 1, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
@@ -268,6 +263,42 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
                 break;
 
+        }
+    }
+
+    public void setListView(int imageId, FragmentTransaction ft,
+                            String lowerBoundDate, String upperBoundDate, int numOfYear, String tag){
+        ImageView imageView = findViewById(imageId);
+        Fragment fragment;
+
+        if(container.getVisibility() == GONE){
+            if(tag.equals("list1")){
+                vacCard1.setVisibility(VISIBLE);
+                vacCard2.setVisibility(GONE);
+                vacCard3.setVisibility(GONE);
+            }else if(tag.equals("list2")){
+                vacCard1.setVisibility(GONE);
+                vacCard2.setVisibility(VISIBLE);
+                vacCard3.setVisibility(GONE);
+            }else{
+                vacCard1.setVisibility(GONE);
+                vacCard2.setVisibility(GONE);
+                vacCard3.setVisibility(VISIBLE);
+            }
+            imageView.setImageResource(R.drawable.ic_expand_less);
+            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
+                    lastDate, numOfYear, searchStartDate);
+            ft.replace(R.id.fragment_container_1, fragment, tag);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+            container.setVisibility(VISIBLE);
+        }
+        else{
+            vacCard1.setVisibility(VISIBLE);
+            vacCard2.setVisibility(VISIBLE);
+            vacCard3.setVisibility(VISIBLE);
+            container.setVisibility(GONE);
+            imageView.setImageResource(R.drawable.ic_expand_more);
         }
     }
 
@@ -340,7 +371,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     public void setUserProfile() {
         if(DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
             Cursor c = DBmanager.query(userColumns, vacationDBManager.TABLE_USER,
-                null, null, null, null, null);
+                    null, null, null, null, null);
             c.moveToFirst();
             firstDate = c.getString(2);
             lastDate = c.getString(3);
@@ -579,7 +610,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) +"원 x " + "(" + (numberOfAfterPromotion)
                     + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
                     + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 * " + numberOfTraffic + "일");
+                    + decimalFormat.format(trafficCost) + "원 * " + numberOfTraffic + "일" + "<br><br>"
+                    + "공휴일 출근횟수에서 제외");
         }
         else {
             toolTipText = ("<b>기본급여</b><br>"+ decimalFormat.format(sumOfNoPromotion) + "원 <b>|</b> " + decimalFormat.format(payBeforePromotion) +"원 x "
@@ -665,65 +697,15 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
         }
     }
-    // ====================== 고치기 ================================
-    // 넣은 view의 높이 만큼 위로 올라감
-    private void scrollToView(final ScrollView scrollViewParent, final View view) {
-        // Get deepChild Offset
-        Point childOffset = new Point();
-        getDeepChildOffset(scrollViewParent, view.getParent(), view, childOffset);
-        // Scroll to child.
-        scrollViewParent.smoothScrollTo(0, childOffset.y);
-    }
 
-    private void getDeepChildOffset(final ViewGroup mainParent, final ViewParent parent, final View child, final Point accumulatedOffset) {
-        ViewGroup parentGroup = (ViewGroup) parent;
-        accumulatedOffset.y += child.getTop();
-        if (parentGroup.equals(mainParent)) {
-            return;
-        }
-        getDeepChildOffset(mainParent, parentGroup.getParent(), parentGroup, accumulatedOffset);
-    }
-    // ======================================================
-
-
-    public void setListView(int viewId, int imageId, FragmentManager fg, FragmentTransaction ft,
-                            String lowerBoundDate, String upperBoundDate, int numOfYear, String tag){
-        ImageView imageView = findViewById(imageId);
-        Fragment fragment;
-        Frag2_listview listFrag = (Frag2_listview) fg.findFragmentByTag(tag);
-        BlankFragment blankFrag = (BlankFragment) fg.findFragmentByTag(tag + "blank");
-
-        if(listFrag == null && blankFrag == null){
-            imageView.setImageResource(R.drawable.ic_expand_less);
-            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, numOfYear, searchStartDate);
-            ft.replace(viewId, fragment, tag);
-            Log.d("getTop", scrollView.getTop() +" "+imageView.getTop()+" "+vacCard1.getTop()+" "+vacCard2.getTop()+" "+vacCard3.getTop()+" ");
-        }
-        else if(listFrag == null && blankFrag != null){
-            imageView.setImageResource(R.drawable.ic_expand_less);
-            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, numOfYear, searchStartDate);
-            ft.replace(viewId, fragment, tag);
-            Log.d("getTop", scrollView.getTop() +" "+imageView.getTop()+" "+vacCard1.getTop()+" "+vacCard2.getTop()+" "+vacCard3.getTop()+" ");
-        }
-        else{
-            imageView.setImageResource(R.drawable.ic_expand_more);
-            fragment = new BlankFragment();
-            ft.replace(viewId, fragment,tag + "blank");
-        }
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
-    }
-
-    public void refreshListView(int viewId, int imageId, String limitStartDate, String limitLastDate, int numOfYear, String tag){
+    public void refreshListView(int imageId, String limitStartDate, String limitLastDate, int numOfYear, String tag){
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
         ImageView imageView =findViewById(imageId);
         imageView.setImageResource(R.drawable.ic_expand_less);
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
-        ft.replace(viewId, fragment, tag);
+        ft.replace(R.id.fragment_container_1, fragment, tag);
         ft.commit();
     }
 

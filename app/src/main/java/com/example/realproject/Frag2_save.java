@@ -1,32 +1,23 @@
 package com.example.realproject;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -94,7 +85,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             numberOfYear = getArguments().getInt("numOfYear");
             searchStartDate = getArguments().getString("searchStartDate");
         }
-        firstVacation = new FirstVacation(); // 이거 onCreate 때 넣어야하나?
     }
 
     @Override
@@ -186,6 +176,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
         try {
+            // if (limitStartDate < limitLastDate){ else도 따로 설정해야함
             datePickerDialog.getDatePicker().setMinDate(formatter.parse(limitStartDate).getTime());
             datePickerDialog.getDatePicker().setMaxDate(formatter.parse(limitLastDate).getTime());
         } catch (ParseException e) {
@@ -302,14 +293,14 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
                 // 저장하고 listview 보여주는 것
                 if (numberOfYear == 1) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
-                            R.id.first_vacation_image, limitStartDate, limitLastDate, 1, "list1");
+                    ((Main_Activity) getActivity()).refreshListView(R.id.first_vacation_image,
+                            limitStartDate, limitLastDate, 1, "list1");
                 } else if (numberOfYear == 2) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_2,
-                            R.id.first_vacation_image, limitStartDate, limitLastDate, 2, "list2");
+                    ((Main_Activity) getActivity()).refreshListView(R.id.first_vacation_image,
+                            limitStartDate, limitLastDate, 2, "list2");
                 } else {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_3,
-                            R.id.sick_vacation_image, limitStartDate, limitLastDate, 3, "list3");
+                    ((Main_Activity) getActivity()).refreshListView(R.id.sick_vacation_image,
+                            limitStartDate, limitLastDate, 3, "list3");
                 }
                 dismiss();
             }
@@ -350,6 +341,3 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
 
 }
-
-
-

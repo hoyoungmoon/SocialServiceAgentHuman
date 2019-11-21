@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.InputType;
 import android.view.LayoutInflater;
@@ -17,12 +18,15 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import org.w3c.dom.Text;
 
@@ -39,7 +43,7 @@ import static android.view.View.VISIBLE;
 import static com.example.realproject.vacationDBManager.TABLE_FIRST;
 import static com.example.realproject.vacationDBManager.TABLE_USER;
 
-public class DialogFrag_DateRevise extends DialogFragment implements View.OnClickListener {
+public class DialogFrag_DateRevise extends DialogFragment implements View.OnClickListener, NumberPickerDialog.NumberPickerSaveListener {
 
     private EditText nickNameEditText;
     private TextView firstDateEditText;
@@ -88,7 +92,6 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         payDayEditText = view.findViewById(R.id.tv_payDay);
         saveButton = view.findViewById(R.id.btn_save);
         cancelButton = view.findViewById(R.id.btn_cancel);
-
 
         if(DBmanager.getDataCount(TABLE_USER) != 0){
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
@@ -139,43 +142,45 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         return returnDialog;
     }
 
-    public void setNumberPickerDialog(TextView textView, int minValue, int maxValue, int step, String string){
-        final String s = string;
-        final TextView someNumberTextView = textView;
-        final NumberPicker numberPicker = new NumberPicker(getActivity());
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    public void setNumberPickerDialog(String userInfo, int minValue, int maxValue, int step, FragmentManager fg){
+        NumberPickerDialog dialog = new NumberPickerDialog(this);
+        Bundle bundle = new Bundle(4);
+        // 이미 세팅되어있던 값 넣기
+        bundle.putString("userInfo", userInfo);
+        bundle.putInt("minValue", minValue);
+        bundle.putInt("maxValue", maxValue);
+        bundle.putInt("step", step);
+        dialog.setArguments(bundle);
+        dialog.show(fg, "dialog");
+    }
 
-        final int number_of_array = (maxValue - minValue) / step + 1;
-        final String[] result = new String[number_of_array];
-        for (int i = 0; i < number_of_array; i++) {
-            result[i] = String.valueOf(minValue + step * i);
+    @Override
+    public void onSaveBtnClick(String userInfo, String saveValue) {
+        switch(userInfo){
+            case "mealCost":
+                mealCostEditText.setText(saveValue + " 원");
+                break;
+            case "tarfficCost":
+                trafficCostEditText.setText(saveValue + " 원");
+                break;
+            case"totalFirstVac":
+                totalFirstVacEditText.setText(saveValue + " 일");
+                break;
+            case"totalSecondVac":
+                totalSecondVacEditText.setText(saveValue + " 일");
+                break;
+            case"totalSickVac":
+                totalSickVacEditText.setText(saveValue + " 일");
+                break;
+            case"payDay":
+                payDayEditText.setText(saveValue + " 일");
+                break;
         }
-
-        numberPicker.setMinValue(0);
-        numberPicker.setMaxValue((maxValue - minValue) / step);
-        numberPicker.setDisplayedValues(result);
-        numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-
-        builder.setPositiveButton("저장", new DialogInterface.OnClickListener(){
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                int idx = numberPicker.getValue();
-                someNumberTextView.setText(numberPicker.getDisplayedValues()[idx]+ s);
-            }
-        });
-        builder.setNegativeButton("취소", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        builder.setView(numberPicker);
-        builder.show();
     }
 
     @Override
     public void onClick(View view) {
+        FragmentManager fg = getFragmentManager();
         try {
             switch (view.getId()) {
                 case R.id.tv_firstDate:
@@ -191,12 +196,12 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     user.setNickName(nickNameEditText.getText().toString());
                     user.setFirstDate(formatter.parse(firstDateEditText.getText().toString()));
                     user.setLastDate(formatter.parse(lastDateEditText.getText().toString()));
-                    user.setMealCost(Integer.parseInt(mealCostEditText.getText().toString()));
-                    user.setTrafficCost(Integer.parseInt(trafficCostEditText.getText().toString()));
-                    user.setTotalFirstVac(Integer.parseInt(totalFirstVacEditText.getText().toString()));
-                    user.setTotalSecondVac(Integer.parseInt(totalSecondVacEditText.getText().toString()));
-                    user.setTotalSickVac(Integer.parseInt(totalSickVacEditText.getText().toString()));
-                    user.setPayDay(Integer.parseInt(payDayEditText.getText().toString()));
+                    user.setMealCost(getTagOnlyInt(mealCostEditText.getText().toString()));
+                    user.setTrafficCost(getTagOnlyInt(trafficCostEditText.getText().toString()));
+                    user.setTotalFirstVac(getTagOnlyInt(totalFirstVacEditText.getText().toString()));
+                    user.setTotalSecondVac(getTagOnlyInt(totalSecondVacEditText.getText().toString()));
+                    user.setTotalSickVac(getTagOnlyInt(totalSickVacEditText.getText().toString()));
+                    user.setPayDay(getTagOnlyInt(payDayEditText.getText().toString()));
 
                     if (DBmanager.getDataCount(TABLE_USER) == 0) {
                         DBmanager.insertUser(user);
@@ -225,22 +230,22 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     }
                     break;
                 case R.id.tv_mealCost:
-                    setNumberPickerDialog(mealCostEditText,5000, 10000, 100, " 원");
+                    setNumberPickerDialog("mealCost", 5000, 10000, 1000, fg);
                     break;
                 case R.id.tv_trafficCost:
-                    setNumberPickerDialog(trafficCostEditText, 2000, 5000, 100, " 원");
+                    setNumberPickerDialog("trafficCost", 2000, 5000, 100, fg);
                     break;
                 case R.id.tv_totalFirstVac:
-                    setNumberPickerDialog(totalFirstVacEditText, 10, 30, 1, " 일");
+                    setNumberPickerDialog("totalFirstVac", 10, 30, 1, fg);
                     break;
                 case R.id.tv_totalSecondVac:
-                    setNumberPickerDialog(totalSecondVacEditText, 10, 30, 1, " 일");
+                    setNumberPickerDialog("totalSecondVac", 10, 30, 1, fg);
                     break;
                 case R.id.tv_totalSickVac:
-                    setNumberPickerDialog(totalSickVacEditText, 20, 40, 1, " 일");
+                    setNumberPickerDialog("totalSickVac", 20, 40, 1, fg);
                     break;
                 case R.id.tv_payDay:
-                    setNumberPickerDialog(payDayEditText, 1, 28, 1, " 일(매월)");
+                    setNumberPickerDialog("payDay", 1, 26, 1, fg);
                     break;
                 case R.id.btn_cancel:
                     dismiss();
@@ -253,6 +258,11 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+    }
+
+    public int getTagOnlyInt(String tag){
+        String reTag = tag.replaceAll("[^0-9]","");
+        return Integer.parseInt(reTag);
     }
 
 }

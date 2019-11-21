@@ -249,13 +249,13 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
                 ((Main_Activity) getActivity()).setRemainVac();
                 ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
                 if (numOfYear == 1) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_1,
+                    ((Main_Activity) getActivity()).refreshListView(
                             R.id.first_vacation_image, limitStartDate, limitLastDate, numOfYear, "list1");
                 } else if (numOfYear == 2) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_2,
+                    ((Main_Activity) getActivity()).refreshListView(
                             R.id.second_vacation_image, limitStartDate, limitLastDate, numOfYear, "list2");
                 } else {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.fragment_container_3,
+                    ((Main_Activity) getActivity()).refreshListView(
                             R.id.sick_vacation_image, limitStartDate, limitLastDate, 3, "list3");
                 }
                 dismiss();
