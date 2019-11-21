@@ -104,6 +104,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
     private TextView progressPercentage;
+    private TextView entireService;
+    private TextView currentService;
+    private TextView remainService;
 
     private LinearLayout vacCard1;
     private LinearLayout vacCard2;
@@ -130,6 +133,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
         progressPercentage = findViewById(R.id.progress_percentage);
+        entireService = findViewById(R.id.tv_entireService);
+        currentService = findViewById(R.id.tv_currentService);
+        remainService = findViewById(R.id.tv_remainService);
         vacCard1 = findViewById(R.id.vacCardView_1);
         vacCard2 = findViewById(R.id.vacCardView_2);
         vacCard3 = findViewById(R.id.vacCardView_3);
@@ -156,11 +162,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         goToNextPeriod.setOnClickListener(this);
         goToPreviousPeriod.setOnClickListener(this);
 
-        /*
-        screen size 받아서 minHeight setting 하는 방법 생각해보기
-        ConstraintLayout constraintLayout = findViewById(R.id.ConstraintLayout3);
-        constraintLayout.setMinHeight
-        */
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         ImageView nav_button = findViewById(R.id.navigation_drawer_button);
@@ -356,14 +357,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             case R.id.profile:
                 dialog.show(fg, "dialog");
                 break;
-            case R.id.date:
-                dialog.show(fg, "dialog");
-                break;
-            case R.id.cost:
-                dialog.show(fg, "dialog");
-                break;
-            case R.id.vacation:
-                break;
         }
         return false;
     }
@@ -384,8 +377,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
             nickNameTextView.setText(c.getString(1));
             servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
-            dDayTextView.setText(countDdayFromToday());
+            countDdayFromToday();
             progressBar.setProgress((int)getPercentage());
+
 
             firstVacTotal.setText(" / " + totalFirstVac);
             secondVacTotal.setText(" / " + totalSecondVac);
@@ -709,17 +703,26 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         ft.commit();
     }
 
-    public String countDdayFromToday(){
+    public void countDdayFromToday(){
         Calendar today = Calendar.getInstance();
         long todayTime = today.getTime().getTime();
         long lastTime = 0;
+        long firstTime = 0;
         try {
             lastTime = formatter.parse(lastDate).getTime();
+            firstTime = formatter.parse(firstDate).getTime();
         } catch (ParseException e) {
             e.printStackTrace();
         }
         long count = (lastTime - todayTime);
-        return count > 0 ? "D-" + (int) ((count / (60 * 60 * 24 * 1000)) + 1) : "소집해제";
+        if(count > 0) {
+            dDayTextView.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1));
+        }else{
+            dDayTextView.setText("소집해제");
+        }
+        entireService.setText((int) (((lastTime - firstTime) / (60 * 60 * 24 * 1000)) + 1));
+        currentService.setText((int) (((todayTime - firstTime) / (60 * 60 * 24 * 1000)) + 1));
+        remainService.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1));
     }
 
     public float getPercentage() {

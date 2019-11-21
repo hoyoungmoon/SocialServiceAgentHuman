@@ -7,18 +7,6 @@
                 android:id="@+id/profile"
                 android:title="\t\t-  닉네임 변경"
                 />
-            <item
-                android:id="@+id/date"
-                android:title="\t\t-  소집일 / 소집해제일 변경"
-                />
-            <item
-                android:id="@+id/cost"
-                android:title="\t\t-  식비 / 교통비 변경"
-                />
-            <item
-                android:id="@+id/vacation"
-                android:title="\t\t-  휴가 일수 변경"
-                />
         </menu>
     </item>
     <group>
