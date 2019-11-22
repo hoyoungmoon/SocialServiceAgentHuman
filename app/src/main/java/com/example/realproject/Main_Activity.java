@@ -7,7 +7,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -21,6 +20,15 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdLoader;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.formats.NativeAdOptions;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
 
 import java.text.DecimalFormat;
@@ -31,7 +39,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import it.sephiroth.android.library.tooltip.Tooltip;
+import it.sephiroth.android.library.xtooltip.ClosePolicy;
+import it.sephiroth.android.library.xtooltip.Tooltip;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -98,10 +107,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private LinearLayout vacCard3;
     private LinearLayout container;
 
+    private AdView mAdView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         DBmanager = vacationDBManager.getInstance(this);
         mContext = this;
 
@@ -318,18 +339,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 setThisMonthInfo(searchStartDate);
             }
 
-            Tooltip.make(this,
-                    new Tooltip.Builder(101)
-                            .withStyleId(R.style.ToolTipLayoutCustomStyle)
-                            .anchor(view, Tooltip.Gravity.BOTTOM)
-                            .closePolicy(new Tooltip.ClosePolicy()
-                                    .insidePolicy(true, false)
-                                    .outsidePolicy(true, false), 10000)
-                            .text(toolTipText)
-                            .maxWidth(1000)
-                            .withArrow(true)
-                            .withOverlay(true).build()
-            ).show();
+            Tooltip toolTip = new Tooltip.Builder(this)
+                    .styleId(R.style.ToolTipLayoutCustomStyle)
+                    .text(toolTipText)
+                    .anchor(view, 0, 0, false) //follow 뭔지알아보기
+                    .activateDelay(0)
+                    .showDuration(10000)
+                    .arrow(true)
+                    .create();
+            toolTip.show(view, Tooltip.Gravity.CENTER, true);
+
         }catch(ParseException e){}
     }
 
@@ -596,7 +615,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             toolTipText = ("<b>기본급여</b><br>"+ decimalFormat.format(sumOfNoPromotion) + "원 <b>|</b> " + decimalFormat.format(payBeforePromotion) +"원 x "
                     + "(" + numberOfEntire + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
                     + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일");
+                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일"+ "<br><br>"
+                    + "공휴일 출근횟수에서 제외");
         }
     }
 
