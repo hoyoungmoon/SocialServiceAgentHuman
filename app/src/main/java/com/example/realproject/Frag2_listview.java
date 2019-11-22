@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Locale;
 
 import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 
 
 public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtnClickListener {
@@ -124,12 +126,15 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     public void onMenuBtnClick(int position){
         Button button1 = mListView.findViewWithTag("revise"+position);
         Button button2 = mListView.findViewWithTag("delete"+position);
+        LinearLayout linearLayout = mListView.findViewWithTag("linear"+position);
         if (button1.getVisibility() == GONE) {
-            button1.setVisibility(View.VISIBLE);
-            button2.setVisibility(View.VISIBLE);
+            button1.setVisibility(VISIBLE);
+            button2.setVisibility(VISIBLE);
+            linearLayout.setVisibility(GONE);
         } else {
-            button1.setVisibility(View.GONE);
-            button2.setVisibility(View.GONE);
+            button1.setVisibility(GONE);
+            button2.setVisibility(GONE);
+            linearLayout.setVisibility(VISIBLE);
         }
     }
 

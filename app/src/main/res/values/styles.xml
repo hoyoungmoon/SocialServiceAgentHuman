@@ -30,9 +30,9 @@
 
     <style name="ToolTipLayoutCustomStyle">
         <item name="ttlm_padding">25dp</item>
-        <item name="ttlm_strokeColor">#E7E7E7</item>
+        <item name="ttlm_strokeColor">@color/colorMain</item>
         <item name="ttlm_backgroundColor">#FFFFFF</item>
-        <item name="ttlm_strokeWeight">1.5dp</item>
+        <item name="ttlm_strokeWeight">1dp</item>
         <item name="ttlm_cornerRadius">10dp</item>
         <item name="ttlm_overlayStyle">@style/ToolTipOverlayCustomStyle</item>
         <item name="android:textAppearance">@style/ToolTipTextStyle</item>

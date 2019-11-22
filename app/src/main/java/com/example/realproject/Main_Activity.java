@@ -2,9 +2,6 @@ package com.example.realproject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.TooltipCompat;
-import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -12,29 +9,17 @@ import androidx.fragment.app.FragmentTransaction;
 
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Point;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
-
-// 밝은회색 3c5c75
-// 진한회색 0b1c2d
-// 회색글씨 404855, 너무 연하면 3b455b
-// 바탕 e6e729
-// 작은글씨 a3aaab
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -328,7 +313,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     rank = "병장";
                 }
                 toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
-                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | " + dateFormat_dot.format(calendar.getTime()));
+                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | <meta>" + dateFormat_dot.format(calendar.getTime()) + "</meta>" );
             } else if (view == toolTipPay) {
                 setThisMonthInfo(searchStartDate);
             }
@@ -716,13 +701,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
         long count = (lastTime - todayTime);
         if(count > 0) {
-            dDayTextView.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1));
+            dDayTextView.setText("D-" + (int) ((count / (60 * 60 * 24 * 1000)) + 1));
         }else{
             dDayTextView.setText("소집해제");
         }
-        entireService.setText((int) (((lastTime - firstTime) / (60 * 60 * 24 * 1000)) + 1));
-        currentService.setText((int) (((todayTime - firstTime) / (60 * 60 * 24 * 1000)) + 1));
-        remainService.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1));
+        entireService.setText((int) (((lastTime - firstTime) / (60 * 60 * 24 * 1000)) + 1) + " 일");
+        currentService.setText((int) (((todayTime - firstTime) / (60 * 60 * 24 * 1000)) + 1) + " 일");
+        remainService.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1) + " 일");
     }
 
     public float getPercentage() {

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
@@ -76,6 +77,8 @@ public class ListViewAdapter extends BaseAdapter {
         TextView typeTextView = convertView.findViewById(R.id.lv_vacation_type) ;
         TextView countTextView = convertView.findViewById(R.id.lv_vacation_count) ;
         TextView startDateTextView = convertView.findViewById(R.id.lv_vacation_date) ;
+        LinearLayout linearLayout = convertView.findViewById(R.id.linear_countAndType);
+
         deleteButton = convertView.findViewById(R.id.lv_button_delete);
         reviseButton = convertView.findViewById(R.id.lv_button_revise);
         menuButton = convertView.findViewById(R.id.lv_image_menu);
@@ -83,6 +86,7 @@ public class ListViewAdapter extends BaseAdapter {
         menuButton.setTag(position);
         deleteButton.setTag("delete"+position);
         reviseButton.setTag("revise"+position);
+        linearLayout.setTag("linear"+position);
 
         menuButton.setOnClickListener(new View.OnClickListener() {
             @Override

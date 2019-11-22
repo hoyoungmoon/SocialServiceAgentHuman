@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:title="프로필 정보 변경">
-        <menu>
-            <item
-                android:id="@+id/profile"
-                android:title="\t\t-  닉네임 변경"
-                />
-        </menu>
-    </item>
+        <item
+            android:id="@+id/profile"
+            android:title="프로필 정보 변경" />
     <group>
         <item
             android:id="@+id/delete_profile"
-            android:title="프로필 초기화"
-            />
+            android:title="프로필 초기화" />
         <item
             android:id="@+id/manual"
-            android:title="해당 어플 휴가 및 월급 계산 방식"
-            />
+            android:title="해당 어플 휴가 및 월급 계산 방식" />
     </group>
 </menu>
