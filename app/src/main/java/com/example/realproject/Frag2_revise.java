@@ -161,6 +161,7 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
         try {
+            // Frag2_save 와 달리 수정은 모든 구간(복무일 ~ 복무해제일)에서 선택가능하도록 하기 위해
             datePickerDialog.getDatePicker().setMinDate(formatter.parse(firstDate).getTime());
             datePickerDialog.getDatePicker().setMaxDate(formatter.parse(lastDate).getTime());
         } catch (ParseException e) {

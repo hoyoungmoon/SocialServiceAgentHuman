@@ -32,7 +32,6 @@
             app:layout_constraintTop_toBottomOf="@id/guideLine2"/>
 
 
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/ConstraintLayout1"
             android:layout_width="match_parent"
@@ -50,77 +49,92 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:src="@drawable/ic_dehaze_black_24dp"
-                app:layout_constraintBottom_toTopOf="@+id/LinearLayout1"
+                app:layout_constraintBottom_toTopOf="@+id/userCardView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <RelativeLayout
-                android:id="@+id/LinearLayout1"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/userCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:orientation="vertical"
+                android:backgroundTint="@color/colorMain"
+                app:cardCornerRadius="10dp"
                 app:layout_constraintBottom_toTopOf="@+id/payCardView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/navigation_drawer_button">
 
-                <TextView
-                    android:id="@+id/tv_nickName"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="10dp"
-                    android:text="Alleyoops"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorMain"
-                    android:textSize="23sp"/>
-
-                <ImageView
-                    android:id="@+id/btn_rank_info"
-                    android:layout_width="20dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="4dp"
-                    android:layout_toRightOf="@+id/tv_nickName"
-                    android:onClick="toolTipRank"
-                    android:src="@drawable/ic_info_outline_black_24dp" />
-
-                <TextView
-                    android:id="@+id/tv_dDay"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:text="D-365"
-                    android:textStyle="bold"
-                    android:textColor="@color/colorMain"
-                    android:textSize="23sp" />
-
-                <TextView
-                    android:id="@+id/tv_servicePeriod"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/tv_nickName"
-                    android:layout_marginBottom="6dp"
-                    android:text="2019-04-18 ~ 2021-02-09" />
-
-                <ProgressBar
-                    android:id="@+id/progressBar"
-                    style="@android:style/Widget.ProgressBar.Horizontal"
+                <RelativeLayout
+                    android:id="@+id/LinearLayout1"
                     android:layout_width="match_parent"
-                    android:layout_height="11dp"
-                    android:layout_below="@+id/tv_servicePeriod"
-                    android:progress="30"
-                    android:progressDrawable="@drawable/progress_bar" />
-
-                <TextView
-                    android:id="@+id/progress_percentage"
-                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/progressBar"
-                    android:layout_marginTop="3dp"
-                    android:text="30.000%"
-                    android:textSize="12dp" />
-            </RelativeLayout>
+                    android:paddingStart="15dp"
+                    android:paddingEnd="15dp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="15dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toTopOf="@+id/payCardView"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/navigation_drawer_button">
+
+                    <TextView
+                        android:id="@+id/tv_nickName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:text="Alleyoops"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorSub"
+                        android:textSize="23sp"/>
+
+                    <ImageView
+                        android:id="@+id/btn_rank_info"
+                        android:layout_width="20dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="4dp"
+                        android:layout_toRightOf="@+id/tv_nickName"
+                        android:onClick="toolTipRank"
+                        android:src="@drawable/ic_info_outline_black_24dp" />
+
+                    <TextView
+                        android:id="@+id/tv_dDay"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:text="D-365"
+                        android:textStyle="bold"
+                        android:textColor="@color/colorSub"
+                        android:textSize="23sp" />
+
+                    <TextView
+                        android:id="@+id/tv_servicePeriod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/tv_nickName"
+                        android:layout_marginBottom="6dp"
+                        android:text="2019-04-18 ~ 2021-02-09"
+                        android:textColor="@color/colorSub"/>
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="8dp"
+                        android:layout_below="@+id/tv_servicePeriod"
+                        android:progress="30"
+                        android:progressDrawable="@drawable/progress_bar" />
+
+                    <TextView
+                        android:id="@+id/progress_percentage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/progressBar"
+                        android:layout_marginTop="3dp"
+                        android:text="30.000%"
+                        android:textSize="12dp"
+                        android:textColor="@color/colorSub"/>
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
 
 
             <androidx.cardview.widget.CardView
@@ -129,10 +143,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 app:cardCornerRadius="5dp"
+                android:backgroundTint="@color/colorCardView"
                 app:layout_constraintBottom_toTopOf="@+id/spendVacCardView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/LinearLayout1">
+                app:layout_constraintTop_toBottomOf="@id/userCardView">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -223,6 +238,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="5dp"
+                android:backgroundTint="@color/colorCardView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/vacCardViewEntire"
                 app:layout_constraintTop_toBottomOf="@id/payCardView">
@@ -406,6 +422,7 @@
                 android:id="@+id/vacCardViewEntire"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:backgroundTint="@color/colorCardView"
                 app:layout_constraintHeight_max="310dp"
                 android:layout_marginBottom="10dp"
                 app:cardCornerRadius="5dp"

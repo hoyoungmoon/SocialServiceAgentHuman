@@ -19,7 +19,7 @@
                 <corners
                     android:radius="3dp"/>
                 <solid
-                    android:color="@color/colorMain"/>
+                    android:color="#E0C033"/>
             </shape>
         </clip>
     </item>

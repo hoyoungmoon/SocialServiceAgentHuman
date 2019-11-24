@@ -4,16 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="10dp"
     android:orientation="vertical"
     tools:context=".Frag2_listview">
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:text="사용 내역"
+        android:textSize="13sp"
+        android:textAlignment="center"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#D1CECE"/>
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
-        android:paddingBottom="10dp"
         />
 
 </LinearLayout>

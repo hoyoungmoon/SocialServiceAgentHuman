@@ -176,9 +176,16 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
         try {
-            // if (limitStartDate < limitLastDate){ else도 따로 설정해야함
-            datePickerDialog.getDatePicker().setMinDate(formatter.parse(limitStartDate).getTime());
-            datePickerDialog.getDatePicker().setMaxDate(formatter.parse(limitLastDate).getTime());
+            long min = formatter.parse(limitStartDate).getTime();
+            long max = formatter.parse(limitLastDate).getTime();
+            if(min < max) {
+                datePickerDialog.getDatePicker().setMinDate(min);
+                datePickerDialog.getDatePicker().setMaxDate(max);
+            }else{
+                // 더 좋은 범위 설정 있는지 생각해보기 (지금으로써는 1년 이하로 복무기간을 설정했을때
+                // 2년차 연가를 쓸 필요는 없지만 그래도 max(소집해제일) 설정만 해두었음.
+                datePickerDialog.getDatePicker().setMaxDate(max);
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }

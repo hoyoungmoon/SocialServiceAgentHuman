@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -148,7 +149,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         container = findViewById(R.id.fragment_container_1);
 
 
-
         Button spendButton = findViewById(R.id.spendButton_1);
         Button spendButton_2 = findViewById(R.id.spendButton_2);
         Button spendButton_3 = findViewById(R.id.spendButton_3);
@@ -178,8 +178,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
         });
 
-        setUserProfile();
+
         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+            setUserProfile();
             setRemainVac();
             searchStartDate = dateFormat.format(Calendar.getInstance().getTime());
             setThisMonthInfo(searchStartDate);
@@ -190,8 +191,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     int barWidth = progressBar.getRight() - progressBar.getLeft();
                     float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
                     progressPercentage.setText(String.format("%.3f", getPercentage()) + "%");
-                    if(position_X < 80){
-                        progressPercentage.setX(80);
+                    if(position_X < 60){
+                        progressPercentage.setX(60);
                     } else if(position_X > barWidth - 160){
                         progressPercentage.setX(barWidth - 160);
                     } else {
@@ -199,8 +200,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     }
                 }
             });
+        }else{
+            DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
+            FragmentManager fg = getSupportFragmentManager();
+            dialog.show(fg, "dialog");
         }
-
     }
 
     @Override
@@ -279,19 +283,24 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         Fragment fragment;
 
         if(container.getVisibility() == GONE){
-            if(tag.equals("list1")){
-                vacCard1.setVisibility(VISIBLE);
-                vacCard2.setVisibility(GONE);
-                vacCard3.setVisibility(GONE);
-            }else if(tag.equals("list2")){
-                vacCard1.setVisibility(GONE);
-                vacCard2.setVisibility(VISIBLE);
-                vacCard3.setVisibility(GONE);
-            }else{
-                vacCard1.setVisibility(GONE);
-                vacCard2.setVisibility(GONE);
-                vacCard3.setVisibility(VISIBLE);
+            switch(tag){
+                case "list1":
+                    vacCard1.setVisibility(VISIBLE);
+                    vacCard2.setVisibility(GONE);
+                    vacCard3.setVisibility(GONE);
+                    break;
+                case "list2":
+                    vacCard1.setVisibility(GONE);
+                    vacCard2.setVisibility(VISIBLE);
+                    vacCard3.setVisibility(GONE);
+                    break;
+                case "list3":
+                    vacCard1.setVisibility(GONE);
+                    vacCard2.setVisibility(GONE);
+                    vacCard3.setVisibility(VISIBLE);
+                    break;
             }
+
             imageView.setImageResource(R.drawable.ic_expand_less);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
                     lastDate, numOfYear, searchStartDate);
@@ -306,6 +315,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             vacCard3.setVisibility(VISIBLE);
             container.setVisibility(GONE);
             imageView.setImageResource(R.drawable.ic_expand_more);
+            ft.replace(R.id.fragment_container_1, new BlankFragment(), "empty");
+            ft.commit();
         }
     }
 
@@ -403,11 +414,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             pivotDate = formatter.format(pivotTime);
             pivotPlusOneDate = formatter.format(pivotPlusOneTime);
             c.close();
-        }
-        else{
-            DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
-            FragmentManager fg = getSupportFragmentManager();
-            dialog.show(fg, "dialog");
         }
     }
 
@@ -700,7 +706,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     public void refreshListView(int imageId, String limitStartDate, String limitLastDate, int numOfYear, String tag){
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
-        ImageView imageView =findViewById(imageId);
+        ImageView imageView = findViewById(imageId);
         imageView.setImageResource(R.drawable.ic_expand_less);
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
@@ -721,13 +727,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
         long count = (lastTime - todayTime);
         if(count > 0) {
-            dDayTextView.setText("D-" + (int) ((count / (60 * 60 * 24 * 1000)) + 1));
+            dDayTextView.setText("D-" + ((count / (60 * 60 * 24 * 1000)) + 1));
         }else{
             dDayTextView.setText("소집해제");
         }
-        entireService.setText((int) (((lastTime - firstTime) / (60 * 60 * 24 * 1000)) + 1) + " 일");
-        currentService.setText((int) (((todayTime - firstTime) / (60 * 60 * 24 * 1000)) + 1) + " 일");
-        remainService.setText((int) ((count / (60 * 60 * 24 * 1000)) + 1) + " 일");
+        entireService.setText( (((lastTime - firstTime) / (60 * 60 * 24 * 1000))) + " 일");
+        currentService.setText((((todayTime - firstTime) / (60 * 60 * 24 * 1000))) + " 일");
+        remainService.setText(((count / (60 * 60 * 24 * 1000))) + 1 + " 일");
     }
 
     public float getPercentage() {
