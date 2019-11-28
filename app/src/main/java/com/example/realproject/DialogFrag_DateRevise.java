@@ -42,6 +42,8 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.example.realproject.vacationDBManager.TABLE_FIRST;
 import static com.example.realproject.vacationDBManager.TABLE_USER;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
 public class DialogFrag_DateRevise extends DialogFragment implements View.OnClickListener, NumberPickerDialog.NumberPickerSaveListener {
 
@@ -61,6 +63,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
+            "yyyyMMdd", Locale.ENGLISH);
     DatePickerDialog firstDatePickerDialog;
     DatePickerDialog lastDatePickerDialog;
     Calendar dateCalendar;
@@ -105,6 +109,18 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             totalSecondVacEditText.setText(c.getString(7) + " 일");
             totalSickVacEditText.setText(c.getString(8) + " 일");
             payDayEditText.setText("매월 " + c.getString(9) + " 일");
+        }else{
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(YEAR, 1);
+            calendar.add(MONTH, 9);
+            firstDateEditText.setText(formatter.format(Calendar.getInstance().getTime()));
+            lastDateEditText.setText(formatter.format(calendar.getTime()));
+            mealCostEditText.setText("6000 원");
+            trafficCostEditText.setText("2700 원");
+            totalFirstVacEditText.setText("15 일");
+            totalSecondVacEditText.setText("15 일");
+            totalSickVacEditText.setText("30 일");
+            payDayEditText.setText("매월 1 일");
         }
 
         firstDateEditText.setOnClickListener(this);
@@ -136,8 +152,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                         someDateTextView.setText(formatter.format(dateCalendar
                                 .getTime()));
                     }
-                }, newCalendar.get(Calendar.YEAR),
-                newCalendar.get(Calendar.MONTH),
+                }, newCalendar.get(YEAR),
+                newCalendar.get(MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
         return returnDialog;
     }
@@ -190,41 +206,42 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     lastDatePickerDialog.show();
                     break;
                 case R.id.btn_save:
-                    // db에 user data가 있으면 수정으로 없으면 저장으로
-                    // 빈칸있으면 경고
-                    User user = new User();
-                    user.setNickName(nickNameEditText.getText().toString());
-                    user.setFirstDate(formatter.parse(firstDateEditText.getText().toString()));
-                    user.setLastDate(formatter.parse(lastDateEditText.getText().toString()));
-                    user.setMealCost(getTagOnlyInt(mealCostEditText.getText().toString()));
-                    user.setTrafficCost(getTagOnlyInt(trafficCostEditText.getText().toString()));
-                    user.setTotalFirstVac(getTagOnlyInt(totalFirstVacEditText.getText().toString()));
-                    user.setTotalSecondVac(getTagOnlyInt(totalSecondVacEditText.getText().toString()));
-                    user.setTotalSickVac(getTagOnlyInt(totalSickVacEditText.getText().toString()));
-                    user.setPayDay(getTagOnlyInt(payDayEditText.getText().toString()));
-
-                    if (DBmanager.getDataCount(TABLE_USER) == 0) {
-                        DBmanager.insertUser(user);
-                        dismiss();
+                    if((formatter.parse(lastDateEditText.getText().toString()).getTime() -
+                            formatter.parse(firstDateEditText.getText().toString()).getTime()) / (24*60*60*1000) < 367){
+                        blankAlert("복무기간이 1년을 초과하도록 설정해주세요");
                     } else {
-                        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
-                        c.moveToFirst();
-                        int id = c.getInt(0);
-                        ContentValues values = new ContentValues();
-                        values.put("nickName", user.getNickName());
-                        values.put("firstDate", formatter.format(user.getFirstDate()));
-                        values.put("lastDate", formatter.format(user.getLastDate()));
-                        values.put("mealCost", user.getMealCost());
-                        values.put("trafficCost", user.getTrafficCost());
-                        values.put("totalFirstVac", user.getTotalFirstVac());
-                        values.put("totalSecondVac", user.getTotalSecondVac());
-                        values.put("totalSickVac", user.getTotalSickVac());
-                        values.put("payDay", user.getPayDay());
-                        DBmanager.updateUser(id, values);
+                        User user = new User();
+                        user.setNickName(nickNameEditText.getText().toString());
+                        user.setFirstDate(formatter.parse(firstDateEditText.getText().toString()));
+                        user.setLastDate(formatter.parse(lastDateEditText.getText().toString()));
+                        user.setMealCost(getTagOnlyInt(mealCostEditText.getText().toString()));
+                        user.setTrafficCost(getTagOnlyInt(trafficCostEditText.getText().toString()));
+                        user.setTotalFirstVac(getTagOnlyInt(totalFirstVacEditText.getText().toString()));
+                        user.setTotalSecondVac(getTagOnlyInt(totalSecondVacEditText.getText().toString()));
+                        user.setTotalSickVac(getTagOnlyInt(totalSickVacEditText.getText().toString()));
+                        user.setPayDay(getTagOnlyInt(payDayEditText.getText().toString()));
 
-                        ((Main_Activity) getActivity()).setUserProfile();
+                        if (DBmanager.getDataCount(TABLE_USER) == 0) {
+                            DBmanager.insertUser(user);
+                        } else {
+                            Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+                            c.moveToFirst();
+                            int id = c.getInt(0);
+                            ContentValues values = new ContentValues();
+                            values.put("nickName", user.getNickName());
+                            values.put("firstDate", formatter.format(user.getFirstDate()));
+                            values.put("lastDate", formatter.format(user.getLastDate()));
+                            values.put("mealCost", user.getMealCost());
+                            values.put("trafficCost", user.getTrafficCost());
+                            values.put("totalFirstVac", user.getTotalFirstVac());
+                            values.put("totalSecondVac", user.getTotalSecondVac());
+                            values.put("totalSickVac", user.getTotalSickVac());
+                            values.put("payDay", user.getPayDay());
+                            DBmanager.updateUser(id, values);
+                        }
+                        // 오류 없는지 확인
                         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
-                            ((Main_Activity) getActivity()).setRemainVac();
+                            ((Main_Activity) getActivity()).load();
                         }
                         dismiss();
                     }
@@ -251,8 +268,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     dismiss();
                     break;
             }
-        }
-        catch(ParseException e) {
+        }catch(ParseException e) {
         }
     }
 
@@ -263,6 +279,20 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     public int getTagOnlyInt(String tag){
         String reTag = tag.replaceAll("[^0-9]","");
         return Integer.parseInt(reTag);
+    }
+
+    public void blankAlert(String alert){
+        new AlertDialog.Builder(getActivity())
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 
 }

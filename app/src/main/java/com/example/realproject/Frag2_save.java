@@ -227,7 +227,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             firstVacation = new FirstVacation();
 
             if(numberOfYear == 3){
-                // 병가 종류에 따라 count 넣기
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
@@ -275,8 +274,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
             String getDate = startDateEditText.getText().toString().trim();
             if(getDate.equals("")){
                 blankAlert("시작일을 입력해주세요");
-            }
-            else {
+            }else {
                 if (dateCalendar != null) {
                     firstVacation.setStartDate(dateCalendar.getTime());
                 }

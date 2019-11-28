@@ -55,6 +55,7 @@ public class vacationDBManager {
         values.put("count", firstVacation.getCount());
         return mDatabase.insert(TABLE_FIRST, null, values);
     }
+
     public long insertUser(User user){
         ContentValues values = new ContentValues();
         values.put("nickName", user.getNickName());
@@ -87,18 +88,20 @@ public class vacationDBManager {
         String[] idArr = new String[] { String.valueOf(id) };
         return mDatabase.update(TABLE_FIRST, addRowValue, "id =?", idArr);
     }
+
     public long updateUser (int id, ContentValues addRowValue){
         String[] idArr = new String[] { String.valueOf(id) };
         return mDatabase.update(TABLE_USER, addRowValue, "id =?", idArr);
     }
 
-    //특정 table의 data 한줄 뽑아오기
     public Cursor query (String[] columns, String tableName, String selection, String[] selectionArgs,
                          String groupBy, String having, String orderBy)
     {
         return mDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
     }
 
+    //android:startColor="#0b1c2d"
+    //                android:endColor="#3c5c75"
     public int getDataCount(String tableName){
         String countQuery = "SELECT  * FROM " + tableName;
         Cursor cursor = mDatabase.rawQuery(countQuery, null);
@@ -106,5 +109,10 @@ public class vacationDBManager {
         cursor.close();
 
         return count;
+    }
+
+    public void deleteAll(){
+        mDatabase.delete(TABLE_FIRST, null, null);
+        mDatabase.delete(TABLE_USER, null, null);
     }
 }
