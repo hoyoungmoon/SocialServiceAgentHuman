@@ -235,4 +235,11 @@
             android:layout_height="wrap_content"
             android:text="저장"/>
     </LinearLayout>
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/banner_ad"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        ads:adSize="BANNER"
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
 </LinearLayout>

@@ -28,6 +28,12 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 import org.w3c.dom.Text;
 
 import java.text.ParseException;
@@ -58,6 +64,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     private TextView payDayEditText;
     private Button saveButton;
     private Button cancelButton;
+    private AdView mAdView;
 
     private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
@@ -97,6 +104,17 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         saveButton = view.findViewById(R.id.btn_save);
         cancelButton = view.findViewById(R.id.btn_cancel);
 
+
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
+
         if(DBmanager.getDataCount(TABLE_USER) != 0){
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
@@ -110,6 +128,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             totalSickVacEditText.setText(c.getString(8) + " 일");
             payDayEditText.setText("매월 " + c.getString(9) + " 일");
         }else{
+            cancelButton.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
             calendar.add(YEAR, 1);
             calendar.add(MONTH, 9);
@@ -242,6 +261,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                         // 오류 없는지 확인
                         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
                             ((Main_Activity) getActivity()).load();
+                            ((Main_Activity) getActivity()).resetTimer();
+                            ((Main_Activity) getActivity()).startTimer();
                         }
                         dismiss();
                     }
@@ -265,6 +286,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     setNumberPickerDialog("payDay", 1, 26, 1, fg);
                     break;
                 case R.id.btn_cancel:
+                    ((Main_Activity) getActivity()).resetTimer();
+                    ((Main_Activity) getActivity()).startTimer();
                     dismiss();
                     break;
             }

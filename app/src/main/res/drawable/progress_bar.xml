@@ -8,7 +8,7 @@
             <corners
                 android:radius="3dp"/>
             <solid
-                android:color="#FFFFFF"/>
+                android:color="#5CFFFFFF"/>
         </shape>
     </item>
 
@@ -19,7 +19,7 @@
                 <corners
                     android:radius="3dp"/>
                 <solid
-                    android:color="#E60E6798"/>
+                    android:color="#FCC15B"/>
             </shape>
         </clip>
     </item>

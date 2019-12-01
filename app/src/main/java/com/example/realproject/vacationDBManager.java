@@ -101,7 +101,7 @@ public class vacationDBManager {
     }
 
     //android:startColor="#0b1c2d"
-    //                android:endColor="#3c5c75"
+    //android:endColor="#3c5c75"
     public int getDataCount(String tableName){
         String countQuery = "SELECT  * FROM " + tableName;
         Cursor cursor = mDatabase.rawQuery(countQuery, null);

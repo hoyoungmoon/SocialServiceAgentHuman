@@ -10,7 +10,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -63,7 +66,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
-    private static final int[] payDependsOnRank2019 = new int[]{306100, 331300, 366200, 405700};
+    private static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
+    private static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441600, 488200, 540900};
     private static String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0512", "0606", "0815",
             "1003", "1009", "1225"};
     public static Context mContext;
@@ -184,6 +188,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         });
 
         load();
+        if (!timerIsRunning && DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+            resetTimer();
+            startTimer();
+        }
     }
 
     public void load() {
@@ -193,8 +201,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             setSearchStartDate();
             setThisMonthInfo(searchStartDate);
             progressBar.setProgress((int) getPercentage());
-            entire = getEntireSecond();
-            current = getCurrentSecond();
 
             progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -221,7 +227,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     public long getCurrentSecond() {
         try {
-            return (Calendar.getInstance().getTime().getTime() - formatter.parse(firstDate).getTime()) / 100;
+            return (Calendar.getInstance().getTime().getTime() - formatter.parse(firstDate).getTime()) / 50;
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -230,7 +236,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     public long getEntireSecond() {
         try {
-            return (formatter.parse(lastDate).getTime() - formatter.parse(firstDate).getTime()) / 100;
+            return (formatter.parse(lastDate).getTime() - formatter.parse(firstDate).getTime()) / 50;
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -238,32 +244,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     }
 
     public long getPercentage() {
-        Calendar today = Calendar.getInstance();
-        long todayTime = today.getTime().getTime();
-        try {
-            long firstTime = formatter.parse(firstDate).getTime();
-            long lastTime = formatter.parse(lastDate).getTime();
-            long entire = (lastTime - firstTime);
-            long part = (todayTime - firstTime);
-            if (entire > 0) {
-                return (100 * part / entire);
-            } else {
-                return 100;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return -1;
-        }
-
+        return (100 * getCurrentSecond() / getEntireSecond());
     }
 
 
-    private void startTimer() {
-        countDownTimer = new CountDownTimer(entire, 100) {
+    public void startTimer() {
+        countDownTimer = new CountDownTimer(entire, 50) {
 
             @Override
             public void onTick(long millisUntilFinished) {
-                current++; // 0.1초 지날때마다 0.1초씩 더해주는 것과 같다.
+                current++; // 0.05초 지날때마다 0.05초씩 더해주는 것과 같다.
                 updateCountDownText();
             }
 
@@ -275,18 +265,18 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         timerIsRunning = true;
     }
 
-    private void pauseTimer() {
+    public void pauseTimer() {
         countDownTimer.cancel();
         timerIsRunning = false;
     }
 
-    private void resetTimer() {
+    public void resetTimer() {
         entire = getEntireSecond();
         current = getCurrentSecond();
         updateCountDownText();
     }
 
-    private void updateCountDownText() {
+    public void updateCountDownText() {
         double p = ((double) current / (double) entire) * 100;
         progressPercentage.setText(String.format("%.7f", p) + "%");
     }
@@ -308,18 +298,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             case R.id.vacCardView_2:
                 setListView(R.id.second_vacation_image, ft,
                         pivotPlusOneDate, lastDate, 2, "list2");
-
-                if (timerIsRunning) {
-                    pauseTimer();
-                } else {
-                    startTimer();
-                }
                 break;
 
             case R.id.vacCardView_3:
                 setListView(R.id.sick_vacation_image, ft,
                         firstDate, lastDate, 3, "list3");
-                resetTimer();
                 break;
 
             case R.id.spendButton_1:
@@ -421,21 +404,34 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 calendar.set(DATE, 1);
                 int currentPay = payDependsOnMonth(today.getTime());
                 String rank = null;
-                if (currentPay == payDependsOnRank2019[0]) {
+
+                if (currentPay == payDependsOnRankBefore2020[0]) {
                     calendar.add(MONTH, 3);
-                    rank = "이등병";
-                } else if (currentPay == payDependsOnRank2019[1]) {
+                    rank = "이등병 (2020년 개정전 기준)";
+                } else if (currentPay == payDependsOnRankAfter2020[0]) {
+                    calendar.add(MONTH, 2);
+                    rank = "이등병 (2020년 개정후 기준)";
+                } else if (currentPay == payDependsOnRankBefore2020[1]) {
                     calendar.add(MONTH, 10);
-                    rank = "일병";
-                } else if (currentPay == payDependsOnRank2019[2]) {
+                    rank = "일병 (2020년 개정전 기준)";
+                } else if (currentPay == payDependsOnRankAfter2020[1]) {
+                    calendar.add(MONTH, 8);
+                    rank = "일병 (2020년 개정후 기준)";
+                } else if (currentPay == payDependsOnRankBefore2020[2]) {
                     calendar.add(MONTH, 17);
-                    rank = "상병";
-                } else if (currentPay == payDependsOnRank2019[3]) {
+                    rank = "상병 (2020년 개정전 기준)";
+                } else if (currentPay == payDependsOnRankAfter2020[2]) {
+                    calendar.add(MONTH, 14);
+                    rank = "상병 (2020년 개정후 기준)";
+                } else if (currentPay == payDependsOnRankBefore2020[3]) {
                     calendar.setTime(formatter.parse(lastDate));
-                    rank = "병장";
+                    rank = "병장 (2020년 개정전 기준)";
+                } else if (currentPay == payDependsOnRankAfter2020[3]) {
+                    calendar.setTime(formatter.parse(lastDate));
+                    rank = "병장 (2020년 개정후 기준)";
                 }
                 toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
-                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | <meta>" + dateFormat_dot.format(calendar.getTime()) + "</meta>");
+                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | " + dateFormat_dot.format(calendar.getTime()) + "");
             } else if (view == toolTipPay) {
                 setThisMonthInfo(searchStartDate);
             }
@@ -465,13 +461,30 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
         FragmentManager fg = getSupportFragmentManager();
         switch (menuItem.getItemId()) {
-            // 소집일 식비 각각 gone 으로 없앨지 말지
             case R.id.profile:
                 dialog.show(fg, "dialog");
+                if (timerIsRunning) {
+                    pauseTimer();
+                }
                 break;
             case R.id.manual:
                 break;
             case R.id.feedback:
+                Intent email = new Intent(Intent.ACTION_SEND);
+                email.setType("plain/Text");
+                email.putExtra(Intent.EXTRA_EMAIL, getString(R.string.email));
+                email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report));
+                startActivity(email);
+                break;
+            case R.id.rating:
+                /* // 나중에
+                final String appPackageName = getPackageName();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                } catch (android.content.ActivityNotFoundException e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                }
+                */
                 break;
             case R.id.reset:
                 new AlertDialog.Builder(this)
@@ -545,10 +558,18 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         int month = calendar.get(MONTH) + 1;
         int diff = ((year - firstYear) * 12) + (month - firstMonth);
 
-        if (diff < 3) return payDependsOnRank2019[0];
-        else if (diff >= 3 && diff < 10) return payDependsOnRank2019[1];
-        else if (diff >= 10 && diff < 17) return payDependsOnRank2019[2];
-        else return payDependsOnRank2019[3];
+        // 2020년을 기준으로도 알아야함
+        if (year <= 2019) {
+            if (diff < 3) return payDependsOnRankBefore2020[0];
+            else if (diff >= 3 && diff < 10) return payDependsOnRankBefore2020[1];
+            else if (diff >= 10 && diff < 17) return payDependsOnRankBefore2020[2];
+            else return payDependsOnRankBefore2020[3];
+        } else {
+            if (diff < 2) return payDependsOnRankAfter2020[0];
+            else if (diff >= 2 && diff < 8) return payDependsOnRankAfter2020[1];
+            else if (diff >= 8 && diff < 14) return payDependsOnRankAfter2020[2];
+            else return payDependsOnRankAfter2020[3];
+        }
     }
 
     public void setRemainVac() {
@@ -642,6 +663,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         int numberOfTraffic;
         double pay = 0;
         boolean isPromoted = false;
+        boolean isAmended = false;
         int payBeforePromotion;
         int payAfterPromotion = 0;
         int numberOfAfterPromotion = 0;
@@ -651,23 +673,33 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         numberOfEntire = getDateLength(first_tmp, last_tmp);
         numberOfWork = numberOfEntire;
         Date searchDate = first_payDate;
+        cal.setTime(searchDate);
 
         payBeforePromotion = payDependsOnMonth(searchDate);
         double checkPromotion = (double) (payDependsOnMonth(searchDate) / entireLength);
+        int checkYear = cal.get(YEAR);
 
         while (searchDate.compareTo(last_payDate) <= 0) {
             cal.setTime(searchDate);
             String onlyMonthAndDate = dateFormat.format(searchDate).substring(4);
+
             if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
                     Arrays.asList(listOfHoliday).contains(onlyMonthAndDate)) {
                 numberOfWork--;
             }
+
             double payPerDay = (double) (payDependsOnMonth(searchDate) / entireLength);
-            if ((checkPromotion != payPerDay) || isPromoted) {
-                isPromoted = true;
+            int year = cal.get(YEAR);
+            if (checkPromotion != payPerDay) {
+                if (checkYear == 2019 && year == 2020) {
+                    isAmended = true;
+                } else {
+                    isPromoted = true;
+                }
                 payAfterPromotion = payDependsOnMonth(searchDate);
                 numberOfAfterPromotion++;
             }
+
             pay += payPerDay;
             cal.add(DATE, 1);
             searchDate = cal.getTime();
@@ -719,14 +751,23 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         int sumOfAfterPromotion = payAfterPromotion * numberOfAfterPromotion / entireLength;
         int sumOfNoPromotion = payBeforePromotion * numberOfEntire / entireLength;
 
-        if (isPromoted) {
-            toolTipText = ("<b>진급전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
+        if (isAmended) {
+            toolTipText = ("<b>2019년 개정전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
                     + decimalFormat.format(payBeforePromotion) + "원 x " + "(" + (numberOfEntire - numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급후</b><br>" + decimalFormat.format(sumOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>2020년 개정후</b><br>" + decimalFormat.format(sumOfAfterPromotion)
                     + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) + "원 x " + "(" + (numberOfAfterPromotion)
                     + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
                     + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 * " + numberOfTraffic + "일" + "<br><br>"
+                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일" + "<br><br>"
+                    + "공휴일 출근횟수에서 제외");
+        } else if (isPromoted) {
+            toolTipText = ("<b>진급 전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
+                    + decimalFormat.format(payBeforePromotion) + "원 x " + "(" + (numberOfEntire - numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급 후</b><br>" + decimalFormat.format(sumOfAfterPromotion)
+                    + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) + "원 x " + "(" + (numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
+                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
+                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일" + "<br><br>"
                     + "공휴일 출근횟수에서 제외");
         } else {
             toolTipText = ("<b>기본급여</b><br>" + decimalFormat.format(sumOfNoPromotion) + "원 <b>|</b> " + decimalFormat.format(payBeforePromotion) + "원 x "

@@ -86,7 +86,7 @@
                 android:layout_marginTop="17dp"
                 android:layout_marginBottom="10dp"
                 android:text="Alleyoops"
-                android:textColor="@color/colorSub"
+                android:textColor="@color/colorMainBright"
                 android:textSize="27sp"
                 android:textStyle="bold" />
 
@@ -109,7 +109,7 @@
                 android:layout_alignParentRight="true"
                 android:text="D-365"
                 android:textStyle="bold"
-                android:textColor="@color/colorSub"
+                android:textColor="@color/colorMainBright"
                 android:textSize="27sp" />
 
             <TextView
@@ -119,7 +119,7 @@
                 android:layout_below="@+id/tv_nickName"
                 android:layout_marginBottom="6dp"
                 android:text="2019-04-18 ~ 2021-02-09"
-                android:textColor="@color/colorSub"/>
+                android:textColor="@color/colorMainBright"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
@@ -137,7 +137,7 @@
                 android:layout_below="@+id/progressBar"
                 android:layout_marginTop="4dp"
                 android:text="30.000%"
-                android:textColor="@color/colorSub"
+                android:textColor="#FCC15B"
                 android:textSize="11dp" />
 
         </RelativeLayout>
@@ -268,9 +268,9 @@
                 android:id="@+id/spendVacCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/colorCardView"
-                app:cardCornerRadius="5dp"
+                android:layout_marginTop="5dp"
+                android:backgroundTint="@color/colorMain"
+                app:cardCornerRadius="8dp"
                 app:layout_constraintBottom_toTopOf="@+id/vacCardViewEntire"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/userCardView">
@@ -297,7 +297,7 @@
                             android:layout_weight="1"
                             android:clickable="true"
                             android:src="@drawable/ic_navigate_before_black_24dp"
-                            android:tint="#a3aaab" />
+                            android:tint="#ffffff" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -317,6 +317,7 @@
                                     android:layout_centerHorizontal="true"
                                     android:layout_marginBottom="5dp"
                                     android:text="이번달 급여"
+                                    android:textColor="@color/colorMainBright"
                                     android:textSize="13sp" />
 
                                 <ImageView
@@ -326,7 +327,7 @@
                                     android:layout_alignParentEnd="true"
                                     android:clickable="true"
                                     android:onClick="toolTipRank"
-                                    android:src="@drawable/ic_info_outline_black_24dp" />
+                                    android:src="@drawable/ic_info_outline_white_24dp" />
 
                                 <TextView
                                     android:id="@+id/tv_salary"
@@ -336,6 +337,7 @@
                                     android:layout_centerHorizontal="true"
                                     android:text="468,000 KRW"
                                     android:textSize="20sp"
+                                    android:textColor="@color/colorMainBright"
                                     android:textStyle="bold" />
                             </RelativeLayout>
                         </LinearLayout>
@@ -346,7 +348,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1"
                             android:src="@drawable/ic_navigate_next_black_24dp"
-                            android:tint="#a3aaab" />
+                            android:tint="#ffffff" />
 
                     </LinearLayout>
 
@@ -371,6 +373,7 @@
                                 android:background="@drawable/button_bg"
                                 android:gravity="center"
                                 android:text="외출"
+                                android:textColor="@color/colorMainBright"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -378,6 +381,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
+                                android:textColor="@color/colorMainBright"
                                 android:text="30분"
                                 android:textSize="15sp" />
                         </LinearLayout>
@@ -401,6 +405,7 @@
                                 android:layout_marginBottom="5dp"
                                 android:background="@drawable/button_bg_2"
                                 android:gravity="center"
+                                android:textColor="@color/colorMainBright"
                                 android:text="연 / 반가"
                                 android:textSize="12sp" />
 
@@ -409,6 +414,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
+                                android:textColor="@color/colorMainBright"
                                 android:text="1.5일"
                                 android:textSize="15sp" />
                         </LinearLayout>
@@ -432,6 +438,7 @@
                                 android:layout_marginBottom="5dp"
                                 android:background="@drawable/button_bg"
                                 android:gravity="center"
+                                android:textColor="@color/colorMainBright"
                                 android:text="병가"
                                 android:textSize="12sp" />
 
@@ -440,6 +447,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
+                                android:textColor="@color/colorMainBright"
                                 android:text="0일"
                                 android:textSize="15sp" />
                         </LinearLayout>
@@ -452,9 +460,8 @@
                 android:id="@+id/vacCardViewEntire"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:backgroundTint="@color/colorCardView"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="8dp"
                 app:cardCornerRadius="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintHeight_max="350dp"
@@ -528,8 +535,8 @@
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
                                 android:text="휴가사용"
-                                android:textColor="#ffffff"
-                                android:textSize="13sp" />
+                                android:textColor="@color/colorMainBright"
+                                android:textSize="14sp" />
 
                             <View
                                 android:layout_width="match_parent"
@@ -602,8 +609,8 @@
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
                                 android:text="휴가사용"
-                                android:textColor="#ffffff"
-                                android:textSize="13sp" />
+                                android:textColor="@color/colorMainBright"
+                                android:textSize="14sp" />
 
                             <View
                                 android:layout_width="match_parent"
@@ -676,8 +683,8 @@
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
                                 android:text="휴가사용"
-                                android:textColor="#ffffff"
-                                android:textSize="13sp" />
+                                android:textColor="@color/colorMainBright"
+                                android:textSize="14sp" />
 
                             <View
                                 android:layout_width="match_parent"
@@ -693,7 +700,8 @@
                         android:layout_height="0dp"
                         android:layout_weight="2"
                         android:orientation="vertical"
-                        android:visibility="gone"></LinearLayout>
+                        android:visibility="gone">
+                    </LinearLayout>
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
