@@ -70,14 +70,14 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "yyyyMMdd", Locale.ENGLISH);
+
     DatePickerDialog firstDatePickerDialog;
     DatePickerDialog lastDatePickerDialog;
     Calendar dateCalendar;
     vacationDBManager DBmanager;
 
-    public DialogFrag_DateRevise() {}
+    public DialogFrag_DateRevise() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,7 +115,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         mAdView.loadAd(adRequest);
 
 
-        if(DBmanager.getDataCount(TABLE_USER) != 0){
+        if (DBmanager.getDataCount(TABLE_USER) != 0) {
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
             nickNameEditText.setText(c.getString(1));
@@ -127,7 +127,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             totalSecondVacEditText.setText(c.getString(7) + " 일");
             totalSickVacEditText.setText(c.getString(8) + " 일");
             payDayEditText.setText("매월 " + c.getString(9) + " 일");
-        }else{
+        } else {
             cancelButton.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
             calendar.add(YEAR, 1);
@@ -159,10 +159,10 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         return view;
     }
 
-    public DatePickerDialog setDatePickerDialog(TextView dateTextView){
+    public DatePickerDialog setDatePickerDialog(TextView dateTextView) {
         final TextView someDateTextView = dateTextView;
         Calendar newCalendar = Calendar.getInstance();
-        DatePickerDialog returnDialog =  new DatePickerDialog(getActivity(),
+        DatePickerDialog returnDialog = new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
@@ -177,7 +177,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         return returnDialog;
     }
 
-    public void setNumberPickerDialog(String userInfo, int minValue, int maxValue, int step, FragmentManager fg){
+    public void setNumberPickerDialog(String userInfo, int minValue, int maxValue, int step, FragmentManager fg) {
         NumberPickerDialog dialog = new NumberPickerDialog(this);
         Bundle bundle = new Bundle(4);
         // 이미 세팅되어있던 값 넣기
@@ -191,23 +191,23 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
 
     @Override
     public void onSaveBtnClick(String userInfo, String saveValue) {
-        switch(userInfo){
+        switch (userInfo) {
             case "mealCost":
                 mealCostEditText.setText(saveValue + " 원");
                 break;
             case "tarfficCost":
                 trafficCostEditText.setText(saveValue + " 원");
                 break;
-            case"totalFirstVac":
+            case "totalFirstVac":
                 totalFirstVacEditText.setText(saveValue + " 일");
                 break;
-            case"totalSecondVac":
+            case "totalSecondVac":
                 totalSecondVacEditText.setText(saveValue + " 일");
                 break;
-            case"totalSickVac":
+            case "totalSickVac":
                 totalSickVacEditText.setText(saveValue + " 일");
                 break;
-            case"payDay":
+            case "payDay":
                 payDayEditText.setText(saveValue + " 일");
                 break;
         }
@@ -225,8 +225,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     lastDatePickerDialog.show();
                     break;
                 case R.id.btn_save:
-                    if((formatter.parse(lastDateEditText.getText().toString()).getTime() -
-                            formatter.parse(firstDateEditText.getText().toString()).getTime()) / (24*60*60*1000) < 367){
+                    if ((formatter.parse(lastDateEditText.getText().toString()).getTime() -
+                            formatter.parse(firstDateEditText.getText().toString()).getTime()) / (24 * 60 * 60 * 1000) < 367) {
                         blankAlert("복무기간이 1년을 초과하도록 설정해주세요");
                     } else {
                         User user = new User();
@@ -291,7 +291,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     dismiss();
                     break;
             }
-        }catch(ParseException e) {
+        } catch (ParseException e) {
         }
     }
 
@@ -299,19 +299,17 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     public void onSaveInstanceState(Bundle outState) {
     }
 
-    public int getTagOnlyInt(String tag){
-        String reTag = tag.replaceAll("[^0-9]","");
+    public int getTagOnlyInt(String tag) {
+        String reTag = tag.replaceAll("[^0-9]", "");
         return Integer.parseInt(reTag);
     }
 
-    public void blankAlert(String alert){
+    public void blankAlert(String alert) {
         new AlertDialog.Builder(getActivity())
                 .setMessage(alert)
                 .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 })

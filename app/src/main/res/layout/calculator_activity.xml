@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Calculator_Activity">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:lineSpacingExtra="3dp"
+        android:textSize="10sp"
+        android:text="@string/cal_manual"/>
+
+    <LinearLayout
+        android:id="@+id/cal_linear2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:visibility="gone"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="출근 일수" />
+
+            <TextView
+                android:id="@+id/cal_result_work"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기본급"/>
+            <TextView
+                android:id="@+id/cal_result_pay"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="식비"/>
+            <TextView
+                android:id="@+id/cal_result_meal"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="교통비"/>
+            <TextView
+                android:id="@+id/cal_result_traffic"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="총합"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/cal_result_total"
+                android:gravity="end"
+                android:padding="16dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/cal_linear1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="출근 시작일"/>
+            <TextView
+                android:id="@+id/cal_first"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="출근 마지막일"/>
+            <TextView
+                android:id="@+id/cal_last"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="기본급"/>
+            <RadioGroup
+                android:id="@+id/cal_pay_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/cal_pay_type_exist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="기존 소집일 기준"
+                    android:textSize="12sp"
+                    android:checked="true"/>
+
+                <RadioButton
+                    android:id="@+id/cal_pay_type_input"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="직접 입력"
+                    android:textSize="12sp"/>
+            </RadioGroup>
+            <EditText
+                android:id="@+id/cal_pay_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAlignment="textEnd"
+                android:cursorVisible="false"
+                android:hint="기본급 입력"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/cal_pay_text"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="식비"/>
+            <TextView
+                android:id="@+id/cal_meal"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="교통비"/>
+            <TextView
+                android:id="@+id/cal_traffic"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="연가 / 병가 / 공휴일 일수 (교통비, 식비 제외)"/>
+            <TextView
+                android:id="@+id/cal_notWork"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+        <View
+            android:background="#D1CECE"
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="오전 반/병가 일수 (식비 제외)" />
+
+            <TextView
+                android:id="@+id/cal_morning"
+                android:gravity="end"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/cal_calculate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorMain"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:text="계 산 하 기"
+        android:textColor="#ffffff"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="bottom">
+        <com.google.android.gms.ads.AdView
+            android:id="@+id/banner_ad"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+    </LinearLayout>
+
+</LinearLayout>

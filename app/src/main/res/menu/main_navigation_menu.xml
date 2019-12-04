@@ -8,6 +8,14 @@
                 android:title="프로필 정보 변경"/>
         </menu>
     </item>
+    <item android:title="Calculate">
+        <menu>
+            <item
+                android:id="@+id/calculator"
+                android:icon="@drawable/ic_calculator_24dp"
+                android:title="월급 직접 계산하기"/>
+        </menu>
+    </item>
     <item android:title="Information">
         <menu>
             <item

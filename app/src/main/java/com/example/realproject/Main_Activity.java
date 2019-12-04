@@ -62,7 +62,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             "yyyyMMdd", Locale.ENGLISH);
     private static final SimpleDateFormat dateFormat_dot = new SimpleDateFormat(
             "yyyy.MM.dd", Locale.ENGLISH);
-    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###");
+    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
+    private static final DecimalFormat decimalFormat2 = new DecimalFormat("###,###,###원");
     private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
@@ -106,6 +107,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private TextView entireService;
     private TextView currentService;
     private TextView remainService;
+    private ImageView nav_button;
+    private ImageView cal_button;
+    private ImageView toolTipRank;
+    private ImageView toolTipPay;
 
     private CountDownTimer countDownTimer;
     private boolean timerIsRunning;
@@ -137,6 +142,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         mContext = this;
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        nav_button = findViewById(R.id.navigation_drawer_button);
+        cal_button = findViewById(R.id.calculator_button);
         nickNameTextView = findViewById(R.id.tv_nickName);
         dDayTextView = findViewById(R.id.tv_dDay);
         servicePeriodTextView = findViewById(R.id.tv_servicePeriod);
@@ -156,7 +163,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         vacCard2 = findViewById(R.id.vacCardView_2);
         vacCard3 = findViewById(R.id.vacCardView_3);
         container = findViewById(R.id.fragment_container_1);
-
+        toolTipRank = findViewById(R.id.btn_rank_info);
+        toolTipPay = findViewById(R.id.btn_pay_info);
 
         Button spendButton = findViewById(R.id.spendButton_1);
         Button spendButton_2 = findViewById(R.id.spendButton_2);
@@ -176,10 +184,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         spendButton_3.setOnClickListener(this);
         goToNextPeriod.setOnClickListener(this);
         goToPreviousPeriod.setOnClickListener(this);
+        cal_button.setOnClickListener(this);
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        ImageView nav_button = findViewById(R.id.navigation_drawer_button);
+
         nav_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -323,31 +332,35 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             case R.id.iv_search_next_period:
                 try {
                     calendar.setTime(dateFormat.parse(searchStartDate));
+                    calendar.add(MONTH, 1);
+                    searchStartDate = dateFormat.format(calendar.getTime());
+                    if (!setThisMonthInfo(searchStartDate)) {
+                        calendar.add(MONTH, -1);
+                        searchStartDate = dateFormat.format(calendar.getTime());
+                    }
                 } catch (ParseException e) {
                     e.printStackTrace();
-                }
-                calendar.add(MONTH, 1);
-                searchStartDate = dateFormat.format(calendar.getTime());
-                if (!setThisMonthInfo(searchStartDate)) {
-                    calendar.add(MONTH, -1);
-                    searchStartDate = dateFormat.format(calendar.getTime());
                 }
                 break;
 
             case R.id.iv_search_previous_period:
                 try {
                     calendar.setTime(dateFormat.parse(searchStartDate));
+                    calendar.add(MONTH, -1);
+                    searchStartDate = dateFormat.format(calendar.getTime());
+                    if (!setThisMonthInfo(searchStartDate)) {
+                        calendar.add(MONTH, 1);
+                        searchStartDate = dateFormat.format(calendar.getTime());
+                    }
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                calendar.add(MONTH, -1);
-                searchStartDate = dateFormat.format(calendar.getTime());
-                if (!setThisMonthInfo(searchStartDate)) {
-                    calendar.add(MONTH, 1);
-                    searchStartDate = dateFormat.format(calendar.getTime());
-                }
                 break;
 
+            case R.id.calculator_button:
+                Intent calculator = new Intent(Main_Activity.this, Calculator_Activity.class);
+                startActivity(calculator);
+                break;
         }
     }
 
@@ -394,10 +407,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     }
 
     public void toolTipRank(View view) {
-        ImageView toolTipRank = findViewById(R.id.btn_rank_info);
-        ImageView toolTipPay = findViewById(R.id.btn_pay_info);
         try {
-            if (view == toolTipRank) {
+            if (view == toolTipRank || view == nickNameTextView) {
+                view = toolTipRank;
                 Calendar calendar = Calendar.getInstance();
                 Calendar today = Calendar.getInstance();
                 calendar.setTime(formatter.parse(firstDate));
@@ -432,10 +444,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
                 toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
                         + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | " + dateFormat_dot.format(calendar.getTime()) + "");
-            } else if (view == toolTipPay) {
+            } else if (view == toolTipPay || view == salaryTextView) {
+                view = toolTipPay;
                 setThisMonthInfo(searchStartDate);
             }
-
 
             Tooltip toolTip = new Tooltip.Builder(this)
                     .styleId(R.style.ToolTipLayoutCustomStyle)
@@ -468,23 +480,28 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 }
                 break;
             case R.id.manual:
+                Intent manual = new Intent(Main_Activity.this, Manual_Activity.class);
+                startActivity(manual);
+                break;
+            case R.id.calculator:
+                Intent calculator = new Intent(Main_Activity.this, Calculator_Activity.class);
+                startActivity(calculator);
                 break;
             case R.id.feedback:
                 Intent email = new Intent(Intent.ACTION_SEND);
                 email.setType("plain/Text");
-                email.putExtra(Intent.EXTRA_EMAIL, getString(R.string.email));
+                email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"moonhy95@naver.com"});
                 email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report));
                 startActivity(email);
                 break;
             case R.id.rating:
-                /* // 나중에
+
                 final String appPackageName = getPackageName();
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
                 } catch (android.content.ActivityNotFoundException e) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
                 }
-                */
                 break;
             case R.id.reset:
                 new AlertDialog.Builder(this)
@@ -752,28 +769,28 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         int sumOfNoPromotion = payBeforePromotion * numberOfEntire / entireLength;
 
         if (isAmended) {
-            toolTipText = ("<b>2019년 개정전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
-                    + decimalFormat.format(payBeforePromotion) + "원 x " + "(" + (numberOfEntire - numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>2020년 개정후</b><br>" + decimalFormat.format(sumOfAfterPromotion)
-                    + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) + "원 x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
-                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일" + "<br><br>"
+            toolTipText = ("<b>2019년 개정전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
+                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>2020년 개정후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
+                    + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
+                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
+                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
                     + "공휴일 출근횟수에서 제외");
         } else if (isPromoted) {
-            toolTipText = ("<b>진급 전</b><br>" + decimalFormat.format(sumOfBeforePromotion) + "원 <b>|</b> "
-                    + decimalFormat.format(payBeforePromotion) + "원 x " + "(" + (numberOfEntire - numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급 후</b><br>" + decimalFormat.format(sumOfAfterPromotion)
-                    + "원 <b>|</b> " + decimalFormat.format(payAfterPromotion) + "원 x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
-                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일" + "<br><br>"
+            toolTipText = ("<b>진급 전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
+                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급 후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
+                    + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
+                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
+                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
+                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
                     + "공휴일 출근횟수에서 제외");
         } else {
-            toolTipText = ("<b>기본급여</b><br>" + decimalFormat.format(sumOfNoPromotion) + "원 <b>|</b> " + decimalFormat.format(payBeforePromotion) + "원 x "
-                    + "(" + numberOfEntire + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat.format(sumOfMeal) + "원 <b>|</b> "
-                    + decimalFormat.format(mealCost) + "원 x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat.format(sumOfTraffic) + "원 <b>|</b> "
-                    + decimalFormat.format(trafficCost) + "원 x " + numberOfTraffic + "일" + "<br><br>"
+            toolTipText = ("<b>기본급여</b><br>" + decimalFormat2.format(sumOfNoPromotion) + " <b>|</b> " + decimalFormat2.format(payBeforePromotion) + " x "
+                    + "(" + numberOfEntire + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
+                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
+                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
                     + "공휴일 출근횟수에서 제외");
         }
     }

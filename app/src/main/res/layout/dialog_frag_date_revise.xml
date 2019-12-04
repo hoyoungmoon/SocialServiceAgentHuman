@@ -1,245 +1,294 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_margin="10dp"
-    android:background="#ffffff"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="25dp">
+    android:layout_margin="10dp"
+    android:background="#ffffff"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
+
         <LinearLayout
             android:id="@+id/group_nickName"
-            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="닉네임"/>
+                    android:text="닉네임" />
+
                 <EditText
                     android:id="@+id/et_nickName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
                     android:background="@null"
                     android:gravity="end"
                     android:padding="12dp"
-                    android:textSize="13dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:textSize="13dp" />
             </LinearLayout>
         </LinearLayout>
-    <View
-        android:background="#D1CECE"
-        android:layout_width="360dp"
-        android:layout_height="1dp"
-        android:layout_gravity="center"/>
+
+        <View
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:background="#D1CECE" />
+
         <LinearLayout
             android:id="@+id/group_firstLastDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="소집일"/>
+                    android:text="소집일" />
+
                 <TextView
                     android:id="@+id/tv_firstDate"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
+
             <View
-                android:background="#D1CECE"
                 android:layout_width="360dp"
                 android:layout_height="1dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="#D1CECE" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="소집해제일"/>
+                    android:text="소집해제일" />
+
                 <TextView
                     android:id="@+id/tv_lastDate"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
         </LinearLayout>
-    <View
-        android:background="#D1CECE"
-        android:layout_width="360dp"
-        android:layout_height="1dp"
-        android:layout_gravity="center"/>
+
+        <View
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:background="#D1CECE" />
+
         <LinearLayout
             android:id="@+id/group_mealTrafficCost"
-            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="식비"/>
+                    android:text="식비" />
+
                 <TextView
                     android:id="@+id/tv_mealCost"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
+
             <View
-                android:background="#D1CECE"
                 android:layout_width="360dp"
                 android:layout_height="1dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="#D1CECE" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="교통비"/>
+                    android:text="교통비" />
+
                 <TextView
                     android:id="@+id/tv_trafficCost"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
         </LinearLayout>
-    <View
-        android:background="#D1CECE"
-        android:layout_width="360dp"
-        android:layout_height="1dp"
-        android:layout_gravity="center"/>
+
+        <View
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:background="#D1CECE" />
+
         <LinearLayout
             android:id="@+id/group_vacation"
-            android:visibility="visible"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="visible">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="1년차 연가"/>
+                    android:text="1년차 연가" />
+
                 <TextView
                     android:id="@+id/tv_totalFirstVac"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
+
             <View
-                android:background="#D1CECE"
                 android:layout_width="360dp"
                 android:layout_height="1dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="#D1CECE" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="2년차 연가"/>
+                    android:text="2년차 연가" />
+
                 <TextView
                     android:id="@+id/tv_totalSecondVac"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
+
             <View
-                android:background="#D1CECE"
                 android:layout_width="360dp"
                 android:layout_height="1dp"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:background="#D1CECE" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="병가"/>
+                    android:text="병가" />
+
                 <TextView
                     android:id="@+id/tv_totalSickVac"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
         </LinearLayout>
-    <View
-        android:background="#D1CECE"
-        android:layout_width="360dp"
-        android:layout_height="1dp"
-        android:layout_gravity="center"/>
+
+        <View
+            android:layout_width="360dp"
+            android:layout_height="1dp"
+            android:layout_gravity="center"
+            android:background="#D1CECE" />
+
         <LinearLayout
             android:id="@+id/group_payDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="월급날"/>
+                    android:text="월급날" />
+
                 <TextView
                     android:id="@+id/tv_payDay"
-                    android:gravity="end"
-                    android:padding="12dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:gravity="end"
+                    android:padding="12dp" />
             </LinearLayout>
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
-        android:gravity="end"
-        android:orientation="horizontal">
-        <Button
-            android:background="#ffffff"
-            android:id="@+id/btn_cancel"
-            android:layout_width="50dp"
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="취소"/>
-        <Button
-            android:background="#ffffff"
-            android:id="@+id/btn_save"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:text="저장"/>
+            android:layout_marginTop="15dp"
+            android:gravity="end"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:text="취소" />
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:background="#ffffff"
+                android:text="저장" />
+        </LinearLayout>
     </LinearLayout>
-    <com.google.android.gms.ads.AdView
+
+    <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/banner_ad"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111"/>
+        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
 </LinearLayout>
