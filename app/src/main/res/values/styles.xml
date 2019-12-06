@@ -14,7 +14,11 @@
     </style>
 
     <style name="ManualTheme" parent="Theme.AppCompat.Light">
-        <item name="android:actionBarSize">90dp</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">#727272</item>
+    </style>
+
+    <style name="CalculatorTheme" parent="Theme.AppCompat.Light">
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:textColor">#121533</item>
     </style>

@@ -3,7 +3,9 @@ package com.example.realproject;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
@@ -40,6 +42,7 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;
 import static java.util.Calendar.SUNDAY;
 import static java.util.Calendar.YEAR;
+import static java.util.Calendar.getInstance;
 
 public class Calculator_Activity extends AppCompatActivity implements View.OnClickListener, NumberPickerDialog.NumberPickerSaveListener {
 
@@ -259,17 +262,22 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
                 setNumberPickerDialog("morningNum", 0, 31, 1, fg);
                 break;
             case R.id.cal_calculate:
-                if (resultOpen) {
-                    resultOpen = false;
-                    resultLinear.setVisibility(GONE);
-                    calculateLinear.setVisibility(VISIBLE);
-                    calculateButton.setText("계 산 하 기");
+                if (isLessThanOneMonth()) {
+
+                    if (resultOpen) {
+                        resultOpen = false;
+                        resultLinear.setVisibility(GONE);
+                        calculateLinear.setVisibility(VISIBLE);
+                        calculateButton.setText("계 산 하 기");
+                    } else {
+                        resultOpen = true;
+                        resultLinear.setVisibility(VISIBLE);
+                        calculateLinear.setVisibility(GONE);
+                        calculateButton.setText("다 시 계 산 하 기");
+                        calculate();
+                    }
                 } else {
-                    resultOpen = true;
-                    resultLinear.setVisibility(VISIBLE);
-                    calculateLinear.setVisibility(GONE);
-                    calculateButton.setText("다 시 계 산 하 기");
-                    calculate();
+                    blankAlert("1달 미만의 기간만 검색 가능합니다");
                 }
                 break;
         }
@@ -336,6 +344,21 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
         }
     }
 
+    public boolean isLessThanOneMonth(){
+        try {
+            Calendar calendar = getInstance();
+            startDate = formatter.parse(startSearchDateTextView.getText().toString());
+            endDate = formatter.parse(endSearchDateTextView.getText().toString());
+            calendar.setTime(startDate);
+            calendar.add(MONTH, 1);
+            Date pivotDate = calendar.getTime();
+            if(endDate.compareTo(pivotDate) < 0) return true;
+            else return false;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public int getMonthLength(Date startDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
@@ -350,11 +373,24 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
         return (int) ((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
     }
 
-    public String toMoneyUnit(double money){
+    public String toMoneyUnit(double money) {
         return decimalFormat.format(Math.round((money) / 100.0) * 100);
     }
+
     public int getTagOnlyInt(String tag) {
         String reTag = tag.replaceAll("[^0-9]", "");
         return Integer.parseInt(reTag);
+    }
+
+    public void blankAlert(String alert) {
+        new AlertDialog.Builder(this)
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }

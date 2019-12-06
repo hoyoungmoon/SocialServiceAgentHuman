@@ -56,6 +56,7 @@ import static java.util.Calendar.YEAR;
 public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     vacationDBManager DBmanager = null;
+    PayDependsOnMonth paySearch;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -185,6 +186,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         goToNextPeriod.setOnClickListener(this);
         goToPreviousPeriod.setOnClickListener(this);
         cal_button.setOnClickListener(this);
+
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -490,12 +492,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             case R.id.feedback:
                 Intent email = new Intent(Intent.ACTION_SEND);
                 email.setType("plain/Text");
-                email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"moonhy95@naver.com"});
+                email.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"alleyoops.app@gmail.com"});
                 email.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.report));
                 startActivity(email);
                 break;
             case R.id.rating:
-
                 final String appPackageName = getPackageName();
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));

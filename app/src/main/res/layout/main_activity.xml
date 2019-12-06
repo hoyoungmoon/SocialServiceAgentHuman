@@ -60,8 +60,8 @@
         android:id="@+id/navigation_drawer_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:padding="5dp"
         android:src="@drawable/ic_dehaze_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -71,9 +71,10 @@
             android:id="@+id/calculator_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="15dp"
+            android:layout_marginEnd="5dp"
             android:layout_marginTop="5dp"
-            android:src="@drawable/ic_calculate_24dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_calculator_white_24dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@+id/RelativeLayout1"/>
@@ -310,8 +311,7 @@
                             android:layout_height="match_parent"
                             android:layout_weight="1.2"
                             android:clickable="true"
-                            android:src="@drawable/ic_navigate_before_black_24dp"
-                            android:tint="#ffffff" />
+                            android:src="@drawable/ic_navigation_before_selector" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -363,8 +363,8 @@
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
                             android:layout_weight="1.2"
-                            android:src="@drawable/ic_navigate_next_black_24dp"
-                            android:tint="#ffffff" />
+                            android:clickable="true"
+                            android:src="@drawable/ic_navigation_next_selector" />
 
                     </LinearLayout>
 

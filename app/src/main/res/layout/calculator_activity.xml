@@ -42,8 +42,8 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <View
-            android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:background="#8DD1CECE"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
 
@@ -59,12 +59,13 @@
                 android:id="@+id/cal_result_pay"
                 android:gravity="end"
                 android:padding="12dp"
+                android:lineSpacingExtra="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <View
-            android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:background="#8DD1CECE"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
 
@@ -84,8 +85,8 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
         <View
-            android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:background="#8DD1CECE"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
 
@@ -107,8 +108,8 @@
 
         </LinearLayout>
         <View
-            android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:background="#B3B3B3"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
 
@@ -126,7 +127,7 @@
                 android:id="@+id/cal_result_total"
                 android:gravity="end"
                 android:padding="16dp"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>
@@ -159,7 +160,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
@@ -179,7 +180,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
@@ -230,7 +231,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
@@ -250,7 +251,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
@@ -270,7 +271,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
@@ -290,7 +291,7 @@
         </LinearLayout>
         <View
             android:background="#D1CECE"
-            android:layout_width="360dp"
+            android:layout_width="380dp"
             android:layout_height="1dp"
             android:layout_gravity="center"/>
         <LinearLayout
