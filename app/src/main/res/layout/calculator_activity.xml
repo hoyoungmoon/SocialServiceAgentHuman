@@ -32,7 +32,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="출근 일수" />
+                android:text="출근 일수"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/cal_result_work"
@@ -54,7 +55,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="기본급"/>
+                android:text="기본급"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/cal_result_pay"
                 android:gravity="end"
@@ -76,7 +78,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="식비"/>
+                android:text="식비"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/cal_result_meal"
                 android:gravity="end"
@@ -97,7 +100,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="교통비"/>
+                android:text="교통비"
+                android:textStyle="bold"/>
             <TextView
                 android:id="@+id/cal_result_traffic"
                 android:gravity="end"
@@ -321,7 +325,7 @@
         android:background="@color/colorMain"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:text="계 산 하 기"
+        android:text="계산하기"
         android:textColor="#ffffff"/>
 
     <LinearLayout

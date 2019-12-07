@@ -90,7 +90,7 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calculator_activity);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
         DBmanager = vacationDBManager.getInstance(this);
 
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -268,12 +268,12 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
                         resultOpen = false;
                         resultLinear.setVisibility(GONE);
                         calculateLinear.setVisibility(VISIBLE);
-                        calculateButton.setText("계 산 하 기");
+                        calculateButton.setText("계산하기");
                     } else {
                         resultOpen = true;
                         resultLinear.setVisibility(VISIBLE);
                         calculateLinear.setVisibility(GONE);
-                        calculateButton.setText("다 시 계 산 하 기");
+                        calculateButton.setText("다시 계산하기");
                         calculate();
                     }
                 } else {

@@ -29,10 +29,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".Manual_Activity"
+            android:label="휴가 및 월급 계산 방식"
             android:parentActivityName=".Main_Activity"
             android:screenOrientation="portrait"
             android:theme="@style/ManualTheme" />
         <activity android:name=".Calculator_Activity"
+            android:label="월급 계산기"
             android:parentActivityName=".Main_Activity"
             android:screenOrientation="portrait"
             android:theme="@style/CalculatorTheme"/>
