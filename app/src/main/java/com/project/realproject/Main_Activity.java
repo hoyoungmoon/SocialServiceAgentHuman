@@ -1,4 +1,4 @@
-package com.example.realproject;
+package com.project.realproject;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,12 +11,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,7 +54,6 @@ import static java.util.Calendar.YEAR;
 public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     vacationDBManager DBmanager = null;
-    PayDependsOnMonth paySearch;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -463,7 +460,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                             .build())
                     .arrow(true)
                     .create();
-            toolTip.show(view, Tooltip.Gravity.CENTER, true);
+            if(view == toolTipRank) {
+                toolTip.show(view, Tooltip.Gravity.RIGHT, true);
+            } else if(view == toolTipPay){
+                toolTip.show(view, Tooltip.Gravity.LEFT, true);
+            }
 
         } catch (ParseException e) {
         }
@@ -854,8 +855,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     int hour = minute / 60;
                     minute %= 60;
                     if (hour != 0) return minute != 0 ? day + "일 " + hour + "시간 "
-                            + minute + "분" : day + "일" + hour + "시간";
-                    else return minute != 0 ? day + "일 " + minute + "분" : day + "일";
+                            + minute + "분" : day + "일 " + hour + "시간";
+                    else return minute != 0 ? day + "일 " + minute + "분 " : day + "일";
                 }
             } else {
                 if (minute == 240) return "0.5일";

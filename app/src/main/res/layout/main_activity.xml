@@ -51,7 +51,7 @@
             android:layout_height="0dp"
             xmlns:ads="http://schemas.android.com/apk/res-auto"
             ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-3940256099942544/6300978111"
+            ads:adUnitId="@string/admob_banner_ad_unit_id"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/guideLine2"/>
@@ -97,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="17dp"
                 android:layout_marginBottom="10dp"
-                android:text="Alleyoops"
+                android:text="공익인간"
                 android:clickable="true"
                 android:onClick="toolTipRank"
                 android:textColor="@color/selector_text"
@@ -121,8 +121,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="17dp"
-                android:layout_alignParentRight="true"
-                android:text="D-365"
+                android:layout_alignParentEnd="true"
+                android:text="D-400"
                 android:textStyle="bold"
                 android:textColor="@color/colorMainBright"
                 android:textSize="27sp" />
@@ -398,7 +398,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:textColor="@color/colorMainBright"
-                                android:text="30분"
+                                android:text="0일"
                                 android:textSize="15sp" />
                         </LinearLayout>
 
@@ -431,7 +431,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:textColor="@color/colorMainBright"
-                                android:text="1.5일"
+                                android:text="0일"
                                 android:textSize="15sp" />
                         </LinearLayout>
 
@@ -530,7 +530,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_below="@+id/first_vacation_title"
                                     android:layout_marginTop="8dp"
-                                    android:text="14일"
+                                    android:text="15일"
                                     android:textSize="21sp" />
 
                                 <TextView
@@ -603,7 +603,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_below="@+id/second_vacation_title"
                                     android:layout_marginTop="8dp"
-                                    android:text="14일"
+                                    android:text="15일"
                                     android:textSize="21sp" />
 
                                 <TextView
@@ -678,7 +678,7 @@
                                     android:layout_height="wrap_content"
                                     android:layout_below="@+id/sick_vacation_title"
                                     android:layout_marginTop="8dp"
-                                    android:text="14일"
+                                    android:text="15일"
                                     android:textSize="21sp" />
 
                                 <TextView

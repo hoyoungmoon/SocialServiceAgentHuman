@@ -1,4 +1,4 @@
-package com.example.realproject;
+package com.project.realproject;
 
 import java.util.Calendar;
 import java.util.Date;

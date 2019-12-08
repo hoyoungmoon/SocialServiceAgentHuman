@@ -1,4 +1,4 @@
-package com.example.realproject;
+package com.project.realproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -25,18 +25,14 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-import static android.icu.text.DateTimePatternGenerator.DAY;
 import static android.text.InputType.TYPE_CLASS_NUMBER;
-import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static com.example.realproject.vacationDBManager.TABLE_USER;
+import static com.project.realproject.vacationDBManager.TABLE_USER;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;

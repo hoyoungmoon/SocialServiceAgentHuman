@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">공익인간</string>
+    <string name="admob_app_id">ca-app-pub-3723763991551830~8452664302</string>
+    <string name="admob_banner_ad_unit_id">ca-app-pub-3723763991551830/2105380826</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="reset_alert">초기화하면 모든 기록이 삭제되고 복구가 불가능합니다. 그래도 초기화 하시겠습니까?</string>
     <string name="report">어플리케이션 관련 피드백 메일</string>

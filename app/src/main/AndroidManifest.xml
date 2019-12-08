@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.realproject">
+    package="com.project.realproject">
 
     <application
         android:allowBackup="true"
@@ -12,7 +12,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-3723763991551830~8452664302" />
+            android:value="@string/admob_app_id" />
 
         <activity
             android:name=".Splash_Activity"

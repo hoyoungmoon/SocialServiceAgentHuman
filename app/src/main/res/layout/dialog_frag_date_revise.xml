@@ -290,5 +290,5 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+        ads:adUnitId="@string/admob_banner_ad_unit_id" />
 </LinearLayout>

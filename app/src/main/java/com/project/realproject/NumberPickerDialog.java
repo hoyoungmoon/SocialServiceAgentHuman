@@ -1,17 +1,15 @@
-package com.example.realproject;
+package com.project.realproject;
 
 
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.NumberPicker;
-import android.widget.TextView;
 
 public class NumberPickerDialog extends DialogFragment implements View.OnClickListener {
 

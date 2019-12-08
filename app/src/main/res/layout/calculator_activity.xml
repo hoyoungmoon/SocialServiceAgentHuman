@@ -338,7 +338,7 @@
             android:layout_height="50dp"
             xmlns:ads="http://schemas.android.com/apk/res-auto"
             ads:adSize="BANNER"
-            ads:adUnitId="ca-app-pub-3940256099942544/6300978111" />
+            ads:adUnitId="@string/admob_banner_ad_unit_id" />
     </LinearLayout>
 
 </LinearLayout>
