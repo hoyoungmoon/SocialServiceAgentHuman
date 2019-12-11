@@ -178,7 +178,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             case "mealCost":
                 mealCostEditText.setText(saveValue + " 원");
                 break;
-            case "tarfficCost":
+            case "trafficCost":
                 trafficCostEditText.setText(saveValue + " 원");
                 break;
             case "totalFirstVac":
@@ -257,13 +257,13 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     setNumberPickerDialog("trafficCost", 2000, 5000, 100, fg);
                     break;
                 case R.id.tv_totalFirstVac:
-                    setNumberPickerDialog("totalFirstVac", 10, 30, 1, fg);
+                    setNumberPickerDialog("totalFirstVac", 0, 30, 1, fg);
                     break;
                 case R.id.tv_totalSecondVac:
-                    setNumberPickerDialog("totalSecondVac", 10, 30, 1, fg);
+                    setNumberPickerDialog("totalSecondVac", 0, 30, 1, fg);
                     break;
                 case R.id.tv_totalSickVac:
-                    setNumberPickerDialog("totalSickVac", 20, 40, 1, fg);
+                    setNumberPickerDialog("totalSickVac", 0, 50, 1, fg);
                     break;
                 case R.id.tv_payDay:
                     setNumberPickerDialog("payDay", 1, 26, 1, fg);
