@@ -197,8 +197,8 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
             }
             else{
                 if(lowerDiff >= 0 && upperDiff >= 0){
-                    if(type.equals("연가")||type.equals("오전반가")
-                            ||type.equals("오후반가")||type.equals("외출")) {
+                    if(type.equals("연가")||type.equals("오전반가")||type.equals("오후반가")||
+                            type.equals("외출")||type.equals("특별휴가")||type.equals("청원휴가")||type.equals("공가")) {
                         int id = c.getInt(0);
                         String vacation = c.getString(1);
                         double count = c.getDouble(4);

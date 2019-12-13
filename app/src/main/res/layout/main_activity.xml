@@ -390,7 +390,7 @@
                                 android:gravity="center"
                                 android:text="외출"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="12sp" />
+                                android:textSize="11sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthOuting"
@@ -406,7 +406,7 @@
                             android:layout_width="1dp"
                             android:layout_height="30dp"
                             android:layout_gravity="center"
-                            android:background="#D1CECE" />
+                            android:background="#95D1CECE" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -422,8 +422,8 @@
                                 android:background="@drawable/button_bg_2"
                                 android:gravity="center"
                                 android:textColor="@color/colorMainBright"
-                                android:text="연 / 반가"
-                                android:textSize="12sp" />
+                                android:text="연 / 반가 / 그외"
+                                android:textSize="11sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthVac"
@@ -439,7 +439,7 @@
                             android:layout_width="1dp"
                             android:layout_height="30dp"
                             android:layout_gravity="center"
-                            android:background="#D1CECE" />
+                            android:background="#95D1CECE" />
 
                         <LinearLayout
                             android:layout_width="0dp"
@@ -456,7 +456,7 @@
                                 android:gravity="center"
                                 android:textColor="@color/colorMainBright"
                                 android:text="병가"
-                                android:textSize="12sp" />
+                                android:textSize="11sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthSickVac"

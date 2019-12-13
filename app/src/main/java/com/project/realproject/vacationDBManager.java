@@ -83,7 +83,6 @@ public class vacationDBManager {
     }
 
     // data 수정
-    // firstVacation을 받아서 getId()하면 안되고 그냥 id를 직접 받으면 되는데 이유를 모름.
     public long updateFirstVacation (int id, ContentValues addRowValue){
         String[] idArr = new String[] { String.valueOf(id) };
         return mDatabase.update(TABLE_FIRST, addRowValue, "id =?", idArr);
@@ -100,14 +99,11 @@ public class vacationDBManager {
         return mDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
     }
 
-    //android:startColor="#0b1c2d"
-    //android:endColor="#3c5c75"
     public int getDataCount(String tableName){
         String countQuery = "SELECT  * FROM " + tableName;
         Cursor cursor = mDatabase.rawQuery(countQuery, null);
         int count = cursor.getCount();
         cursor.close();
-
         return count;
     }
 

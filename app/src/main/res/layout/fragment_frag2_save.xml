@@ -28,32 +28,50 @@
         android:layout_marginStart="5dp"
         android:text="선택"/>
 
-    <RadioGroup
-        android:id="@+id/radioGroup_vacationType"
+    <RelativeLayout
+        android:id="@+id/relative_vacation"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-        <RadioButton
-            android:id="@+id/radio_allDay"
-            android:text="연가 (8시간)"
+        android:layout_height="wrap_content">
+        <RadioGroup
+            android:id="@+id/radioGroup_vacationType"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <RadioButton
-            android:id="@+id/radio_halfMorning"
-            android:text="오전반가 (4시간)"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+                <RadioButton
+                    android:id="@+id/radio_allDay"
+                    android:text="연가 (8시간)"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/radio_halfMorning"
+                    android:text="오전반가 (4시간)"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/radio_halfAfternoon"
+                    android:text="오후반가 (4시간)"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/radio_outing"
+                    android:text="외출 (10분단위)"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+                <RadioButton
+                    android:id="@+id/radio_special"
+                    android:text="이 외 휴가 (8시간)"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+        </RadioGroup>
+        <Spinner
+            android:id="@+id/radio_special_spinner"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <RadioButton
-            android:id="@+id/radio_halfAfternoon"
-            android:text="오후반가 (4시간)"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <RadioButton
-            android:id="@+id/radio_outing"
-            android:text="외출 (10분단위)"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RadioGroup>
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/radioGroup_vacationType"
+            android:layout_alignParentEnd="true"
+            android:padding="5dp"
+            android:entries="@array/special_vacation_type"/>
+    </RelativeLayout>
 
     <RadioGroup
         android:id="@+id/radioGroup_sickVacationType"

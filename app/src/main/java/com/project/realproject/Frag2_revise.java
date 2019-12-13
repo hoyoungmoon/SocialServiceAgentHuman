@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
@@ -39,6 +41,8 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
     private ImageButton minusOutingButton;
     private RadioGroup vacationTypeRadioGroup;
     private RadioGroup sickVacationTypeRadioGroup;
+    private Spinner specialVacationTypeSpinner;
+    private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
@@ -110,14 +114,16 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
 
         vacationTypeRadioGroup = view.findViewById(R.id.radioGroup_vacationType);
         sickVacationTypeRadioGroup = view.findViewById(R.id.radioGroup_sickVacationType);
+        vacationTypeRelative = view.findViewById(R.id.relative_vacation);
+        specialVacationTypeSpinner = view.findViewById(R.id.radio_special_spinner);
         outingSetter = view.findViewById(R.id.linear_outingSetter);
 
         if(numOfYear ==3){
-            vacationTypeRadioGroup.setVisibility(GONE);
+            vacationTypeRelative.setVisibility(GONE);
             sickVacationTypeRadioGroup.setVisibility(VISIBLE);
         }
         else{
-            vacationTypeRadioGroup.setVisibility(VISIBLE);
+            vacationTypeRelative.setVisibility(VISIBLE);
             sickVacationTypeRadioGroup.setVisibility(GONE);
         }
 
@@ -225,6 +231,10 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
                         firstVacation.setType("외출");
                         firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
+                    case 4:
+                        firstVacation.setType(specialVacationTypeSpinner.getSelectedItem().toString());
+                        firstVacation.setCount(480);
+                        break;
                 }
             }
 
@@ -242,14 +252,14 @@ public class Frag2_revise extends DialogFragment implements View.OnClickListener
                 ((Main_Activity) getActivity()).setRemainVac();
                 ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
                 if (numOfYear == 1) {
-                    ((Main_Activity) getActivity()).refreshListView(
-                            R.id.first_vacation_image, limitStartDate, limitLastDate, numOfYear, "list1");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            numOfYear, "list1");
                 } else if (numOfYear == 2) {
-                    ((Main_Activity) getActivity()).refreshListView(
-                            R.id.second_vacation_image, limitStartDate, limitLastDate, numOfYear, "list2");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            numOfYear, "list2");
                 } else {
-                    ((Main_Activity) getActivity()).refreshListView(
-                            R.id.sick_vacation_image, limitStartDate, limitLastDate, 3, "list3");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            3, "list3");
                 }
                 dismiss();
             }

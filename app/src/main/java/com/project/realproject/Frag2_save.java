@@ -11,12 +11,15 @@ import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.text.ParseException;
@@ -28,7 +31,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Calendar.DATE;
 
-public class Frag2_save extends DialogFragment implements View.OnClickListener {
+public class Frag2_save extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
@@ -44,6 +47,8 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     private ImageButton minusVacationButton;
     private RadioGroup vacationTypeRadioGroup;
     private RadioGroup sickVacationTypeRadioGroup;
+    private Spinner specialVacationTypeSpinner;
+    private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private LinearLayout vacationSetter;
 
@@ -59,11 +64,12 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     private String searchStartDate;
 
     private FirstVacation firstVacation = null;
-    public vacationDBManager DBmanager= null;
+    public vacationDBManager DBmanager = null;
 
-    public Frag2_save() {}
+    public Frag2_save() {
+    }
 
-    public static Frag2_save newInstance(String param1, String param2, int param3, String param4){
+    public static Frag2_save newInstance(String param1, String param2, int param3, String param4) {
         Frag2_save dialog = new Frag2_save();
         Bundle bundle = new Bundle(4);
         bundle.putString("limitStartDate", param1);
@@ -79,7 +85,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         DBmanager = vacationDBManager.getInstance(getActivity());
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        if(getArguments() != null){
+        if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
             numberOfYear = getArguments().getInt("numOfYear");
@@ -108,30 +114,29 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         sickVacationTypeRadioGroup = view.findViewById(R.id.radioGroup_sickVacationType);
         vacationTypeRadioGroup.check(R.id.radio_allDay);
         sickVacationTypeRadioGroup.check(R.id.radio_sickVac_allDay);
+        specialVacationTypeSpinner = view.findViewById(R.id.radio_special_spinner);
+        vacationTypeRelative = view.findViewById(R.id.relative_vacation);
         outingSetter = view.findViewById(R.id.linear_outingSetter);
         vacationSetter = view.findViewById(R.id.linear_vacationSetter);
 
-        if(numberOfYear == 3){
-            vacationTypeRadioGroup.setVisibility(GONE);
+        if (numberOfYear == 3) {
+            vacationTypeRelative.setVisibility(GONE);
             sickVacationTypeRadioGroup.setVisibility(VISIBLE);
-        }
-        else{
-            vacationTypeRadioGroup.setVisibility(VISIBLE);
+        } else {
+            vacationTypeRelative.setVisibility(VISIBLE);
             sickVacationTypeRadioGroup.setVisibility(GONE);
         }
 
         vacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.radio_outing){
+                if (i == R.id.radio_outing) {
                     vacationSetter.setVisibility(GONE);
                     outingSetter.setVisibility(VISIBLE);
-                }
-                else if(i == R.id.radio_allDay){
+                } else if (i == R.id.radio_allDay || i == R.id.radio_special) {
                     vacationSetter.setVisibility(VISIBLE);
                     outingSetter.setVisibility(GONE);
-                }
-                else{
+                } else {
                     vacationSetter.setVisibility(GONE);
                     outingSetter.setVisibility(GONE);
                 }
@@ -140,15 +145,13 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         sickVacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if(i == R.id.radio_sickVac_outing){
+                if (i == R.id.radio_sickVac_outing) {
                     vacationSetter.setVisibility(GONE);
                     outingSetter.setVisibility(VISIBLE);
-                }
-                else if(i == R.id.radio_sickVac_allDay){
+                } else if (i == R.id.radio_sickVac_allDay) {
                     vacationSetter.setVisibility(VISIBLE);
                     outingSetter.setVisibility(GONE);
-                }
-                else{
+                } else {
                     vacationSetter.setVisibility(GONE);
                     outingSetter.setVisibility(GONE);
                 }
@@ -178,10 +181,10 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
         try {
             long min = formatter.parse(limitStartDate).getTime();
             long max = formatter.parse(limitLastDate).getTime();
-            if(min < max) {
+            if (min < max) {
                 datePickerDialog.getDatePicker().setMinDate(min);
                 datePickerDialog.getDatePicker().setMaxDate(max);
-            }else{
+            } else {
                 // 더 좋은 범위 설정 있는지 생각해보기 (지금으로써는 1년 이하로 복무기간을 설정했을때
                 // 2년차 연가를 쓸 필요는 없지만 그래도 max(소집해제일) 설정만 해두었음.
                 datePickerDialog.getDatePicker().setMaxDate(max);
@@ -197,36 +200,31 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     public void onClick(View view) {
         if (view == startDateEditText) {
             datePickerDialog.show();
-        }
-        else if(view == plusOutingButton){
-            if(outingLength < 480) {
+        } else if (view == plusOutingButton) {
+            if (outingLength < 480) {
                 outingLength += 10;
                 outingLengthTextView.setText(outingLength + "분");
             }
-        }
-        else if(view == minusOutingButton){
-            if(outingLength > 10) {
+        } else if (view == minusOutingButton) {
+            if (outingLength > 10) {
                 outingLength -= 10;
                 outingLengthTextView.setText(outingLength + "분");
             }
-        }
-        else if(view == plusVacationButton){
-            if(vacationLength < 7) {
+        } else if (view == plusVacationButton) {
+            if (vacationLength < 7) {
                 vacationLength += 1;
                 vacationLengthTextView.setText(vacationLength + "일");
             }
-        }
-        else if(view == minusVacationButton){
-            if(vacationLength > 1) {
+        } else if (view == minusVacationButton) {
+            if (vacationLength > 1) {
                 vacationLength -= 1;
                 vacationLengthTextView.setText(vacationLength + "일");
             }
-        }
-        else if(view == saveButton){
+        } else if (view == saveButton) {
             int idx;
             firstVacation = new FirstVacation();
 
-            if(numberOfYear == 3){
+            if (numberOfYear == 3) {
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
@@ -247,8 +245,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                         firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
                 }
-            }
-            else {
+            } else {
                 int radioButtonId = vacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = vacationTypeRadioGroup.indexOfChild(vacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
@@ -268,27 +265,32 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                         firstVacation.setType("외출");
                         firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
+                    // 새로 추가한것 오류 확인 !!
+                    case 4:
+                        firstVacation.setType(specialVacationTypeSpinner.getSelectedItem().toString());
+                        firstVacation.setCount(480);
+                        break;
                 }
             }
 
             String getDate = startDateEditText.getText().toString().trim();
-            if(getDate.equals("")){
+            if (getDate.equals("")) {
                 blankAlert("시작일을 입력해주세요");
-            }else {
+            } else {
                 if (dateCalendar != null) {
                     firstVacation.setStartDate(dateCalendar.getTime());
                 }
 
-                if(vacationLength != 1 && idx == 0){
+                // 병가 저장이 안댐 해결해겨랭ㄹㄴ럼ㅇ
+                if ((idx == 0 || idx == 4) && vacationLength != 1) {
                     dateCalendar.add(DATE, -1);
-                    for(int i = 1; i <= vacationLength; i++){
+                    for (int i = 1; i <= vacationLength; i++) {
                         firstVacation.setVacation(vacationEditText.getText().toString().trim() + " (" + i + "/" + vacationLength + ")");
                         dateCalendar.add(DATE, 1);
                         firstVacation.setStartDate(dateCalendar.getTime());
                         saveFirstVacation(firstVacation);
                     }
-                }
-                else {
+                } else {
                     firstVacation.setVacation(vacationEditText.getText().toString().trim());
                     saveFirstVacation(firstVacation);
                 }
@@ -296,21 +298,19 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
                 ((Main_Activity) getActivity()).setRemainVac();
                 ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
 
-                // 저장하고 listview 보여주는 것
                 if (numberOfYear == 1) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.first_vacation_image,
-                            limitStartDate, limitLastDate, 1, "list1");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            1, "list1");
                 } else if (numberOfYear == 2) {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.first_vacation_image,
-                            limitStartDate, limitLastDate, 2, "list2");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            2, "list2");
                 } else {
-                    ((Main_Activity) getActivity()).refreshListView(R.id.sick_vacation_image,
-                            limitStartDate, limitLastDate, 3, "list3");
+                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
+                            3, "list3");
                 }
                 dismiss();
             }
-        }
-        else if(view == cancelButton){
+        } else if (view == cancelButton) {
             dismiss();
         }
     }
@@ -326,18 +326,16 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
 
     }
 
-    public String getOnlyNumber(String string){
-        return string.replaceAll("[^0-9]","");
+    public String getOnlyNumber(String string) {
+        return string.replaceAll("[^0-9]", "");
     }
 
-    public void blankAlert(String alert){
+    public void blankAlert(String alert) {
         new AlertDialog.Builder(getActivity())
                 .setMessage(alert)
                 .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 })
@@ -345,4 +343,13 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener {
     }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
 }

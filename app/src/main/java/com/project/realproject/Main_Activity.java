@@ -735,7 +735,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             long lowerDiff = startDate.getTime() - first_payDate.getTime();
             long upperDiff = last_payDate.getTime() - startDate.getTime();
             if (lowerDiff >= 0 && upperDiff >= 0) {
-                if (type.equals("연가")) {
+                if (type.equals("연가") || type.equals("청원휴가") || type.equals("특별휴가") || type.equals("공가")) {
                     numberOfMeal--;
                     numberOfTraffic--;
                     sum_Vac += count;
@@ -871,11 +871,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public void refreshListView(int imageId, String limitStartDate, String limitLastDate, int numOfYear, String tag) {
+    public void refreshListView(String limitStartDate, String limitLastDate, int numOfYear, String tag) {
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
-        ImageView imageView = findViewById(imageId);
-        imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
+
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
         ft.replace(R.id.fragment_container_1, fragment, tag);
