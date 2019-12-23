@@ -11,10 +11,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,8 +69,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
     private static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
     private static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441600, 488200, 540900};
-    private static String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0512", "0606", "0815",
+    private static String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0606", "0815",
             "1003", "1009", "1225"};
+    private static String[] listOfHoliday2020 = new String[]{"0124", "0127", "0415", "0430", "0930",
+            "1001", "1002"};
+    private static String[] listOfHoliday2021 = new String[]{"0211", "0212", "0519", "0920", "0921",
+            "0922"};
+    private static String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
     public static Context mContext;
     private String firstDate;
     private String lastDate;
@@ -111,7 +118,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private ImageView toolTipPay;
 
     private CountDownTimer countDownTimer;
+    private boolean percentIsChange;
     private boolean timerIsRunning;
+    private int decimalPlaces;
     private long entire;
     private long current;
 
@@ -120,13 +129,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private LinearLayout vacCard3;
     private LinearLayout container;
 
+    private SharedPreferences preferences;
     private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
-
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
@@ -137,6 +146,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         mAdView.loadAd(adRequest);
 
         DBmanager = vacationDBManager.getInstance(this);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        percentIsChange = preferences.getBoolean("percentIsChange", true);
+        decimalPlaces = preferences.getInt("decimalPlaces", 7);
         mContext = this;
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -196,10 +208,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         });
 
         load();
-        if (!timerIsRunning && DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
-            resetTimer();
-            startTimer();
-        }
     }
 
     public void load() {
@@ -208,20 +216,30 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             setRemainVac();
             setSearchStartDate();
             setThisMonthInfo(searchStartDate);
+
             progressBar.setProgress((int) getPercentage());
+            if (percentIsChange) {
+                if (!timerIsRunning && DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+                    resetTimer();
+                    startTimer();
+                }
+            } else {
+                resetTimer();
+            }
 
             progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
                 public void onGlobalLayout() {
 
                     int barWidth = progressBar.getRight() - progressBar.getLeft();
-                    float position_X = (progressBar.getX() + (barWidth * getPercentage() / 100)) - 40;
-                    if (position_X < 60) {
-                        progressPercentage.setX(60);
-                    } else if (position_X > barWidth - 230) {
-                        progressPercentage.setX(barWidth - 230);
+                    float barStartX = progressBar.getX();
+                    float position_X = (progressBar.getX() + (barWidth * (float) getPercentage() / 100)) - 40;
+                    if (position_X < barStartX) {
+                        progressPercentage.setX(barStartX);
+                    } else if (position_X > barWidth - barStartX - 10 - (30 * decimalPlaces)) {
+                        progressPercentage.setX(barWidth - barStartX - 10 - (30 * decimalPlaces));
                     } else {
-                        progressPercentage.setX((progressBar.getX() + (barWidth * getPercentage() / 100)) - 40);
+                        progressPercentage.setX((progressBar.getX() + (barWidth * (float) getPercentage() / 100)) - 40);
                     }
                 }
             });
@@ -251,7 +269,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         return 0;
     }
 
-    public long getPercentage() {
+    public double getPercentage() {
         return (100 * getCurrentSecond() / getEntireSecond());
     }
 
@@ -286,7 +304,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     public void updateCountDownText() {
         double p = ((double) current / (double) entire) * 100;
-        progressPercentage.setText(String.format("%.7f", p) + "%");
+        progressPercentage.setText(String.format("%." + decimalPlaces + "f", p) + "%");
     }
 
     @Override
@@ -460,9 +478,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                             .build())
                     .arrow(true)
                     .create();
-            if(view == toolTipRank) {
+            if (view == toolTipRank) {
                 toolTip.show(view, Tooltip.Gravity.RIGHT, true);
-            } else if(view == toolTipPay){
+            } else if (view == toolTipPay) {
                 toolTip.show(view, Tooltip.Gravity.LEFT, true);
             }
 
@@ -481,6 +499,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 if (timerIsRunning) {
                     pauseTimer();
                 }
+                break;
+            case R.id.setting:
+                Intent setting = new Intent(Main_Activity.this, Setting_Activity.class);
+                startActivity(setting);
                 break;
             case R.id.manual:
                 Intent manual = new Intent(Main_Activity.this, Manual_Activity.class);
@@ -677,7 +699,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         double sum_outing = 0;
         // 출근횟수 구하기
         int numberOfEntire; // 전체 날짜수
-        int numberOfWork; // 출근횟수 넣기 (토, 일, 공휴일 빼고 카운트)
+        int numberOfWork; // 출근횟수 넣기 (토, 일, 변하지않는공휴일, 변하는공휴일(추석, 설, 부처님) 빼고 카운트)
         int numberOfMeal;
         int numberOfTraffic;
         double pay = 0;
@@ -697,13 +719,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         payBeforePromotion = payDependsOnMonth(searchDate);
         double checkPromotion = (double) (payDependsOnMonth(searchDate) / entireLength);
         int checkYear = cal.get(YEAR);
+        String[] holiday = listOfHoliday;
 
         while (searchDate.compareTo(last_payDate) <= 0) {
             cal.setTime(searchDate);
             String onlyMonthAndDate = dateFormat.format(searchDate).substring(4);
 
+            if (cal.get(YEAR) == 2020) {
+                holiday = listOfHoliday2020;
+            } else if (cal.get(YEAR) == 2021) {
+                holiday = listOfHoliday2021;
+            } else if (cal.get(YEAR) == 2022) {
+                holiday = listOfHoliday2022;
+            }
+
             if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
-                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate)) {
+                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)) {
                 numberOfWork--;
             }
 

@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
@@ -31,6 +32,7 @@ import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static com.project.realproject.vacationDBManager.TABLE_USER;
+import static java.util.Calendar.LONG;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
@@ -47,7 +49,6 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     private TextView payDayEditText;
     private Button saveButton;
     private Button cancelButton;
-    private AdView mAdView;
 
     private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
@@ -88,16 +89,6 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         cancelButton = view.findViewById(R.id.btn_cancel);
 
 
-        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        mAdView = view.findViewById(R.id.banner_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
-
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
@@ -125,6 +116,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
             payDayEditText.setText("매월 1 일");
         }
 
+        nickNameEditText.setOnClickListener(this);
         firstDateEditText.setOnClickListener(this);
         lastDateEditText.setOnClickListener(this);
         saveButton.setOnClickListener(this);
@@ -191,7 +183,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                 totalSickVacEditText.setText(saveValue + " 일");
                 break;
             case "payDay":
-                payDayEditText.setText(saveValue + " 일");
+                payDayEditText.setText("매월 " + saveValue + " 일");
                 break;
         }
     }
@@ -201,6 +193,9 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         FragmentManager fg = getFragmentManager();
         try {
             switch (view.getId()) {
+                case R.id.et_nickName:
+                    nickNameEditText.setSelection(nickNameEditText.length());
+                    break;
                 case R.id.tv_firstDate:
                     firstDatePickerDialog.show();
                     break;
@@ -241,11 +236,9 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                             values.put("payDay", user.getPayDay());
                             DBmanager.updateUser(id, values);
                         }
-                        // 오류 없는지 확인
+
                         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
                             ((Main_Activity) getActivity()).load();
-                            ((Main_Activity) getActivity()).resetTimer();
-                            ((Main_Activity) getActivity()).startTimer();
                         }
                         dismiss();
                     }

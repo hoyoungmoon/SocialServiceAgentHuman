@@ -26,11 +26,11 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
 
-public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtnClickListener {
+public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnClickListener {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
-    private String[] columns = new String[] {"id", "vacation", "startDate", "type", "count"};
+    private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public vacationDBManager DBmanager = null;
     private ListView mListView = null;
     private ListViewAdapter mAdapter = null;
@@ -46,10 +46,11 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     private int numOfYear;
     private String searchStartDate;
 
-    public Frag2_listview() {}
+    public Frag2_listview() {
+    }
 
     public static Frag2_listview newInstance(String param1, String param2, String param3, String param4,
-                                             int param5, String param6){
+                                             int param5, String param6) {
         Frag2_listview dialog = new Frag2_listview();
         Bundle bundle = new Bundle(6);
         bundle.putString("limitStartDate", param1);
@@ -65,7 +66,7 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(getArguments() != null){
+        if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
             firstDate = getArguments().getString("firstDate");
@@ -112,10 +113,10 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
     }
 
     @Override
-    public void onMenuBtnClick(int position){
-        Button button1 = mListView.findViewWithTag("revise"+position);
-        Button button2 = mListView.findViewWithTag("delete"+position);
-        LinearLayout linearLayout = mListView.findViewWithTag("linear"+position);
+    public void onMenuBtnClick(int position) {
+        Button button1 = mListView.findViewWithTag("revise" + position);
+        Button button2 = mListView.findViewWithTag("delete" + position);
+        LinearLayout linearLayout = mListView.findViewWithTag("linear" + position);
         if (button1.getVisibility() == GONE) {
             button1.setVisibility(VISIBLE);
             button2.setVisibility(VISIBLE);
@@ -133,21 +134,17 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         new AlertDialog.Builder(getActivity())
                 .setMessage("삭제하시겠습니까?")
                 .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         DBmanager.deleteFirstVacation(firstVacation);
-                        ((Main_Activity)getActivity()).setRemainVac();
-                        ((Main_Activity)getActivity()).setThisMonthInfo(searchStartDate);
+                        ((Main_Activity) getActivity()).setRemainVac();
+                        ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("취소", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
+                .setNegativeButton("취소", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
                     }
                 })
@@ -164,54 +161,54 @@ public class Frag2_listview extends Fragment implements  ListViewAdapter.ListBtn
         dialog.show(fg, "dialog");
     }
 
-    public void setListItemView(ListViewAdapter mAdapter){
+    public void setListItemView(ListViewAdapter mAdapter) {
         DBmanager = vacationDBManager.getInstance(getActivity());
         Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
-        Date startDate = null;
 
-        try{
-        lowerDate = formatter.parse(limitStartDate);
-        upperDate = formatter.parse(limitLastDate);}
-        catch(ParseException e){
+        try {
+            lowerDate = formatter.parse(limitStartDate);
+            upperDate = formatter.parse(limitLastDate);
+
+            while (c.moveToNext()) {
+                String type = c.getString(3);
+                Date startDate = formatter.parse(c.getString(2));
+                if (startDate != null) {
+                    lowerDiff = startDate.getTime() - lowerDate.getTime();
+                    upperDiff = upperDate.getTime() - startDate.getTime();
+
+                    if (numOfYear == 3) {
+                        if (lowerDiff >= 0 && upperDiff >= 0) {
+                            if (type.equals("병가") || type.equals("오전지참")
+                                    || type.equals("오후조퇴") || type.equals("병가외출")) {
+                                int id = c.getInt(0);
+                                String vacation = c.getString(1);
+                                double count = c.getDouble(4);
+                                mAdapter.addItem(id, vacation, startDate, type, count);
+                            }
+                        }
+                    } else {
+                        if (lowerDiff >= 0 && upperDiff >= 0) {
+                            if (type.equals("연가") || type.equals("오전반가") || type.equals("오후반가") ||
+                                    type.equals("외출") || type.equals("특별휴가") || type.equals("청원휴가") || type.equals("공가")) {
+                                int id = c.getInt(0);
+                                String vacation = c.getString(1);
+                                double count = c.getDouble(4);
+                                mAdapter.addItem(id, vacation, startDate, type, count);
+                            }
+                        }
+                    }
+                } else{
+                   break;
+                }
+            }
+            c.close();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        while (c.moveToNext()) {
-            String type = c.getString(3);
-            try {
-                startDate = formatter.parse(c.getString(2));
-                lowerDiff = startDate.getTime() - lowerDate.getTime();
-                upperDiff = upperDate.getTime() - startDate.getTime();
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-            if(numOfYear == 3){
-                if(lowerDiff >= 0 && upperDiff >= 0){
-                    if(type.equals("병가")||type.equals("오전지참")
-                            ||type.equals("오후조퇴")||type.equals("병가외출")) {
-                        int id = c.getInt(0);
-                        String vacation = c.getString(1);
-                        double count = c.getDouble(4);
-                        mAdapter.addItem(id, vacation, startDate, type, count);
-                    }
-                }
-            }
-            else{
-                if(lowerDiff >= 0 && upperDiff >= 0){
-                    if(type.equals("연가")||type.equals("오전반가")||type.equals("오후반가")||
-                            type.equals("외출")||type.equals("특별휴가")||type.equals("청원휴가")||type.equals("공가")) {
-                        int id = c.getInt(0);
-                        String vacation = c.getString(1);
-                        double count = c.getDouble(4);
-                        mAdapter.addItem(id, vacation, startDate, type, count);
-                    }
-                }
-            }
-        }
-        c.close();
     }
 
-    public void reloadListView(){
-       mAdapter = new ListViewAdapter(this);
+    public void reloadListView() {
+        mAdapter = new ListViewAdapter(this);
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);
     }

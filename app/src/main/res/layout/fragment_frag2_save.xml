@@ -8,6 +8,10 @@
     android:padding="15dp"
     tools:context=".Frag2_save">
 
+    <View
+        android:layout_width="250dp"
+        android:layout_height="1dp"/>
+
     <EditText
         android:id="@+id/et_startDate"
         android:layout_width="match_parent"
@@ -22,10 +26,11 @@
         android:textSize="15sp"
         android:hint="간단한 사유를 입력하세요" />
     <TextView
-        android:layout_width="230dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="15dp"
         android:layout_marginStart="5dp"
+        android:layout_marginBottom="5dp"
         android:text="선택"/>
 
     <RelativeLayout
@@ -59,7 +64,7 @@
                     android:layout_height="wrap_content"/>
                 <RadioButton
                     android:id="@+id/radio_special"
-                    android:text="이 외 휴가 (8시간)"
+                    android:text="기타 (8시간)"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
         </RadioGroup>
@@ -67,6 +72,7 @@
             android:id="@+id/radio_special_spinner"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
             android:layout_alignBottom="@+id/radioGroup_vacationType"
             android:layout_alignParentEnd="true"
             android:padding="5dp"
@@ -75,7 +81,7 @@
 
     <RadioGroup
         android:id="@+id/radioGroup_sickVacationType"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <RadioButton
@@ -111,6 +117,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
             android:text="외출 시간"/>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -118,20 +125,20 @@
             android:orientation="horizontal">
             <ImageButton
                 android:src="@drawable/ic_minus_black_24dp"
-                android:background="#ffffff"
+                android:background="#F7F7F7"
                 android:id="@+id/button_outing_minus"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
             <TextView
                 android:id="@+id/et_outingLength"
-                android:layout_width="35dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:gravity="center"
                 android:text="10분"/>
             <ImageButton
                 android:src="@drawable/ic_add_black_24dp"
-                android:background="#ffffff"
+                android:background="#F7F7F7"
                 android:id="@+id/button_outing_plus"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
@@ -147,6 +154,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
             android:text="사용 일수"/>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -155,7 +163,7 @@
             <ImageButton
                 android:src="@drawable/ic_minus_black_24dp"
                 android:id="@+id/button_vacation_minus"
-                android:background="#ffffff"
+                android:background="#F7F7F7"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
             <TextView
@@ -168,15 +176,15 @@
             <ImageButton
                 android:src="@drawable/ic_add_black_24dp"
                 android:id="@+id/button_vacation_plus"
-                android:background="#ffffff"
+                android:background="#F7F7F7"
                 android:layout_width="30dp"
                 android:layout_height="30dp"/>
         </LinearLayout>
     </LinearLayout>
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="end"
+        android:gravity="end"
         android:layout_marginTop="10dp"
         android:orientation="horizontal">
         <Button

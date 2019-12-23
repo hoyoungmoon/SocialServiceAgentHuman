@@ -33,11 +33,18 @@
             android:parentActivityName=".Main_Activity"
             android:screenOrientation="portrait"
             android:theme="@style/ManualTheme" />
-        <activity android:name=".Calculator_Activity"
+        <activity
+            android:name=".Calculator_Activity"
             android:label="월급 계산기"
             android:parentActivityName=".Main_Activity"
             android:screenOrientation="portrait"
-            android:theme="@style/CalculatorTheme"/>
+            android:theme="@style/CalculatorTheme" />
+        <activity
+            android:name=".Setting_Activity"
+            android:label="설정하기"
+            android:parentActivityName=".Main_Activity"
+            android:screenOrientation="portrait"
+            android:theme="@style/CalculatorTheme" />
     </application>
 
 </manifest>

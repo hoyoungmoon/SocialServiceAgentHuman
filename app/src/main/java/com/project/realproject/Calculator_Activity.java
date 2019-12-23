@@ -86,9 +86,6 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calculator_activity);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        DBmanager = vacationDBManager.getInstance(this);
-
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
@@ -97,6 +94,10 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
         mAdView = findViewById(R.id.banner_ad);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
+
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        DBmanager = vacationDBManager.getInstance(this);
+
 
         calculateLinear = findViewById(R.id.cal_linear1);
         resultLinear = findViewById(R.id.cal_linear2);
