@@ -134,6 +134,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // sourcetree beta version test
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
