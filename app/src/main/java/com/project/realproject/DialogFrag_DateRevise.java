@@ -50,6 +50,13 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     private Button saveButton;
     private Button cancelButton;
 
+    private int mealCost;
+    private int trafficCost;
+    private int totalFirstVac;
+    private int totalSecondVac;
+    private int totalSickVac;
+    private int payDay;
+
     private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
@@ -92,29 +99,39 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
+
+            mealCost = c.getInt(4);
+            trafficCost = c.getInt(5);
+            totalFirstVac = c.getInt(6);
+            totalSecondVac = c.getInt(7);
+            totalSickVac = c.getInt(8);
+            payDay = c.getInt(9);
+
             nickNameEditText.setText(c.getString(1));
             firstDateEditText.setText(c.getString(2));
             lastDateEditText.setText(c.getString(3));
-            mealCostEditText.setText(c.getString(4) + " 원");
-            trafficCostEditText.setText(c.getString(5) + " 원");
-            totalFirstVacEditText.setText(c.getString(6) + " 일");
-            totalSecondVacEditText.setText(c.getString(7) + " 일");
-            totalSickVacEditText.setText(c.getString(8) + " 일");
-            payDayEditText.setText("매월 " + c.getString(9) + " 일");
         } else {
+            mealCost = 6000;
+            trafficCost = 2700;
+            totalFirstVac = 15;
+            totalSecondVac = 15;
+            totalSickVac = 30;
+            payDay = 1;
+
             cancelButton.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
             calendar.add(YEAR, 1);
             calendar.add(MONTH, 9);
             firstDateEditText.setText(formatter.format(Calendar.getInstance().getTime()));
             lastDateEditText.setText(formatter.format(calendar.getTime()));
-            mealCostEditText.setText("6000 원");
-            trafficCostEditText.setText("2700 원");
-            totalFirstVacEditText.setText("15 일");
-            totalSecondVacEditText.setText("15 일");
-            totalSickVacEditText.setText("30 일");
-            payDayEditText.setText("매월 1 일");
         }
+
+        mealCostEditText.setText(mealCost + " 원");
+        trafficCostEditText.setText(trafficCost + " 원");
+        totalFirstVacEditText.setText(totalFirstVac + " 일");
+        totalSecondVacEditText.setText(totalSecondVac + " 일");
+        totalSickVacEditText.setText(totalSickVac + " 일");
+        payDayEditText.setText("매월 " + payDay + " 일");
 
         nickNameEditText.setOnClickListener(this);
         firstDateEditText.setOnClickListener(this);
@@ -152,11 +169,13 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
         return returnDialog;
     }
 
-    public void setNumberPickerDialog(String userInfo, int minValue, int maxValue, int step, FragmentManager fg) {
+    public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
         NumberPickerDialog dialog = new NumberPickerDialog(this);
-        Bundle bundle = new Bundle(4);
+        Bundle bundle = new Bundle(5);
         // 이미 세팅되어있던 값 넣기
+        // 원래 세팅 되어있는 값(string)을 int로 받아서 index화 시켜야할듯
         bundle.putString("userInfo", userInfo);
+        bundle.putInt("setValue", setValue);
         bundle.putInt("minValue", minValue);
         bundle.putInt("maxValue", maxValue);
         bundle.putInt("step", step);
@@ -244,22 +263,22 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     }
                     break;
                 case R.id.tv_mealCost:
-                    setNumberPickerDialog("mealCost", 5000, 10000, 1000, fg);
+                    setNumberPickerDialog("mealCost", mealCost, 0, 10000, 500, fg);
                     break;
                 case R.id.tv_trafficCost:
-                    setNumberPickerDialog("trafficCost", 2000, 5000, 100, fg);
+                    setNumberPickerDialog("trafficCost", trafficCost, 0, 5000, 100, fg);
                     break;
                 case R.id.tv_totalFirstVac:
-                    setNumberPickerDialog("totalFirstVac", 0, 30, 1, fg);
+                    setNumberPickerDialog("totalFirstVac", totalFirstVac, 0, 30, 1, fg);
                     break;
                 case R.id.tv_totalSecondVac:
-                    setNumberPickerDialog("totalSecondVac", 0, 30, 1, fg);
+                    setNumberPickerDialog("totalSecondVac", totalSecondVac, 0, 30, 1, fg);
                     break;
                 case R.id.tv_totalSickVac:
-                    setNumberPickerDialog("totalSickVac", 0, 50, 1, fg);
+                    setNumberPickerDialog("totalSickVac", totalSickVac, 0, 50, 1, fg);
                     break;
                 case R.id.tv_payDay:
-                    setNumberPickerDialog("payDay", 1, 26, 1, fg);
+                    setNumberPickerDialog("payDay", payDay, 1, 26, 1, fg);
                     break;
                 case R.id.btn_cancel:
                     ((Main_Activity) getActivity()).resetTimer();

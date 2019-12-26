@@ -17,6 +17,8 @@ public class NumberPickerDialog extends DialogFragment implements View.OnClickLi
     private Button saveButton;
     private NumberPicker numberPicker;
 
+    private int setValue;
+    private int setIndex;
     private int minValue;
     private int maxValue;
     private int step = 1;
@@ -44,6 +46,7 @@ public class NumberPickerDialog extends DialogFragment implements View.OnClickLi
 
         if(getArguments() != null){
             userInfo = getArguments().getString("userInfo");
+            setValue = getArguments().getInt("setValue");
             minValue = getArguments().getInt("minValue");
             maxValue = getArguments().getInt("maxValue");
             step = getArguments().getInt("step");
@@ -59,10 +62,12 @@ public class NumberPickerDialog extends DialogFragment implements View.OnClickLi
         for (int i = 0; i < number_of_array; i++) {
             result[i] = String.valueOf(minValue + step * i);
         }
+        setIndex = (setValue - minValue) / step;
 
         numberPicker.setMinValue(0);
         numberPicker.setMaxValue((maxValue - minValue) / step);
         numberPicker.setDisplayedValues(result);
+        numberPicker.setValue(setIndex);
         numberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
 
         saveButton.setOnClickListener(this);
