@@ -117,12 +117,19 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private ImageView toolTipRank;
     private ImageView toolTipPay;
 
+    // countDownTimer values
     private CountDownTimer countDownTimer;
-    private boolean percentIsChange;
     private boolean timerIsRunning;
-    private int decimalPlaces;
     private long entire;
     private long current;
+
+    // sharedPreference values
+    private boolean percentIsChange;
+    private boolean bootCampInclude;
+    private boolean searchBootCampRightBefore;
+    private String bootCampStart;
+    private String bootCampEnd;
+    private int decimalPlaces;
 
     private LinearLayout vacCard1;
     private LinearLayout vacCard2;
@@ -134,7 +141,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // sourcetree beta version test
+        // This is beta-version
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -150,6 +157,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
+        bootCampInclude = preferences.getBoolean("bootCampInclude", false);
+
+        // default 값을 어떻게 줄까 생각해보자.
+        // setting_activity에서 미리 default값을 저장시켜야할 듯
+        bootCampStart = preferences.getString("bootCampStart", null);
+        bootCampEnd = preferences.getString("bootCampEnd", null);
+
         mContext = this;
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -678,7 +692,22 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 entireLength = getDateLength(first, last);
                 first = checkFirstDayInclude(first);
                 last = checkLastDayInclude(last);
+
             }
+
+            if (bootCampInclude && checkBootCampStartInclude(first)) {
+                c.setTime(formatter.parse(bootCampStart));
+                c.add(DATE, -1);
+                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
+                if (first == last) {
+
+                } else {
+                    searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
+                    setThisMonthSpendVac(first, last, entireLength);
+                    return true;
+                }
+            }
+
             if (last - first >= 0) {
                 searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
                 setThisMonthSpendVac(first, last, entireLength);
@@ -726,6 +755,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             cal.setTime(searchDate);
             String onlyMonthAndDate = dateFormat.format(searchDate).substring(4);
 
+            // 공휴일, 주말 일한 일수에서 차감
             if (cal.get(YEAR) == 2020) {
                 holiday = listOfHoliday2020;
             } else if (cal.get(YEAR) == 2021) {
@@ -739,6 +769,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 numberOfWork--;
             }
 
+            // bootCamp 기간을 포함시켜야한다.
+            // bootCampStart, bootCampEnd -> 기준으로 시작일, 끝일 다시 설정하는 구간생성
             double payPerDay = (double) (payDependsOnMonth(searchDate) / entireLength);
             int year = cal.get(YEAR);
             if (checkPromotion != payPerDay) {
@@ -869,6 +901,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         } else {
             return lastDateToInt;
         }
+    }
+
+    public boolean checkBootCampStartInclude(int first) {
+        return true;
     }
 
     public String intToDateFormatString(int date) {

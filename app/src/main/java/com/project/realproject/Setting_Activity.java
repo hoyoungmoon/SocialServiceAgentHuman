@@ -3,11 +3,13 @@ package com.project.realproject;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -16,14 +18,26 @@ import android.widget.Toast;
 
 import com.xw.repo.BubbleSeekBar;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static java.util.Calendar.MONTH;
+import static java.util.Calendar.YEAR;
 
-public class Setting_Activity extends AppCompatActivity {
+public class Setting_Activity extends AppCompatActivity implements View.OnClickListener {
 
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(
+            "yyyy-MM-dd", Locale.ENGLISH);
     private Switch percentSwitch;
+    private Switch bootCampSwitch;
     private BubbleSeekBar bubbleSeekBar;
     private TextView decimalTextView;
+    private TextView bootCampStartTextView;
+    private TextView bootCampEndTextView;
+    private LinearLayout bootCampDateLinear;
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
 
@@ -31,13 +45,16 @@ public class Setting_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.setting_activity);
-        //getSupportActionBar().setDisplayShowTitleEnabled(true);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
 
         percentSwitch = findViewById(R.id.switch_percent);
+        bootCampSwitch = findViewById(R.id.switch_bootCamp);
         bubbleSeekBar = findViewById(R.id.bubbleSeekBar_percent);
+        bootCampStartTextView = findViewById(R.id.textView_bootCampStart);
+        bootCampEndTextView = findViewById(R.id.textView_bootCampEnd);
+        bootCampDateLinear = findViewById(R.id.linear_bootCampDate);
         decimalTextView = findViewById(R.id.textView_decimal);
         decimalTextView.setText("소숫점 " + preferences.getInt("decimalPlaces", 7) + "번째");
 
@@ -72,6 +89,67 @@ public class Setting_Activity extends AppCompatActivity {
                 }
             }
         });
+
+        if(preferences.getBoolean("bootCampInclude", false)){
+            bootCampDateLinear.setVisibility(VISIBLE);
+        }else{
+            bootCampDateLinear.setVisibility(GONE);
+        }
+        bootCampSwitch.setChecked(preferences.getBoolean("bootCampInclude", false));
+        bootCampSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean check) {
+                if (check) {
+                    editor.putBoolean("bootCampInclude", true);
+                    editor.apply();
+                    bootCampDateLinear.setVisibility(VISIBLE);
+                } else {
+                    editor.putBoolean("bootCampInclude", false);
+                    editor.apply();
+                    bootCampDateLinear.setVisibility(GONE);
+                }
+            }
+        });
+
+        bootCampStartTextView.setText(preferences.getString("bootCampStart", "입소일 입력"));
+        bootCampEndTextView.setText(preferences.getString("bootCampEnd", "퇴소일 입력"));
+        bootCampStartTextView.setOnClickListener(this);
+        bootCampEndTextView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch(view.getId()){
+            case R.id.textView_bootCampStart:
+                setDatePickerDialog(bootCampStartTextView, "bootCampStart").show();
+                break;
+
+            case R.id.textView_bootCampEnd:
+                setDatePickerDialog(bootCampEndTextView, "bootCampEnd").show();
+                break;
+        }
+    }
+
+
+    public DatePickerDialog setDatePickerDialog(TextView dateTextView, String tag) {
+        final TextView someDateTextView = dateTextView;
+        final String someTag = tag;
+        Calendar newCalendar = Calendar.getInstance();
+        DatePickerDialog returnDialog = new DatePickerDialog(this,
+                new DatePickerDialog.OnDateSetListener() {
+                    public void onDateSet(DatePicker view, int year,
+                                          int monthOfYear, int dayOfMonth) {
+                        Calendar dateCalendar = Calendar.getInstance();
+                        dateCalendar.set(year, monthOfYear, dayOfMonth);
+                        someDateTextView.setText(formatter.format(dateCalendar
+                                .getTime()));
+                        editor.putString(someTag, formatter.format(dateCalendar.getTime()));
+                        editor.apply();
+                    }
+                }, newCalendar.get(YEAR),
+                newCalendar.get(MONTH),
+                newCalendar.get(Calendar.DAY_OF_MONTH));
+        return returnDialog;
     }
 
     @Override
@@ -79,4 +157,5 @@ public class Setting_Activity extends AppCompatActivity {
         Toast.makeText(this, "변경된 설정이 적용되려면 설정창 상단의 뒤로가기 버튼을 클릭해주세요", Toast.LENGTH_LONG).show();
         super.onBackPressed();
     }
+
 }
