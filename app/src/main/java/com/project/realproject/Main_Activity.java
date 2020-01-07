@@ -216,7 +216,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             setRemainVac();
             setSearchStartDate();
             setThisMonthInfo(searchStartDate);
-
             progressBar.setProgress((int) getPercentage());
             if (percentIsChange) {
                 if (!timerIsRunning && DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
@@ -469,7 +468,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             Tooltip toolTip = new Tooltip.Builder(this)
                     .styleId(R.style.ToolTipLayoutCustomStyle)
                     .text(toolTipText)
-                    .anchor(view, 0, 0, false) //follow 뭔지알아보기
+                    .anchor(view, 0, 0, false)
                     .activateDelay(0)
                     .showDuration(10000)
                     .closePolicy(new ClosePolicy.Builder()
@@ -485,6 +484,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
 
         } catch (ParseException e) {
+
         }
     }
 

@@ -52,6 +52,8 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
     private int monthlyPay;
     private int mealCost;
     private int trafficCost;
+    private int mealSetValue;
+    private int trafficSetValue;
     private int notWorkNum;
     private int morningNum;
     private boolean isOriginalPay = true;
@@ -132,6 +134,8 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
             Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
+            mealSetValue = c.getInt(4);
+            trafficSetValue = c.getInt(5);
             Calendar cal = Calendar.getInstance();
             pay = PayDependsOnMonth.getInstance(c.getString(2));
             startSearchDateTextView.setText(formatter.format(cal.getTime()));
@@ -139,8 +143,8 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
             cal.add(MONTH, 1);
             cal.add(DATE, -1);
             endSearchDateTextView.setText(formatter.format(cal.getTime()));
-            mealCostTextView.setText(c.getString(4) + " 원");
-            trafficCostTextView.setText(c.getString(5) + " 원");
+            mealCostTextView.setText(mealSetValue + " 원");
+            trafficCostTextView.setText(trafficSetValue + " 원");
 
         } else {
             mealCostTextView.setText("6000 원");
@@ -194,11 +198,12 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
         return returnDialog;
     }
 
-    public void setNumberPickerDialog(String userInfo, int minValue, int maxValue, int step, FragmentManager fg) {
+    public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
         NumberPickerDialog dialog = new NumberPickerDialog(this);
-        Bundle bundle = new Bundle(4);
+        Bundle bundle = new Bundle(5);
         // 이미 세팅되어있던 값 넣기
         bundle.putString("userInfo", userInfo);
+        bundle.putInt("setValue", setValue);
         bundle.putInt("minValue", minValue);
         bundle.putInt("maxValue", maxValue);
         bundle.putInt("step", step);
@@ -247,16 +252,16 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
                 }
                 break;
             case R.id.cal_meal:
-                setNumberPickerDialog("mealCost", 5000, 10000, 1000, fg);
+                setNumberPickerDialog("mealCost", mealSetValue, 0, 10000, 500, fg);
                 break;
             case R.id.cal_traffic:
-                setNumberPickerDialog("trafficCost", 2000, 5000, 100, fg);
+                setNumberPickerDialog("trafficCost", trafficSetValue, 0, 5000, 100, fg);
                 break;
             case R.id.cal_notWork:
-                setNumberPickerDialog("workNum", 0, 31, 1, fg);
+                setNumberPickerDialog("workNum", 0,0, 31, 1, fg);
                 break;
             case R.id.cal_morning:
-                setNumberPickerDialog("morningNum", 0, 31, 1, fg);
+                setNumberPickerDialog("morningNum", 0,0, 31, 1, fg);
                 break;
             case R.id.cal_calculate:
                 if (isLessThanOneMonth()) {

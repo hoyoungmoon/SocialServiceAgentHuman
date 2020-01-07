@@ -13,8 +13,8 @@
         android:layout_height="wrap_content"
         android:background="#f6f6f6"
         android:paddingStart="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="15dp"
+        android:paddingBottom="15dp"
         android:text="복무율(%) 설정"
         android:textStyle="bold" />
 
