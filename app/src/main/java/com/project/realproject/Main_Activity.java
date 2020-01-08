@@ -126,9 +126,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     // sharedPreference values
     private boolean percentIsChange;
     private boolean bootCampInclude;
-    private boolean searchBootCampRightBefore;
+    private boolean nextSearchBootCampPeriod;
     private String bootCampStart;
+    private String bootCampStartRightBefore;
     private String bootCampEnd;
+    private String bootCampEndRightAfter;
     private int decimalPlaces;
 
     private LinearLayout vacCard1;
@@ -159,10 +161,23 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
         bootCampInclude = preferences.getBoolean("bootCampInclude", false);
 
-        // default 값을 어떻게 줄까 생각해보자.
-        // setting_activity에서 미리 default값을 저장시켜야할 듯
-        bootCampStart = preferences.getString("bootCampStart", null);
-        bootCampEnd = preferences.getString("bootCampEnd", null);
+
+       // bootcamp 관련 data 초기화
+        try {
+            bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
+            bootCampEnd = preferences.getString("bootCampEnd", "2020-01-29");
+            nextSearchBootCampPeriod = false;
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(formatter.parse(bootCampStart));
+            calendar.add(DATE, -1);
+            bootCampStartRightBefore = formatter.format(calendar.getTime());
+            calendar.setTime(formatter.parse(bootCampEnd));
+            calendar.add(DATE, 1);
+            bootCampEndRightAfter = formatter.format(calendar.getTime());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
 
         mContext = this;
 
@@ -664,6 +679,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         int first, last, entireLength;
         Calendar cal = Calendar.getInstance();
         Calendar c = Calendar.getInstance();
+        // 월급 검색기간 first(시작일), last(종료일) 기간을 정한다
         try {
             cal.setTime(dateFormat.parse(searchDate));
             int year = cal.get(YEAR);
@@ -692,22 +708,39 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 entireLength = getDateLength(first, last);
                 first = checkFirstDayInclude(first);
                 last = checkLastDayInclude(last);
-
             }
 
-            if (bootCampInclude && checkBootCampStartInclude(first)) {
-                c.setTime(formatter.parse(bootCampStart));
-                c.add(DATE, -1);
-                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
-                if (first == last) {
+            // 훈련소를 검색에 포함할 때
+            if (bootCampInclude) {
+                // 이번 검색에서 훈련소가 나오는 검색을 한다 ( 조건 - 가던 방향으로 계속 검색하면 문제없다.
+                // 하지만 bootcamp를 지나지 않고 다시 반대방향으로 검색하면 안된다
+                // 따라서 nextSearchBootCampPeriod가 true이더라도 다시
 
+                // 앞으로 검색하는 중 bootcampstartrightbefore 만났다 -> boolean 하나 정해서 그걸 true로 바꾼다
+                // 그걸 onclick에 그 boolean을 if문에 넣고 또다른 boolean을 ture로 바꾸고 그걸 setThisMonthInfo에서 받아서 first, last을 알맞게 바꾸는 식으로 해야할듯 ...
+                // 밑에 코드 수정해야함
+                if (nextSearchBootCampPeriod) {
+                    nextSearchBootCampPeriod = false;
+                    first = Integer.parseInt(bootCampStart.replace("-", ""));
+                    last = Integer.parseInt(bootCampEnd.replace("-", ""));
                 } else {
-                    searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
-                    setThisMonthSpendVac(first, last, entireLength);
-                    return true;
+                    if (checkBootCampStartRightBeforeInclude(first, last, bootCampStartRightBefore) &&
+                            checkBootCampEndRightAfterInclude(first, last, bootCampEndRightAfter)) {
+                        nextSearchBootCampPeriod = false;
+                    } else {
+                        if (checkBootCampStartRightBeforeInclude(first, last, bootCampStartRightBefore)) {
+                            nextSearchBootCampPeriod = true;
+                            last = Integer.parseInt(bootCampStartRightBefore.replace("-", ""));
+                        }
+                        if (checkBootCampEndRightAfterInclude(first, last, bootCampEndRightAfter)) {
+                            nextSearchBootCampPeriod = true;
+                            first = Integer.parseInt(bootCampEndRightAfter.replace("-", ""));
+                        }
+                    }
                 }
             }
 
+            // 검색기간 시작일이 종료일보다 작은지 확인
             if (last - first >= 0) {
                 searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
                 setThisMonthSpendVac(first, last, entireLength);
@@ -715,6 +748,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             } else {
                 return false;
             }
+
         } catch (ParseException e) {
             e.printStackTrace();
             return false;
@@ -722,7 +756,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     }
 
     public void setThisMonthSpendVac(int first_tmp, int last_tmp, int entireLength) throws ParseException {
-        // 소집일 소집해제일이 끼어있는지 주의
+
         Calendar cal = Calendar.getInstance();
         double sum_sickVac = 0;
         double sum_Vac = 0;
@@ -903,8 +937,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public boolean checkBootCampStartInclude(int first) {
-        return true;
+    public boolean checkBootCampStartRightBeforeInclude(int first, int last, String rightBefore) {
+        rightBefore = rightBefore.replace("-", "");
+        int compare = Integer.parseInt(rightBefore);
+        return first < compare && compare < last;
+    }
+
+    public boolean checkBootCampEndRightAfterInclude(int first, int last, String rightAfter){
+        rightAfter = rightAfter.replace("-", "");
+        int compare = Integer.parseInt(rightAfter);
+        return first < compare && compare < last;
     }
 
     public String intToDateFormatString(int date) {
