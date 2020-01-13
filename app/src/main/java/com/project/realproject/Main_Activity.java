@@ -126,11 +126,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     // sharedPreference values
     private boolean percentIsChange;
     private boolean bootCampInclude;
-    private boolean nextSearchBootCampPeriod;
     private String bootCampStart;
-    private String bootCampStartRightBefore;
     private String bootCampEnd;
-    private String bootCampEndRightAfter;
+    private Date bootCampStartDate;
+    private Date bootCampEndDate;
     private int decimalPlaces;
 
     private LinearLayout vacCard1;
@@ -166,14 +165,12 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         try {
             bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
             bootCampEnd = preferences.getString("bootCampEnd", "2020-01-29");
-            nextSearchBootCampPeriod = false;
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(formatter.parse(bootCampStart));
-            calendar.add(DATE, -1);
-            bootCampStartRightBefore = formatter.format(calendar.getTime());
+            bootCampStartDate = calendar.getTime();
             calendar.setTime(formatter.parse(bootCampEnd));
-            calendar.add(DATE, 1);
-            bootCampEndRightAfter = formatter.format(calendar.getTime());
+            bootCampEndDate = calendar.getTime();
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -490,7 +487,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     rank = "병장 (2020년 개정후 기준)";
                 }
                 toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
-                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | " + dateFormat_dot.format(calendar.getTime()) + "");
+                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | "
+                        + dateFormat_dot.format(calendar.getTime()) + "");
             } else if (view == toolTipPay || view == salaryTextView) {
                 view = toolTipPay;
                 setThisMonthInfo(searchStartDate);
@@ -509,9 +507,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     .arrow(true)
                     .create();
             if (view == toolTipRank) {
-                toolTip.show(view, Tooltip.Gravity.RIGHT, true);
+                toolTip.show(view, Tooltip.Gravity.RIGHT, false);
             } else if (view == toolTipPay) {
-                toolTip.show(view, Tooltip.Gravity.LEFT, true);
+                toolTip.show(view, Tooltip.Gravity.LEFT, false);
             }
 
         } catch (ParseException e) {
@@ -552,9 +550,11 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             case R.id.rating:
                 final String appPackageName = getPackageName();
                 try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("market://details?id=" + appPackageName)));
                 } catch (android.content.ActivityNotFoundException e) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
                 }
                 break;
             case R.id.reset:
@@ -710,36 +710,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 last = checkLastDayInclude(last);
             }
 
-            // 훈련소를 검색에 포함할 때
-            if (bootCampInclude) {
-                // 이번 검색에서 훈련소가 나오는 검색을 한다 ( 조건 - 가던 방향으로 계속 검색하면 문제없다.
-                // 하지만 bootcamp를 지나지 않고 다시 반대방향으로 검색하면 안된다
-                // 따라서 nextSearchBootCampPeriod가 true이더라도 다시
-
-                // 앞으로 검색하는 중 bootcampstartrightbefore 만났다 -> boolean 하나 정해서 그걸 true로 바꾼다
-                // 그걸 onclick에 그 boolean을 if문에 넣고 또다른 boolean을 ture로 바꾸고 그걸 setThisMonthInfo에서 받아서 first, last을 알맞게 바꾸는 식으로 해야할듯 ...
-                // 밑에 코드 수정해야함
-                if (nextSearchBootCampPeriod) {
-                    nextSearchBootCampPeriod = false;
-                    first = Integer.parseInt(bootCampStart.replace("-", ""));
-                    last = Integer.parseInt(bootCampEnd.replace("-", ""));
-                } else {
-                    if (checkBootCampStartRightBeforeInclude(first, last, bootCampStartRightBefore) &&
-                            checkBootCampEndRightAfterInclude(first, last, bootCampEndRightAfter)) {
-                        nextSearchBootCampPeriod = false;
-                    } else {
-                        if (checkBootCampStartRightBeforeInclude(first, last, bootCampStartRightBefore)) {
-                            nextSearchBootCampPeriod = true;
-                            last = Integer.parseInt(bootCampStartRightBefore.replace("-", ""));
-                        }
-                        if (checkBootCampEndRightAfterInclude(first, last, bootCampEndRightAfter)) {
-                            nextSearchBootCampPeriod = true;
-                            first = Integer.parseInt(bootCampEndRightAfter.replace("-", ""));
-                        }
-                    }
-                }
-            }
-
             // 검색기간 시작일이 종료일보다 작은지 확인
             if (last - first >= 0) {
                 searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
@@ -769,6 +739,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         double pay = 0;
         boolean isPromoted = false;
         boolean isAmended = false;
+        boolean isBootCampIncluded = false;
         int payBeforePromotion;
         int payAfterPromotion = 0;
         int numberOfAfterPromotion = 0;
@@ -798,14 +769,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 holiday = listOfHoliday2022;
             }
 
-            if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
-                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)) {
-                numberOfWork--;
-            }
-
-            // bootCamp 기간을 포함시켜야한다.
-            // bootCampStart, bootCampEnd -> 기준으로 시작일, 끝일 다시 설정하는 구간생성
             double payPerDay = (double) (payDependsOnMonth(searchDate) / entireLength);
+            // 하루 기본급이 바뀌면 진급 또는 2020년 개정 반영된 것이므로 따로 count시작
             int year = cal.get(YEAR);
             if (checkPromotion != payPerDay) {
                 if (checkYear == 2019 && year == 2020) {
@@ -817,6 +782,18 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 numberOfAfterPromotion++;
             }
 
+            // 토, 일, 공휴일, 훈련소가 포함되어 있으면 근무일수에서 제외
+            if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
+                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)
+                    || checkBootCampInclude(cal.getTime())) {
+                if(checkBootCampInclude(cal.getTime())) {
+                    numberOfEntire--;
+                    pay -= payPerDay;  // 출근한날 아니므로 pay에서는 뺀다
+                    isBootCampIncluded = true;  // tooltip에 훈련소 월급 나타낸다
+                }
+                numberOfWork--;
+            }
+
             pay += payPerDay;
             cal.add(DATE, 1);
             searchDate = cal.getTime();
@@ -825,7 +802,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         numberOfMeal = numberOfWork;
         numberOfTraffic = numberOfWork;
 
-        Cursor c = DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
+        Cursor c = DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null,
+                null, null, null, null);
         while (c.moveToNext()) {
             String type = c.getString(3);
             double count = c.getDouble(4);
@@ -861,38 +839,52 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         thisMonthSickVac.setText(convertMinuteToProperUnit((int) sum_sickVac));
         thisMonthOuting.setText(convertMinuteToProperUnit((int) sum_outing));
         int sumOfPay = (int) Math.round((pay + (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic)) / 100.0) * 100;
-        salaryTextView.setText(decimalFormat.format(sumOfPay) + " KRW");
         int sumOfMeal = mealCost * numberOfMeal;
         int sumOfTraffic = trafficCost * numberOfTraffic;
         int sumOfBeforePromotion = payBeforePromotion * (numberOfEntire - numberOfAfterPromotion) / entireLength;
         int sumOfAfterPromotion = payAfterPromotion * numberOfAfterPromotion / entireLength;
         int sumOfNoPromotion = payBeforePromotion * numberOfEntire / entireLength;
 
+
         if (isAmended) {
             toolTipText = ("<b>2019년 개정전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
                     + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
                     + "/" + entireLength + "일)" + "<br><br>" + "<b>2020년 개정후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
                     + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
-                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
-                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
-                    + "공휴일 출근횟수에서 제외");
+                    + "/" + entireLength + "일)");
         } else if (isPromoted) {
             toolTipText = ("<b>진급 전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
                     + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
                     + "/" + entireLength + "일)" + "<br><br>" + "<b>진급 후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
                     + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
-                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
-                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
-                    + "공휴일 출근횟수에서 제외");
+                    + "/" + entireLength + "일)");
         } else {
-            toolTipText = ("<b>기본급여</b><br>" + decimalFormat2.format(sumOfNoPromotion) + " <b>|</b> " + decimalFormat2.format(payBeforePromotion) + " x "
-                    + "(" + numberOfEntire + "/" + entireLength + "일)" + "<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
-                    + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>" + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
-                    + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
-                    + "공휴일 출근횟수에서 제외");
+            toolTipText = ("<b>기본급여</b><br>" + decimalFormat2.format(sumOfNoPromotion) + " <b>|</b> "
+                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + numberOfEntire
+                    + "/" + entireLength + "일)");
         }
+
+        if(isBootCampIncluded){
+            String bootCampTooltipText = setToolTipTextAboutBootCamp(bootCampStartDate, bootCampEndDate);
+            if(checkBootCampEndInclude(first_payDate, last_payDate, bootCampEndDate)){
+                toolTipText += ("<br><br>" + "<b>훈련소</b><br>"
+                        + decimalFormat2.format(calculateBootCampPay(bootCampStartDate, bootCampEndDate)))
+                        + "<br>= " + bootCampTooltipText;
+                sumOfPay += calculateBootCampPay(bootCampStartDate, bootCampEndDate);
+            } else{
+                toolTipText += ("<br><br>" + "<b>훈련소 (다음달 급여에 포함)</b><br>"
+                        + decimalFormat2.format(calculateBootCampPay(bootCampStartDate, bootCampEndDate)))
+                        + "<br>= " + bootCampTooltipText;
+            }
+        }
+
+        toolTipText += ("<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
+                + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>"
+                + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
+                + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
+                + "공휴일 출근횟수에서 제외");
+
+        salaryTextView.setText(decimalFormat.format(sumOfPay) + " KRW");
     }
 
     public int getDateLength(int first, int last) {
@@ -905,6 +897,19 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             e.printStackTrace();
         }
         return (int) (((last_payDate.getTime() - first_payDate.getTime()) / (24 * 60 * 60 * 1000)) + 1);
+    }
+
+    public int getMonthLength(Date date){
+        Calendar c1 = Calendar.getInstance();
+        Calendar c2 = Calendar.getInstance();
+        c1.setTime(date);
+        c2.setTime(date);
+
+        c1.set(DATE, 1);
+        c2.add(MONTH, 1);
+        c2.set(DATE, 1);
+
+        return (int) ((c2.getTimeInMillis() - c1.getTimeInMillis()) / (24 * 60 * 60 * 1000));
     }
 
     public int checkFirstDayInclude(int first) {
@@ -937,16 +942,54 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public boolean checkBootCampStartRightBeforeInclude(int first, int last, String rightBefore) {
-        rightBefore = rightBefore.replace("-", "");
-        int compare = Integer.parseInt(rightBefore);
-        return first < compare && compare < last;
+    public boolean checkBootCampInclude(Date date){
+       return ((bootCampStartDate.compareTo(date) != 1) && (bootCampEndDate.compareTo(date) != -1));
     }
 
-    public boolean checkBootCampEndRightAfterInclude(int first, int last, String rightAfter){
-        rightAfter = rightAfter.replace("-", "");
-        int compare = Integer.parseInt(rightAfter);
-        return first < compare && compare < last;
+    public boolean checkBootCampEndInclude(Date firstSearchDate, Date lastSearchDate, Date date){
+        return ((firstSearchDate.compareTo(date) != 1) && (lastSearchDate.compareTo(date) != -1));
+    }
+
+    public int calculateBootCampPay(Date bootCampStartDate, Date bootCampEndDate){
+        int bootCampPay = 0;
+        Calendar cal = Calendar.getInstance();
+        Date searchDate = bootCampStartDate;
+        cal.setTime(searchDate);
+        while (searchDate.compareTo(bootCampEndDate) <= 0) {
+            cal.setTime(searchDate);
+            double payPerDay = (double) (payDependsOnMonth(searchDate) / getMonthLength(searchDate));
+
+            bootCampPay += payPerDay;
+            cal.add(DATE, 1);
+            searchDate = cal.getTime();
+        }
+        return bootCampPay;
+    }
+
+    public String setToolTipTextAboutBootCamp(Date bootCampStartDate, Date bootCampEndDate){
+        Calendar cal = Calendar.getInstance();
+        Date searchDate = bootCampStartDate;
+        cal.setTime(searchDate);
+        int startMonth = cal.get(MONTH);
+        int previousMonth = 0;
+        int currentMonth = 0;
+        boolean monthChange = false;
+        while (searchDate.compareTo(bootCampEndDate) <= 0) {
+            cal.setTime(searchDate);
+            if(startMonth == cal.get(MONTH)){
+                previousMonth++;
+            }else{
+                currentMonth++;
+                monthChange = true;
+            }
+            cal.add(DATE, 1);
+            searchDate = cal.getTime();
+        }
+        return monthChange ? decimalFormat2.format(payDependsOnMonth(bootCampStartDate)) + " x " + "(" + previousMonth
+                + "/" + getMonthLength(bootCampStartDate) + "일)" + "<br>+ " + decimalFormat2.format(payDependsOnMonth(bootCampEndDate))
+                + " x " + "(" + currentMonth + "/" + getMonthLength(bootCampEndDate) + "일)"
+                : decimalFormat2.format(payDependsOnMonth(bootCampStartDate)) + " x " + "(" + previousMonth
+                + "/" + getMonthLength(bootCampStartDate) + "일)";
     }
 
     public String intToDateFormatString(int date) {
