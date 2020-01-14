@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -32,7 +32,7 @@ import java.util.Locale;
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.application.socialagent.vacationDBManager.TABLE_USER;
+import static com.project.realproject.vacationDBManager.TABLE_USER;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;

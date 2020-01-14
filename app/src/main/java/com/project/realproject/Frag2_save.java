@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
@@ -21,6 +21,12 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -51,6 +57,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private LinearLayout vacationSetter;
+    private AdView mAdView;
 
 
     DatePickerDialog datePickerDialog;
@@ -97,6 +104,15 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_frag2_save, container, false);
+
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         startDateEditText = view.findViewById(R.id.et_startDate);
         startDateEditText.setInputType(InputType.TYPE_NULL);

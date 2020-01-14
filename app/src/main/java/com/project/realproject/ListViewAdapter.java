@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 import android.content.Context;
 import android.view.LayoutInflater;

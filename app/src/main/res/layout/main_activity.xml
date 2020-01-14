@@ -8,7 +8,6 @@
     android:fitsSystemWindows="true"
     tools:context=".Main_Activity">
 
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -26,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_end="50dp" />
+            app:layout_constraintGuide_end="20dp" />
 
         <View
             android:id="@+id/background"
@@ -46,15 +45,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/banner_ad"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/admob_ad_test_id"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/guideLine2"></com.google.android.gms.ads.AdView>
 
         <ImageView
             android:id="@+id/navigation_drawer_button"
@@ -282,7 +272,7 @@
                 android:id="@+id/spendVacCardView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="10dp"
                 app:cardBackgroundColor="@color/colorMain"
                 app:cardCornerRadius="8dp"
                 app:layout_constraintBottom_toTopOf="@+id/vacCardViewEntire"
@@ -475,11 +465,10 @@
                 android:id="@+id/vacCardViewEntire"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginTop="10dp"
                 app:cardCornerRadius="5dp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHeight_max="350dp"
+                app:layout_constraintHeight_max="380dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spendVacCardView">
 

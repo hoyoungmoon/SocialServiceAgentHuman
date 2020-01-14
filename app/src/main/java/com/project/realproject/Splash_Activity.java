@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 

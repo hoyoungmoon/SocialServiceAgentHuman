@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 
 import android.app.AlertDialog;
@@ -18,13 +18,19 @@ import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
-import static com.application.socialagent.vacationDBManager.TABLE_USER;
+import static com.project.realproject.vacationDBManager.TABLE_USER;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
@@ -41,6 +47,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     private TextView payDayEditText;
     private Button saveButton;
     private Button cancelButton;
+    private AdView mAdView;
 
     private int mealCost;
     private int trafficCost;
@@ -73,6 +80,15 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_frag_date_revise, container, false);
+
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         nickNameEditText = view.findViewById(R.id.et_nickName);
         nickNameEditText.setInputType(TYPE_CLASS_TEXT);

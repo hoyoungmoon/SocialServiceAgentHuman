@@ -1,4 +1,4 @@
-package com.application.socialagent;
+package com.project.realproject;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -109,8 +109,8 @@ public class Setting_Activity extends AppCompatActivity implements View.OnClickL
             }
         });
 
-        bootCampStartTextView.setText(preferences.getString("bootCampStart", "입소일 입력"));
-        bootCampEndTextView.setText(preferences.getString("bootCampEnd", "퇴소일 입력"));
+        bootCampStartTextView.setText(preferences.getString("bootCampStart", "2020-01-01"));
+        bootCampEndTextView.setText(preferences.getString("bootCampEnd", "2020-01-29"));
         bootCampStartTextView.setOnClickListener(this);
         bootCampEndTextView.setOnClickListener(this);
     }
