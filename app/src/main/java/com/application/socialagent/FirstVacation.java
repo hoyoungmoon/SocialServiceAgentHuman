@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.application.socialagent;
 
 import android.os.Parcel;
 import android.os.Parcelable;

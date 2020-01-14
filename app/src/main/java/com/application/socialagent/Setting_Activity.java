@@ -1,7 +1,6 @@
-package com.project.realproject;
+package com.application.socialagent;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 
 import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
@@ -11,7 +10,6 @@ import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;

@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.application.socialagent;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -125,7 +125,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     // sharedPreference values
     private boolean percentIsChange;
-    private boolean bootCampInclude;
+    private boolean bootCampCalculationInclude;
     private String bootCampStart;
     private String bootCampEnd;
     private Date bootCampStartDate;
@@ -142,7 +142,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // This is beta-version
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
         MobileAds.initialize(this, new OnInitializationCompleteListener() {
@@ -158,11 +157,10 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
-        bootCampInclude = preferences.getBoolean("bootCampInclude", false);
-
 
        // bootcamp 관련 data 초기화
         try {
+            bootCampCalculationInclude = preferences.getBoolean("bootCampInclude", false);
             bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
             bootCampEnd = preferences.getString("bootCampEnd", "2020-01-29");
             Calendar calendar = Calendar.getInstance();
@@ -174,7 +172,6 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         } catch (ParseException e) {
             e.printStackTrace();
         }
-
 
         mContext = this;
 
@@ -498,7 +495,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     .text(toolTipText)
                     .anchor(view, 0, 0, false)
                     .activateDelay(0)
-                    .showDuration(10000)
+                    .showDuration(20000)
                     .closePolicy(new ClosePolicy.Builder()
                             .inside(true)
                             .outside(true)
@@ -784,14 +781,16 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
             // 토, 일, 공휴일, 훈련소가 포함되어 있으면 근무일수에서 제외
             if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
-                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)
-                    || checkBootCampInclude(cal.getTime())) {
-                if(checkBootCampInclude(cal.getTime())) {
+                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate) ||
+                    checkBootCampInclude(cal.getTime())){
+                if(bootCampCalculationInclude && checkBootCampInclude(cal.getTime())){
                     numberOfEntire--;
                     pay -= payPerDay;  // 출근한날 아니므로 pay에서는 뺀다
                     isBootCampIncluded = true;  // tooltip에 훈련소 월급 나타낸다
+                    numberOfWork--;
+                } else{
+                    numberOfWork--;
                 }
-                numberOfWork--;
             }
 
             pay += payPerDay;
@@ -864,7 +863,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     + "/" + entireLength + "일)");
         }
 
-        if(isBootCampIncluded){
+        if(bootCampCalculationInclude && isBootCampIncluded){
             String bootCampTooltipText = setToolTipTextAboutBootCamp(bootCampStartDate, bootCampEndDate);
             if(checkBootCampEndInclude(first_payDate, last_payDate, bootCampEndDate)){
                 toolTipText += ("<br><br>" + "<b>훈련소</b><br>"

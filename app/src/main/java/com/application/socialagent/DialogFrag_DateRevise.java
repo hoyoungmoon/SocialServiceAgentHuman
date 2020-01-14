@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.application.socialagent;
 
 
 import android.app.AlertDialog;
@@ -14,16 +14,9 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,8 +24,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
-import static com.project.realproject.vacationDBManager.TABLE_USER;
-import static java.util.Calendar.LONG;
+import static com.application.socialagent.vacationDBManager.TABLE_USER;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 

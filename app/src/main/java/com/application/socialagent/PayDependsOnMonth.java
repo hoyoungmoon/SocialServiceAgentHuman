@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.application.socialagent;
 
 import java.util.Calendar;
 import java.util.Date;
