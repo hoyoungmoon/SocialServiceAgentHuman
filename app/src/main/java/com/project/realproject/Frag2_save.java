@@ -36,6 +36,7 @@ import java.util.Locale;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Calendar.DATE;
+import com.project.realproject.Main_Activity.vacType;
 
 public class Frag2_save extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
@@ -65,7 +66,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
 
     private String limitStartDate;
     private String limitLastDate;
-    private int numberOfYear;
+    private vacType typeOfVac;
     private int vacationLength = 1;
     private int outingLength = 10;
     private String searchStartDate;
@@ -76,12 +77,12 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
     public Frag2_save() {
     }
 
-    public static Frag2_save newInstance(String param1, String param2, int param3, String param4) {
+    public static Frag2_save newInstance(String param1, String param2, vacType param3, String param4) {
         Frag2_save dialog = new Frag2_save();
         Bundle bundle = new Bundle(4);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
-        bundle.putInt("numOfYear", param3);
+        bundle.putSerializable("typeOfVac", param3);
         bundle.putString("searchStartDate", param4);
         dialog.setArguments(bundle);
         return dialog;
@@ -95,7 +96,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
         if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
-            numberOfYear = getArguments().getInt("numOfYear");
+            typeOfVac = (vacType)getArguments().getSerializable("numOfYear");
             searchStartDate = getArguments().getString("searchStartDate");
         }
     }
@@ -135,7 +136,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
         outingSetter = view.findViewById(R.id.linear_outingSetter);
         vacationSetter = view.findViewById(R.id.linear_vacationSetter);
 
-        if (numberOfYear == 3) {
+        if (typeOfVac == vacType.sickVac) {
             vacationTypeRelative.setVisibility(GONE);
             sickVacationTypeRadioGroup.setVisibility(VISIBLE);
         } else {
@@ -240,7 +241,7 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
             int idx;
             firstVacation = new FirstVacation();
 
-            if (numberOfYear == 3) {
+            if (typeOfVac == vacType.sickVac) {
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
@@ -281,7 +282,6 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
                         firstVacation.setType("외출");
                         firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
-                    // 새로 추가한것 오류 확인 !!
                     case 4:
                         firstVacation.setType(specialVacationTypeSpinner.getSelectedItem().toString());
                         firstVacation.setCount(480);
@@ -291,44 +291,49 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
 
             String getDate = startDateEditText.getText().toString().trim();
             if (getDate.equals("")) {
-                blankAlert("시작일을 입력해주세요");
+                blankAlert();
+            } else if (idx == 4) {
+                specialVacationAlert(idx);
             } else {
-                if (dateCalendar != null) {
-                    firstVacation.setStartDate(dateCalendar.getTime());
-                }
-
-                // 병가 저장이 안댐 해결해겨랭ㄹㄴ럼ㅇ
-                if ((idx == 0 || idx == 4) && vacationLength != 1) {
-                    dateCalendar.add(DATE, -1);
-                    for (int i = 1; i <= vacationLength; i++) {
-                        firstVacation.setVacation(vacationEditText.getText().toString().trim() + " (" + i + "/" + vacationLength + ")");
-                        dateCalendar.add(DATE, 1);
-                        firstVacation.setStartDate(dateCalendar.getTime());
-                        saveFirstVacation(firstVacation);
-                    }
-                } else {
-                    firstVacation.setVacation(vacationEditText.getText().toString().trim());
-                    saveFirstVacation(firstVacation);
-                }
-
-                ((Main_Activity) getActivity()).setRemainVac();
-                ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
-
-                if (numberOfYear == 1) {
-                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                            1, "list1");
-                } else if (numberOfYear == 2) {
-                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                            2, "list2");
-                } else {
-                    ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                            3, "list3");
-                }
-                dismiss();
+                saveVacation(idx);
             }
         } else if (view == cancelButton) {
             dismiss();
         }
+    }
+
+    private void saveVacation(int idx) {
+        final boolean isFullVac = idx == 0;
+        final boolean isSpecialVac = idx == 4;
+        final boolean isVacationLengthLong = vacationLength != 1;
+
+        if (dateCalendar != null) {
+            firstVacation.setStartDate(dateCalendar.getTime());
+        }
+
+        if ((isFullVac || isSpecialVac) && isVacationLengthLong) {
+            dateCalendar.add(DATE, -1);
+            for (int i = 1; i <= vacationLength; i++) {
+                firstVacation.setVacation(vacationEditText.getText().toString().trim() + " (" + i + "/" + vacationLength + ")");
+                dateCalendar.add(DATE, 1);
+                firstVacation.setStartDate(dateCalendar.getTime());
+                saveFirstVacation(firstVacation);
+            }
+        } else {
+            firstVacation.setVacation(vacationEditText.getText().toString().trim());
+            saveFirstVacation(firstVacation);
+        }
+        ((Main_Activity) getActivity()).setRemainVac();
+        ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
+
+        if (typeOfVac == vacType.firstYearVac) {
+            ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.firstYearVac);
+        } else if (typeOfVac == vacType.secondYearVac) {
+            ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.secondYearVac);
+        } else {
+            ((Main_Activity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.sickVac);
+        }
+        dismiss();
     }
 
     @Override
@@ -339,20 +344,31 @@ public class Frag2_save extends DialogFragment implements View.OnClickListener, 
 
     public void saveFirstVacation(FirstVacation firstVacation) {
         DBmanager.insertFirstVacation(firstVacation);
-
     }
 
     public String getOnlyNumber(String string) {
         return string.replaceAll("[^0-9]", "");
     }
 
-    public void blankAlert(String alert) {
+    public void blankAlert() {
         new AlertDialog.Builder(getActivity())
-                .setMessage(alert)
+                .setMessage("시작일을 입력해주세요")
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void specialVacationAlert(final int idx) {
+        new AlertDialog.Builder(getActivity())
+                .setMessage("기타(특별휴가, 청원휴가, 공가)는 연가에서 차감되지 않습니다")
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        saveVacation(idx);
                     }
                 })
                 .show();

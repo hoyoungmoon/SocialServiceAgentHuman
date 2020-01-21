@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="vacation_type">
-        <item>연가</item>
-        <item>오전반가</item>
-        <item>오후반가</item>
-    </string-array>
+
     <string-array name="special_vacation_type">
         <item>특별휴가</item>
         <item>청원휴가</item>

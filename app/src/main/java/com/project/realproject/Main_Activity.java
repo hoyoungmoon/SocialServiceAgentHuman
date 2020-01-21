@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -63,14 +64,15 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
     private static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
-    private static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441600, 488200, 540900};
-    private static String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0606", "0815",
+    private static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441700, 488200, 540900};
+    private static final String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0606", "0815",
             "1003", "1009", "1225"};
-    private static String[] listOfHoliday2020 = new String[]{"0124", "0127", "0415", "0430", "0930",
+    private static final String[] listOfHoliday2020 = new String[]{"0124", "0127", "0415", "0430", "0930",
             "1001", "1002"};
-    private static String[] listOfHoliday2021 = new String[]{"0211", "0212", "0519", "0920", "0921",
+    private static final String[] listOfHoliday2021 = new String[]{"0211", "0212", "0519", "0920", "0921",
             "0922"};
-    private static String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
+    private static final String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
+    public enum vacType {firstYearVac, secondYearVac, sickVac}
     public static Context mContext;
     private String firstDate;
     private String lastDate;
@@ -144,7 +146,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
 
-       // bootcamp 관련 data 초기화
+       // 관련 data 초기화
         try {
             bootCampCalculationInclude = preferences.getBoolean("bootCampInclude", false);
             bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
@@ -326,32 +328,29 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
         switch (view.getId()) {
             case R.id.vacCardView_1:
-                setListView(R.id.first_vacation_image, ft,
-                        firstDate, pivotDate, 1, "list1");
+                setListView(R.id.first_vacation_image, ft, firstDate, pivotDate, vacType.firstYearVac);
                 break;
 
             case R.id.vacCardView_2:
-                setListView(R.id.second_vacation_image, ft,
-                        pivotPlusOneDate, lastDate, 2, "list2");
+                setListView(R.id.second_vacation_image, ft, pivotPlusOneDate, lastDate, vacType.secondYearVac);
                 break;
 
             case R.id.vacCardView_3:
-                setListView(R.id.sick_vacation_image, ft,
-                        firstDate, lastDate, 3, "list3");
+                setListView(R.id.sick_vacation_image, ft, firstDate, lastDate, vacType.sickVac);
                 break;
 
             case R.id.spendButton_1:
-                dialog = new Frag2_save().newInstance(firstDate, pivotDate, 1, searchStartDate);
+                dialog = new Frag2_save().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_2:
-                dialog = new Frag2_save().newInstance(pivotPlusOneDate, lastDate, 2, searchStartDate);
+                dialog = new Frag2_save().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_3:
-                dialog = new Frag2_save().newInstance(firstDate, lastDate, 3, searchStartDate);
+                dialog = new Frag2_save().newInstance(firstDate, lastDate, vacType.sickVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
@@ -390,24 +389,24 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public void setListView(int imageId, FragmentTransaction ft,
-                            String lowerBoundDate, String upperBoundDate, int numOfYear, String tag) {
+    public void setListView(int imageId, FragmentTransaction ft, String lowerBoundDate,
+                            String upperBoundDate, vacType typeOfVac) {
         ImageView imageView = findViewById(imageId);
         Fragment fragment;
 
         if (container.getVisibility() == GONE) {
-            switch (tag) {
-                case "list1":
+            switch (typeOfVac) {
+                case firstYearVac:
                     vacCard1.setVisibility(VISIBLE);
                     vacCard2.setVisibility(GONE);
                     vacCard3.setVisibility(GONE);
                     break;
-                case "list2":
+                case secondYearVac:
                     vacCard1.setVisibility(GONE);
                     vacCard2.setVisibility(VISIBLE);
                     vacCard3.setVisibility(GONE);
                     break;
-                case "list3":
+                case sickVac:
                     vacCard1.setVisibility(GONE);
                     vacCard2.setVisibility(GONE);
                     vacCard3.setVisibility(VISIBLE);
@@ -416,8 +415,9 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
             imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
             fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, numOfYear, searchStartDate);
-            ft.replace(R.id.fragment_container_1, fragment, tag);
+                    lastDate, typeOfVac, searchStartDate);
+
+            ft.replace(R.id.fragment_container_1, fragment);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.commit();
             container.setVisibility(VISIBLE);
@@ -640,13 +640,18 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 String startDate = c.getString(2);
                 String type = c.getString(3);
                 long startTime = formatter.parse(startDate).getTime();
+
+                // 특별휴가(특별, 청원, 공가) count를 차감하지 않는다
                 if (type.equals("병가") || type.equals("오전지참")
                         || type.equals("오후조퇴") || type.equals("병가외출")) {
                     thirdCount -= c.getDouble(4);
-                } else if (startTime - firstTime >= 0 && pivotTime - startTime >= 0) {
-                    firstCount -= c.getDouble(4);
-                } else if (startTime - pivotTime > 0 && lastTime - startTime >= 0) {
-                    secondCount -= c.getDouble(4);
+                } else if(type.equals("연가") || type.equals("오전반가")
+                        || type.equals("오후반가") || type.equals("외출")){
+                    if(startTime - firstTime >= 0 && pivotTime - startTime >= 0){
+                        firstCount -= c.getDouble(4);
+                    }else if(startTime - pivotTime > 0 && lastTime - startTime >= 0){
+                        secondCount -= c.getDouble(4);
+                    }
                 }
             }
             c.close();
@@ -774,7 +779,8 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                     pay -= payPerDay;  // 출근한날 아니므로 pay에서는 뺀다
                     isBootCampIncluded = true;  // tooltip에 훈련소 월급 나타낸다
                     numberOfWork--;
-                } else{
+                } else if(cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
+                        Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)){
                     numberOfWork--;
                 }
             }
@@ -1009,13 +1015,13 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
     }
 
-    public void refreshListView(String limitStartDate, String limitLastDate, int numOfYear, String tag) {
+    public void refreshListView(String limitStartDate, String limitLastDate, vacType numOfYear) {
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
 
         Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
-        ft.replace(R.id.fragment_container_1, fragment, tag);
+        ft.replace(R.id.fragment_container_1, fragment);
         ft.commit();
     }
 

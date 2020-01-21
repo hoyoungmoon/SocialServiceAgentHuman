@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import com.project.realproject.Main_Activity.vacType;
 
 
 public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnClickListener {
@@ -43,21 +44,21 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
     private String limitLastDate;
     private String firstDate;
     private String lastDate;
-    private int numOfYear;
+    private vacType typeOfVac;
     private String searchStartDate;
 
     public Frag2_listview() {
     }
 
     public static Frag2_listview newInstance(String param1, String param2, String param3, String param4,
-                                             int param5, String param6) {
+                                             vacType param5, String param6) {
         Frag2_listview dialog = new Frag2_listview();
         Bundle bundle = new Bundle(6);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
         bundle.putString("firstDate", param3);
         bundle.putString("lastDate", param4);
-        bundle.putInt("numOfYear", param5);
+        bundle.putSerializable("typeOfVac", param5);
         bundle.putString("searchStartDate", param6);
         dialog.setArguments(bundle);
         return dialog;
@@ -71,7 +72,7 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
             limitLastDate = getArguments().getString("limitLastDate");
             firstDate = getArguments().getString("firstDate");
             lastDate = getArguments().getString("lastDate");
-            numOfYear = getArguments().getInt("numOfYear");
+            typeOfVac = (vacType) getArguments().getSerializable("typeOfVac");
             searchStartDate = getArguments().getString("searchStartDate");
         }
     }
@@ -157,13 +158,14 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
         int id = firstVacation.getId();
         FragmentManager fg = getFragmentManager();
         Frag2_revise dialog = new Frag2_revise().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, numOfYear, firstVacation, id, searchStartDate);
+                lastDate, typeOfVac, firstVacation, id, searchStartDate);
         dialog.show(fg, "dialog");
     }
 
     public void setListItemView(ListViewAdapter mAdapter) {
         DBmanager = vacationDBManager.getInstance(getActivity());
-        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST, null, null, null, null, null);
+        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST,
+                null, null, null, null, null);
 
         try {
             lowerDate = formatter.parse(limitStartDate);
@@ -176,7 +178,7 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
                     lowerDiff = startDate.getTime() - lowerDate.getTime();
                     upperDiff = upperDate.getTime() - startDate.getTime();
 
-                    if (numOfYear == 3) {
+                    if (typeOfVac == vacType.sickVac) {
                         if (lowerDiff >= 0 && upperDiff >= 0) {
                             if (type.equals("병가") || type.equals("오전지참")
                                     || type.equals("오후조퇴") || type.equals("병가외출")) {

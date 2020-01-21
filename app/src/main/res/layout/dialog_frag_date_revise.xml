@@ -360,7 +360,7 @@
                 android:layout_height="60dp"
                 android:background="#f6f6f6"
                 ads:adSize="BANNER"
-                ads:adUnitId="@string/admob_ad_test_id" />
+                ads:adUnitId="@string/admob_ad_unit_id" />
 
         </LinearLayout>
     </ScrollView>
