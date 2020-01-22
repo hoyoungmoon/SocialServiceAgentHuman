@@ -24,17 +24,17 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import com.project.realproject.Main_Activity.vacType;
+import com.project.realproject.MainActivity.vacType;
 
 
-public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnClickListener {
+public class VacListFragment extends Fragment implements VacListViewAdapter.ListBtnClickListener {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public vacationDBManager DBmanager = null;
     private ListView mListView = null;
-    private ListViewAdapter mAdapter = null;
+    private VacListViewAdapter mAdapter = null;
 
     private Date lowerDate;
     private Date upperDate;
@@ -47,12 +47,12 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
     private vacType typeOfVac;
     private String searchStartDate;
 
-    public Frag2_listview() {
+    public VacListFragment() {
     }
 
-    public static Frag2_listview newInstance(String param1, String param2, String param3, String param4,
-                                             vacType param5, String param6) {
-        Frag2_listview dialog = new Frag2_listview();
+    public static VacListFragment newInstance(String param1, String param2, String param3, String param4,
+                                              vacType param5, String param6) {
+        VacListFragment dialog = new VacListFragment();
         Bundle bundle = new Bundle(6);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
@@ -84,7 +84,7 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
         View rootView = inflater.inflate(R.layout.frag2_listview, container, false);
         mListView = rootView.findViewById(R.id.listview);
 
-        mAdapter = new ListViewAdapter(this);
+        mAdapter = new VacListViewAdapter(this);
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);
 
@@ -138,8 +138,8 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         DBmanager.deleteFirstVacation(firstVacation);
-                        ((Main_Activity) getActivity()).setRemainVac();
-                        ((Main_Activity) getActivity()).setThisMonthInfo(searchStartDate);
+                        ((MainActivity) getActivity()).setRemainVac();
+                        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
                         dialog.dismiss();
                     }
@@ -157,12 +157,12 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
         FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
         int id = firstVacation.getId();
         FragmentManager fg = getFragmentManager();
-        Frag2_revise dialog = new Frag2_revise().newInstance(limitStartDate, limitLastDate, firstDate,
+        VacReviseFragment dialog = new VacReviseFragment().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, typeOfVac, firstVacation, id, searchStartDate);
         dialog.show(fg, "dialog");
     }
 
-    public void setListItemView(ListViewAdapter mAdapter) {
+    public void setListItemView(VacListViewAdapter mAdapter) {
         DBmanager = vacationDBManager.getInstance(getActivity());
         Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST,
                 null, null, null, null, null);
@@ -210,7 +210,7 @@ public class Frag2_listview extends Fragment implements ListViewAdapter.ListBtnC
     }
 
     public void reloadListView() {
-        mAdapter = new ListViewAdapter(this);
+        mAdapter = new VacListViewAdapter(this);
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);
     }

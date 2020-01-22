@@ -26,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
@@ -49,7 +48,7 @@ import static java.util.Calendar.SATURDAY;
 import static java.util.Calendar.SUNDAY;
 import static java.util.Calendar.YEAR;
 
-public class Main_Activity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     vacationDBManager DBmanager = null;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
@@ -72,6 +71,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
     private static final String[] listOfHoliday2021 = new String[]{"0211", "0212", "0519", "0920", "0921",
             "0922"};
     private static final String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
+    private static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
     public enum vacType {firstYearVac, secondYearVac, sickVac}
     public static Context mContext;
     private String firstDate;
@@ -256,7 +256,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             });
 
         } else {
-            DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
+            SettingUserInfoFragment dialog = new SettingUserInfoFragment();
             FragmentManager fg = getSupportFragmentManager();
             dialog.show(fg, "dialog");
         }
@@ -324,7 +324,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         Calendar calendar = Calendar.getInstance();
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
-        Frag2_save dialog;
+        VacSaveFragment dialog;
 
         switch (view.getId()) {
             case R.id.vacCardView_1:
@@ -340,17 +340,17 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 break;
 
             case R.id.spendButton_1:
-                dialog = new Frag2_save().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
+                dialog = new VacSaveFragment().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_2:
-                dialog = new Frag2_save().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
+                dialog = new VacSaveFragment().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_3:
-                dialog = new Frag2_save().newInstance(firstDate, lastDate, vacType.sickVac, searchStartDate);
+                dialog = new VacSaveFragment().newInstance(firstDate, lastDate, vacType.sickVac, searchStartDate);
                 dialog.show(fg, "dialog");
                 break;
 
@@ -383,7 +383,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                 break;
 
             case R.id.calculator_button:
-                Intent calculator = new Intent(Main_Activity.this, Calculator_Activity.class);
+                Intent calculator = new Intent(MainActivity.this, CalculatorActivity.class);
                 startActivity(calculator);
                 break;
         }
@@ -414,7 +414,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
             }
 
             imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
-            fragment = new Frag2_listview().newInstance(lowerBoundDate, upperBoundDate, firstDate,
+            fragment = new VacListFragment().newInstance(lowerBoundDate, upperBoundDate, firstDate,
                     lastDate, typeOfVac, searchStartDate);
 
             ft.replace(R.id.fragment_container_1, fragment);
@@ -502,25 +502,23 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        DialogFrag_DateRevise dialog = new DialogFrag_DateRevise();
+        SettingUserInfoFragment dialog = new SettingUserInfoFragment();
         FragmentManager fg = getSupportFragmentManager();
         switch (menuItem.getItemId()) {
             case R.id.profile:
                 dialog.show(fg, "dialog");
-                if (timerIsRunning) {
-                    pauseTimer();
-                }
+                if (timerIsRunning) pauseTimer();
                 break;
             case R.id.setting:
-                Intent setting = new Intent(Main_Activity.this, Setting_Activity.class);
+                Intent setting = new Intent(MainActivity.this, SettingExtraActivity.class);
                 startActivity(setting);
                 break;
             case R.id.manual:
-                Intent manual = new Intent(Main_Activity.this, Manual_Activity.class);
+                Intent manual = new Intent(MainActivity.this, ManualActivity.class);
                 startActivity(manual);
                 break;
             case R.id.calculator:
-                Intent calculator = new Intent(Main_Activity.this, Calculator_Activity.class);
+                Intent calculator = new Intent(MainActivity.this, CalculatorActivity.class);
                 startActivity(calculator);
                 break;
             case R.id.feedback:
@@ -554,7 +552,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
                             public void onClick(DialogInterface dialog, int which) {
                                 DBmanager.deleteAll();
                                 FragmentManager fragmentManager = getSupportFragmentManager();
-                                new DialogFrag_DateRevise().show(fragmentManager, "dialog");
+                                new SettingUserInfoFragment().show(fragmentManager, "dialog");
                                 dialog.dismiss();
                             }
                         })
@@ -887,7 +885,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        return (int) (((last_payDate.getTime() - first_payDate.getTime()) / (24 * 60 * 60 * 1000)) + 1);
+        return (int) (((last_payDate.getTime() - first_payDate.getTime()) / dayIntoMilliSecond) + 1);
     }
 
     public int getMonthLength(Date date){
@@ -900,7 +898,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         c2.add(MONTH, 1);
         c2.set(DATE, 1);
 
-        return (int) ((c2.getTimeInMillis() - c1.getTimeInMillis()) / (24 * 60 * 60 * 1000));
+        return (int) ((c2.getTimeInMillis() - c1.getTimeInMillis()) / dayIntoMilliSecond);
     }
 
     public int checkFirstDayInclude(int first) {
@@ -1019,7 +1017,7 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
 
-        Frag2_listview fragment = new Frag2_listview().newInstance(limitStartDate, limitLastDate, firstDate,
+        VacListFragment fragment = new VacListFragment().newInstance(limitStartDate, limitLastDate, firstDate,
                 lastDate, numOfYear, searchStartDate);
         ft.replace(R.id.fragment_container_1, fragment);
         ft.commit();
@@ -1057,12 +1055,12 @@ public class Main_Activity extends AppCompatActivity implements NavigationView.O
         }
         long count = (lastTime - todayTime);
         if (count > 0) {
-            dDayTextView.setText("D-" + ((count / (60 * 60 * 24 * 1000)) + 1));
+            dDayTextView.setText("D-" + ((count / dayIntoMilliSecond) + 1));
         } else {
             dDayTextView.setText("소집해제");
         }
-        entireService.setText((((lastTime - firstTime) / (60 * 60 * 24 * 1000))) + " 일");
-        currentService.setText((((todayTime - firstTime) / (60 * 60 * 24 * 1000))) + " 일");
-        remainService.setText(((count / (60 * 60 * 24 * 1000))) + 1 + " 일");
+        entireService.setText((((lastTime - firstTime) / dayIntoMilliSecond)) + " 일");
+        currentService.setText((((todayTime - firstTime) / dayIntoMilliSecond)) + " 일");
+        remainService.setText(((count / dayIntoMilliSecond)) + 1 + " 일");
     }
 }

@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="15dp"
-        tools:context=".Frag2_save">
+        tools:context=".VacSaveFragment">
 
         <View
             android:layout_width="300dp"

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.NumberPicker;
 
-public class NumberPickerDialog extends DialogFragment implements View.OnClickListener {
+public class NumberPickerFragment extends DialogFragment implements View.OnClickListener {
 
     private Button cancelButton;
     private Button saveButton;
@@ -26,7 +26,7 @@ public class NumberPickerDialog extends DialogFragment implements View.OnClickLi
     private int number_of_array;
     private String[] result;
 
-    public NumberPickerDialog() {
+    public NumberPickerFragment() {
         // Required empty public constructor
     }
 
@@ -35,7 +35,7 @@ public class NumberPickerDialog extends DialogFragment implements View.OnClickLi
     }
     private NumberPickerSaveListener numberPickerSaveListener;
 
-    public NumberPickerDialog(NumberPickerSaveListener saveListener){
+    public NumberPickerFragment(NumberPickerSaveListener saveListener){
         this.numberPickerSaveListener = saveListener;
     }
 

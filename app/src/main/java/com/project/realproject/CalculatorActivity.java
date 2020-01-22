@@ -40,7 +40,7 @@ import static java.util.Calendar.SUNDAY;
 import static java.util.Calendar.YEAR;
 import static java.util.Calendar.getInstance;
 
-public class Calculator_Activity extends AppCompatActivity implements View.OnClickListener, NumberPickerDialog.NumberPickerSaveListener {
+public class CalculatorActivity extends AppCompatActivity implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
@@ -199,7 +199,7 @@ public class Calculator_Activity extends AppCompatActivity implements View.OnCli
     }
 
     public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
-        NumberPickerDialog dialog = new NumberPickerDialog(this);
+        NumberPickerFragment dialog = new NumberPickerFragment(this);
         Bundle bundle = new Bundle(5);
         // 이미 세팅되어있던 값 넣기
         bundle.putString("userInfo", userInfo);

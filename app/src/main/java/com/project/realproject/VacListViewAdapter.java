@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-public class ListViewAdapter extends BaseAdapter {
+public class VacListViewAdapter extends BaseAdapter {
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private ArrayList<FirstVacation> listViewItemList = new ArrayList<FirstVacation>() ;
@@ -31,7 +31,7 @@ public class ListViewAdapter extends BaseAdapter {
 
     private ListBtnClickListener listBtnClickListener;
 
-    public ListViewAdapter(ListBtnClickListener clickListener) {
+    public VacListViewAdapter(ListBtnClickListener clickListener) {
         this.listBtnClickListener = clickListener;
     }
 

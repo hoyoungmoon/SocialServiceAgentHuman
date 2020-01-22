@@ -25,7 +25,7 @@ import static android.view.View.VISIBLE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class Setting_Activity extends AppCompatActivity implements View.OnClickListener {
+public class SettingExtraActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);

@@ -15,7 +15,7 @@
             android:value="@string/admob_app_id" />
 
         <activity
-            android:name="com.project.realproject.Splash_Activity"
+            android:name="com.project.realproject.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -25,24 +25,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.project.realproject.Main_Activity"
+            android:name="com.project.realproject.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.project.realproject.Manual_Activity"
+            android:name="com.project.realproject.ManualActivity"
             android:label="휴가 및 월급 계산 방식"
-            android:parentActivityName="com.project.realproject.Main_Activity"
+            android:parentActivityName="com.project.realproject.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ManualTheme" />
         <activity
-            android:name="com.project.realproject.Calculator_Activity"
+            android:name="com.project.realproject.CalculatorActivity"
             android:label="월급 계산기"
-            android:parentActivityName="com.project.realproject.Main_Activity"
+            android:parentActivityName="com.project.realproject.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CalculatorTheme" />
         <activity
-            android:name="com.project.realproject.Setting_Activity"
+            android:name="com.project.realproject.SettingExtraActivity"
             android:label="설정하기"
-            android:parentActivityName="com.project.realproject.Main_Activity"
+            android:parentActivityName="com.project.realproject.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CalculatorTheme" />
     </application>

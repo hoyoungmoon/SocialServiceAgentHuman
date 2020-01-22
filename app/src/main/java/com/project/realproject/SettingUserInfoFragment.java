@@ -34,7 +34,7 @@ import static com.project.realproject.vacationDBManager.TABLE_USER;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
-public class DialogFrag_DateRevise extends DialogFragment implements View.OnClickListener, NumberPickerDialog.NumberPickerSaveListener {
+public class SettingUserInfoFragment extends DialogFragment implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
 
     private EditText nickNameEditText;
     private TextView firstDateEditText;
@@ -66,7 +66,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     Calendar dateCalendar;
     vacationDBManager DBmanager;
 
-    public DialogFrag_DateRevise() {
+    public SettingUserInfoFragment() {
     }
 
     @Override
@@ -178,7 +178,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
     }
 
     public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
-        NumberPickerDialog dialog = new NumberPickerDialog(this);
+        NumberPickerFragment dialog = new NumberPickerFragment(this);
         Bundle bundle = new Bundle(5);
         // 이미 세팅되어있던 값 넣기
         // 원래 세팅 되어있는 값(string)을 int로 받아서 index화 시켜야할듯
@@ -265,7 +265,7 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                         }
 
                         if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
-                            ((Main_Activity) getActivity()).load();
+                            ((MainActivity) getActivity()).load();
                         }
                         dismiss();
                     }
@@ -289,8 +289,8 @@ public class DialogFrag_DateRevise extends DialogFragment implements View.OnClic
                     setNumberPickerDialog("payDay", payDay, 1, 26, 1, fg);
                     break;
                 case R.id.btn_cancel:
-                    ((Main_Activity) getActivity()).resetTimer();
-                    ((Main_Activity) getActivity()).startTimer();
+                    ((MainActivity) getActivity()).resetTimer();
+                    ((MainActivity) getActivity()).startTimer();
                     dismiss();
                     break;
             }
