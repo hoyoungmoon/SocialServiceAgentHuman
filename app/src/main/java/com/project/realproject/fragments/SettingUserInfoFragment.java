@@ -26,17 +26,16 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.project.realproject.R;
 import com.project.realproject.User;
 import com.project.realproject.activities.MainActivity;
-import com.project.realproject.DBHelper;
+import com.project.realproject.helpers.DBHelper;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
-import static com.project.realproject.DBHelper.TABLE_USER;
+import static com.project.realproject.helpers.DBHelper.TABLE_USER;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
+import static com.project.realproject.helpers.Formatter.*;
 
 public class SettingUserInfoFragment extends DialogFragment implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
 
@@ -62,8 +61,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
 
     private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
 
     DatePickerDialog firstDatePickerDialog;
     DatePickerDialog lastDatePickerDialog;
@@ -77,7 +74,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        DBmanager = DBHelper.getInstance(getActivity());
+        DBmanager = new DBHelper(getActivity());
     }
 
     @Override

@@ -24,31 +24,21 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.project.realproject.fragments.NumberPickerFragment;
 import com.project.realproject.PayDependsOnMonth;
 import com.project.realproject.R;
-import com.project.realproject.DBHelper;
+import com.project.realproject.helpers.DBHelper;
+import static com.project.realproject.helpers.Formatter.*;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.project.realproject.DBHelper.TABLE_USER;
-import static java.util.Calendar.DATE;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.SATURDAY;
-import static java.util.Calendar.SUNDAY;
-import static java.util.Calendar.YEAR;
-import static java.util.Calendar.getInstance;
+import static com.project.realproject.helpers.DBHelper.TABLE_USER;
+import static java.util.Calendar.*;
 
 public class CalculatorActivity extends AppCompatActivity implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
-    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###,### 원");
     private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private Date startDate;
@@ -102,7 +92,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         mAdView.loadAd(adRequest);
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        DBmanager = DBHelper.getInstance(this);
+        DBmanager = new DBHelper(this);
 
 
         calculateLinear = findViewById(R.id.cal_linear1);

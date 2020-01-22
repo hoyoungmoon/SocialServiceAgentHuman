@@ -29,24 +29,21 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Calendar.DATE;
+import static com.project.realproject.helpers.Formatter.*;
 
 import com.project.realproject.Vacation;
 import com.project.realproject.R;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
-import com.project.realproject.DBHelper;
+import com.project.realproject.helpers.DBHelper;
 
 public class VacSaveFragment extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
     private EditText startDateEditText;
     private EditText vacationEditText;
     private TextView outingLengthTextView;
@@ -96,12 +93,12 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBmanager = DBHelper.getInstance(getActivity());
+        DBmanager = new DBHelper(getActivity());
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
-            typeOfVac = (vacType)getArguments().getSerializable("numOfYear");
+            typeOfVac = (vacType)getArguments().getSerializable("typeOfVac");
             searchStartDate = getArguments().getString("searchStartDate");
         }
     }
@@ -348,7 +345,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     }
 
     public void saveFirstVacation(Vacation vacation) {
-        DBmanager.insertFirstVacation(vacation);
+        DBmanager.insertVacation(vacation);
     }
 
     public String getOnlyNumber(String string) {

@@ -33,38 +33,25 @@ import com.project.realproject.R;
 import com.project.realproject.fragments.SettingUserInfoFragment;
 import com.project.realproject.fragments.VacListFragment;
 import com.project.realproject.fragments.VacSaveFragment;
-import com.project.realproject.DBHelper;
+import static com.project.realproject.helpers.Formatter.*;
+import com.project.realproject.helpers.DBHelper;
 
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import it.sephiroth.android.library.xtooltip.ClosePolicy;
 import it.sephiroth.android.library.xtooltip.Tooltip;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static java.util.Calendar.DATE;
-import static java.util.Calendar.MONTH;
-import static java.util.Calendar.SATURDAY;
-import static java.util.Calendar.SUNDAY;
-import static java.util.Calendar.YEAR;
+import static java.util.Calendar.*;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     DBHelper DBmanager = null;
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
-            "yyyyMMdd", Locale.ENGLISH);
-    private static final SimpleDateFormat dateFormat_dot = new SimpleDateFormat(
-            "yyyy.MM.dd", Locale.ENGLISH);
-    private static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
-    private static final DecimalFormat decimalFormat2 = new DecimalFormat("###,###,###원");
+
     private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
@@ -147,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        DBmanager = DBHelper.getInstance(this);
+        DBmanager = new DBHelper(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
@@ -631,7 +618,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setRemainVac() {
-        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_FIRST,
+        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION,
                 null, null, null, null, null);
         try {
             double firstCount = (double) totalFirstVac * 480;
@@ -797,7 +784,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         numberOfMeal = numberOfWork;
         numberOfTraffic = numberOfWork;
 
-        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_FIRST, null,
+        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION, null,
                 null, null, null, null);
         while (c.moveToNext()) {
             String type = c.getString(3);
@@ -1023,8 +1010,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
 
-        VacListFragment fragment = new VacListFragment().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, numOfYear, searchStartDate);
+        VacListFragment fragment = new VacListFragment().newInstance(limitStartDate, limitLastDate,
+                firstDate, lastDate, numOfYear, searchStartDate);
         ft.replace(R.id.fragment_container_1, fragment);
         ft.commit();
     }

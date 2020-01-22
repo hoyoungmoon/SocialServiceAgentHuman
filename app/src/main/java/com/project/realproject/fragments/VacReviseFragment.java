@@ -29,18 +29,17 @@ import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.project.realproject.helpers.Formatter.*;
 
 import com.project.realproject.Vacation;
 import com.project.realproject.R;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
-import com.project.realproject.DBHelper;
+import com.project.realproject.helpers.DBHelper;
 
 public class VacReviseFragment extends DialogFragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
@@ -57,8 +56,6 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private AdView mAdView;
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
 
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
@@ -97,7 +94,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBmanager = DBHelper.getInstance(getActivity());
+        DBmanager = new DBHelper(getActivity());
         if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
@@ -302,7 +299,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
         values.put("startDate", formatter.format(vacation.getStartDate()));
         values.put("type", vacation.getType());
         values.put("count", vacation.getCount());
-        DBmanager.updateFirstVacation(id, values);
+        DBmanager.updateVacation(id, values);
     }
 
     private String getOnlyNumber(String string) {

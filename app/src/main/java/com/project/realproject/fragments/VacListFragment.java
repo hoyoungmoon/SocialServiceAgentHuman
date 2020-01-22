@@ -18,26 +18,24 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.project.realproject.helpers.Formatter.*;
 
 import com.project.realproject.Vacation;
 import com.project.realproject.R;
-import com.project.realproject.VacListViewAdapter;
+import com.project.realproject.adapters.VacListViewAdapter;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
-import com.project.realproject.DBHelper;
+import com.project.realproject.helpers.DBHelper;
+
 
 
 public class VacListFragment extends Fragment implements VacListViewAdapter.ListBtnClickListener {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
-    private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
+       private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public DBHelper DBmanager = null;
     private ListView mListView = null;
     private VacListViewAdapter mAdapter = null;
@@ -143,7 +141,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        DBmanager.deleteFirstVacation(vacation);
+                        DBmanager.deleteVacation(vacation);
                         ((MainActivity) getActivity()).setRemainVac();
                         ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
@@ -169,8 +167,8 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
     }
 
     public void setListItemView(VacListViewAdapter mAdapter) {
-        DBmanager = DBHelper.getInstance(getActivity());
-        Cursor c = DBmanager.query(columns, DBHelper.TABLE_FIRST,
+        DBmanager = new DBHelper(getActivity());
+        Cursor c = DBmanager.query(columns, DBHelper.TABLE_VACATION,
                 null, null, null, null, null);
 
         try {

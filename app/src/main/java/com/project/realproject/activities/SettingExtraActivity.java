@@ -17,19 +17,16 @@ import android.widget.Toast;
 import com.project.realproject.R;
 import com.xw.repo.BubbleSeekBar;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
+import static com.project.realproject.helpers.Formatter.*;
 
 public class SettingExtraActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
     private Switch percentSwitch;
     private Switch bootCampSwitch;
     private BubbleSeekBar bubbleSeekBar;

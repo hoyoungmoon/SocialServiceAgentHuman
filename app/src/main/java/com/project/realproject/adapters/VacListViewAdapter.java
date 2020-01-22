@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,18 +10,21 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.text.SimpleDateFormat;
+import com.project.realproject.R;
+import com.project.realproject.Vacation;
+
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
+import static com.project.realproject.helpers.Formatter.*;
+
 
 public class VacListViewAdapter extends BaseAdapter {
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
+
     private ArrayList<Vacation> listViewItemList = new ArrayList<Vacation>() ;
     private Button deleteButton;
     private Button reviseButton;
     private ImageView menuButton;
+
 
     public interface ListBtnClickListener{
         void onMenuBtnClick(int position);
