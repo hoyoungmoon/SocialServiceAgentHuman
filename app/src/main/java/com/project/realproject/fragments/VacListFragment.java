@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.fragments;
 
 
 import android.app.AlertDialog;
@@ -24,7 +24,13 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import com.project.realproject.MainActivity.vacType;
+
+import com.project.realproject.Vacation;
+import com.project.realproject.R;
+import com.project.realproject.VacListViewAdapter;
+import com.project.realproject.activities.MainActivity;
+import com.project.realproject.activities.MainActivity.vacType;
+import com.project.realproject.DBHelper;
 
 
 public class VacListFragment extends Fragment implements VacListViewAdapter.ListBtnClickListener {
@@ -32,7 +38,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
-    public vacationDBManager DBmanager = null;
+    public DBHelper DBmanager = null;
     private ListView mListView = null;
     private VacListViewAdapter mAdapter = null;
 
@@ -131,13 +137,13 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
     @Override
     public void onDeleteBtnClick(int position) {
-        final FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
+        final Vacation vacation = (Vacation) mAdapter.getItem(position);
         new AlertDialog.Builder(getActivity())
                 .setMessage("삭제하시겠습니까?")
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        DBmanager.deleteFirstVacation(firstVacation);
+                        DBmanager.deleteFirstVacation(vacation);
                         ((MainActivity) getActivity()).setRemainVac();
                         ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
                         reloadListView();
@@ -154,17 +160,17 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
     @Override
     public void onReviseBtnClick(int position) {
-        FirstVacation firstVacation = (FirstVacation) mAdapter.getItem(position);
-        int id = firstVacation.getId();
+        Vacation vacation = (Vacation) mAdapter.getItem(position);
+        int id = vacation.getId();
         FragmentManager fg = getFragmentManager();
         VacReviseFragment dialog = new VacReviseFragment().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, typeOfVac, firstVacation, id, searchStartDate);
+                lastDate, typeOfVac, vacation, id, searchStartDate);
         dialog.show(fg, "dialog");
     }
 
     public void setListItemView(VacListViewAdapter mAdapter) {
-        DBmanager = vacationDBManager.getInstance(getActivity());
-        Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_FIRST,
+        DBmanager = DBHelper.getInstance(getActivity());
+        Cursor c = DBmanager.query(columns, DBHelper.TABLE_FIRST,
                 null, null, null, null, null);
 
         try {

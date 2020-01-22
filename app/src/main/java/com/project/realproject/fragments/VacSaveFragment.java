@@ -1,15 +1,17 @@
-package com.project.realproject;
-
+package com.project.realproject.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import androidx.fragment.app.DialogFragment;
+
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -19,8 +21,6 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -35,56 +35,60 @@ import java.util.Locale;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import com.project.realproject.MainActivity.vacType;
+import static java.util.Calendar.DATE;
 
-public class VacReviseFragment extends DialogFragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+import com.project.realproject.Vacation;
+import com.project.realproject.R;
+import com.project.realproject.activities.MainActivity;
+import com.project.realproject.activities.MainActivity.vacType;
+import com.project.realproject.DBHelper;
 
+public class VacSaveFragment extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+
+    private static final SimpleDateFormat formatter = new SimpleDateFormat(
+            "yyyy-MM-dd", Locale.ENGLISH);
     private EditText startDateEditText;
     private EditText vacationEditText;
     private TextView outingLengthTextView;
+    private TextView vacationLengthTextView;
     private Button saveButton;
     private Button cancelButton;
     private ImageButton plusOutingButton;
     private ImageButton minusOutingButton;
+    private ImageButton plusVacationButton;
+    private ImageButton minusVacationButton;
     private RadioGroup vacationTypeRadioGroup;
     private RadioGroup sickVacationTypeRadioGroup;
     private Spinner specialVacationTypeSpinner;
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
+    private LinearLayout vacationSetter;
     private AdView mAdView;
-    private static final SimpleDateFormat formatter = new SimpleDateFormat(
-            "yyyy-MM-dd", Locale.ENGLISH);
+
 
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
 
     private String limitStartDate;
     private String limitLastDate;
-    private String firstDate;
-    private String lastDate;
     private vacType typeOfVac;
+    private int vacationLength = 1;
     private int outingLength = 10;
-    private FirstVacation firstVacation;
-    private int id;
     private String searchStartDate;
-    public vacationDBManager DBmanager = null;
 
-    public VacReviseFragment() {
+    private Vacation vacation = null;
+    public DBHelper DBmanager = null;
+
+    public VacSaveFragment() {
     }
 
-    public static VacReviseFragment newInstance(String param1, String param2, String param3, String param4,
-                                                vacType param5, FirstVacation param6, int param7, String param8) {
-        VacReviseFragment dialog = new VacReviseFragment();
-        dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        Bundle bundle = new Bundle(8);
+    public static VacSaveFragment newInstance(String param1, String param2, vacType param3, String param4) {
+        VacSaveFragment dialog = new VacSaveFragment();
+        Bundle bundle = new Bundle(4);
         bundle.putString("limitStartDate", param1);
         bundle.putString("limitLastDate", param2);
-        bundle.putString("firstDate", param3);
-        bundle.putString("lastDate", param4);
-        bundle.putSerializable("typeOfVac", param5);
-        bundle.putParcelable("firstVacation", param6);
-        bundle.putInt("id", param7);
-        bundle.putString("searchStartDate", param8);
+        bundle.putSerializable("typeOfVac", param3);
+        bundle.putString("searchStartDate", param4);
         dialog.setArguments(bundle);
         return dialog;
     }
@@ -92,15 +96,12 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBmanager = vacationDBManager.getInstance(getActivity());
+        DBmanager = DBHelper.getInstance(getActivity());
+        setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         if (getArguments() != null) {
             limitStartDate = getArguments().getString("limitStartDate");
             limitLastDate = getArguments().getString("limitLastDate");
-            firstDate = getArguments().getString("firstDate");
-            lastDate = getArguments().getString("lastDate");
-            typeOfVac = (vacType) getArguments().getSerializable("typeOfVac");
-            firstVacation = getArguments().getParcelable("firstVacation");
-            id = getArguments().getInt("id");
+            typeOfVac = (vacType)getArguments().getSerializable("numOfYear");
             searchStartDate = getArguments().getString("searchStartDate");
         }
     }
@@ -121,19 +122,24 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
 
         startDateEditText = view.findViewById(R.id.et_startDate);
         startDateEditText.setInputType(InputType.TYPE_NULL);
-        vacationEditText = view.findViewById(R.id.et_vacation);
         outingLengthTextView = view.findViewById(R.id.et_outingLength);
-
+        vacationLengthTextView = view.findViewById(R.id.et_vacationLength);
+        vacationEditText = view.findViewById(R.id.et_vacation);
         saveButton = view.findViewById(R.id.button_save);
         cancelButton = view.findViewById(R.id.button_cancel);
         plusOutingButton = view.findViewById(R.id.button_outing_plus);
         minusOutingButton = view.findViewById(R.id.button_outing_minus);
+        plusVacationButton = view.findViewById(R.id.button_vacation_plus);
+        minusVacationButton = view.findViewById(R.id.button_vacation_minus);
 
         vacationTypeRadioGroup = view.findViewById(R.id.radioGroup_vacationType);
         sickVacationTypeRadioGroup = view.findViewById(R.id.radioGroup_sickVacationType);
-        vacationTypeRelative = view.findViewById(R.id.relative_vacation);
+        vacationTypeRadioGroup.check(R.id.radio_allDay);
+        sickVacationTypeRadioGroup.check(R.id.radio_sickVac_allDay);
         specialVacationTypeSpinner = view.findViewById(R.id.radio_special_spinner);
+        vacationTypeRelative = view.findViewById(R.id.relative_vacation);
         outingSetter = view.findViewById(R.id.linear_outingSetter);
+        vacationSetter = view.findViewById(R.id.linear_vacationSetter);
 
         if (typeOfVac == vacType.sickVac) {
             vacationTypeRelative.setVisibility(GONE);
@@ -143,22 +149,43 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
             sickVacationTypeRadioGroup.setVisibility(GONE);
         }
 
-        vacationTypeRadioGroup.setOnCheckedChangeListener(this);
-        sickVacationTypeRadioGroup.setOnCheckedChangeListener(this);
-
-
-        // 수정 전 data 미리 세팅
-        LinearLayout vacationSetter = view.findViewById(R.id.linear_vacationSetter);
-        vacationSetter.setVisibility(GONE);
-        vacationTypeRadioGroup.check(R.id.radio_allDay);
-        sickVacationTypeRadioGroup.check(R.id.radio_sickVac_allDay);
-        vacationEditText.setText(firstVacation.getVacation());
-        startDateEditText.setText(formatter.format(firstVacation.getStartDate()));
+        vacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (i == R.id.radio_outing) {
+                    vacationSetter.setVisibility(GONE);
+                    outingSetter.setVisibility(VISIBLE);
+                } else if (i == R.id.radio_allDay || i == R.id.radio_special) {
+                    vacationSetter.setVisibility(VISIBLE);
+                    outingSetter.setVisibility(GONE);
+                } else {
+                    vacationSetter.setVisibility(GONE);
+                    outingSetter.setVisibility(GONE);
+                }
+            }
+        });
+        sickVacationTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (i == R.id.radio_sickVac_outing) {
+                    vacationSetter.setVisibility(GONE);
+                    outingSetter.setVisibility(VISIBLE);
+                } else if (i == R.id.radio_sickVac_allDay) {
+                    vacationSetter.setVisibility(VISIBLE);
+                    outingSetter.setVisibility(GONE);
+                } else {
+                    vacationSetter.setVisibility(GONE);
+                    outingSetter.setVisibility(GONE);
+                }
+            }
+        });
 
         saveButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
         plusOutingButton.setOnClickListener(this);
         minusOutingButton.setOnClickListener(this);
+        plusVacationButton.setOnClickListener(this);
+        minusVacationButton.setOnClickListener(this);
         startDateEditText.setOnClickListener(this);
         Calendar newCalendar = Calendar.getInstance();
         datePickerDialog = new DatePickerDialog(getActivity(),
@@ -170,14 +197,20 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                         startDateEditText.setText(formatter.format(dateCalendar
                                 .getTime()));
                     }
-
                 }, newCalendar.get(Calendar.YEAR),
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
         try {
-            // VacSaveFragment 와 달리 수정은 모든 구간(복무일 ~ 복무해제일)에서 선택가능하도록 하기 위해
-            datePickerDialog.getDatePicker().setMinDate(formatter.parse(firstDate).getTime());
-            datePickerDialog.getDatePicker().setMaxDate(formatter.parse(lastDate).getTime());
+            long min = formatter.parse(limitStartDate).getTime();
+            long max = formatter.parse(limitLastDate).getTime();
+            if (min < max) {
+                datePickerDialog.getDatePicker().setMinDate(min);
+                datePickerDialog.getDatePicker().setMaxDate(max);
+            } else {
+                // 더 좋은 범위 설정 있는지 생각해보기 (지금으로써는 1년 이하로 복무기간을 설정했을때
+                // 2년차 연가를 쓸 필요는 없지만 그래도 max(소집해제일) 설정만 해두었음.
+                datePickerDialog.getDatePicker().setMaxDate(max);
+            }
         } catch (ParseException e) {
             e.printStackTrace();
         }
@@ -189,7 +222,6 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     public void onClick(View view) {
         if (view == startDateEditText) {
             datePickerDialog.show();
-
         } else if (view == plusOutingButton) {
             if (outingLength < 480) {
                 outingLength += 10;
@@ -200,27 +232,39 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                 outingLength -= 10;
                 outingLengthTextView.setText(outingLength + "분");
             }
+        } else if (view == plusVacationButton) {
+            if (vacationLength < 7) {
+                vacationLength += 1;
+                vacationLengthTextView.setText(vacationLength + "일");
+            }
+        } else if (view == minusVacationButton) {
+            if (vacationLength > 1) {
+                vacationLength -= 1;
+                vacationLengthTextView.setText(vacationLength + "일");
+            }
         } else if (view == saveButton) {
             int idx;
+            vacation = new Vacation();
+
             if (typeOfVac == vacType.sickVac) {
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
                     case 0:
-                        firstVacation.setType("병가");
-                        firstVacation.setCount(480);
+                        vacation.setType("병가");
+                        vacation.setCount(480);
                         break;
                     case 1:
-                        firstVacation.setType("오전지참");
-                        firstVacation.setCount(240);
+                        vacation.setType("오전지참");
+                        vacation.setCount(240);
                         break;
                     case 2:
-                        firstVacation.setType("오후조퇴");
-                        firstVacation.setCount(240);
+                        vacation.setType("오후조퇴");
+                        vacation.setCount(240);
                         break;
                     case 3:
-                        firstVacation.setType("병가외출");
-                        firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
+                        vacation.setType("병가외출");
+                        vacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
                 }
             } else {
@@ -228,24 +272,24 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                 idx = vacationTypeRadioGroup.indexOfChild(vacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
                     case 0:
-                        firstVacation.setType("연가");
-                        firstVacation.setCount(480);
+                        vacation.setType("연가");
+                        vacation.setCount(480);
                         break;
                     case 1:
-                        firstVacation.setType("오전반가");
-                        firstVacation.setCount(240);
+                        vacation.setType("오전반가");
+                        vacation.setCount(240);
                         break;
                     case 2:
-                        firstVacation.setType("오후반가");
-                        firstVacation.setCount(240);
+                        vacation.setType("오후반가");
+                        vacation.setCount(240);
                         break;
                     case 3:
-                        firstVacation.setType("외출");
-                        firstVacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
+                        vacation.setType("외출");
+                        vacation.setCount(Double.parseDouble(getOnlyNumber(outingLengthTextView.getText().toString())));
                         break;
                     case 4:
-                        firstVacation.setType(specialVacationTypeSpinner.getSelectedItem().toString());
-                        firstVacation.setCount(480);
+                        vacation.setType(specialVacationTypeSpinner.getSelectedItem().toString());
+                        vacation.setCount(480);
                         break;
                 }
             }
@@ -254,13 +298,47 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
             if (getDate.equals("")) {
                 blankAlert();
             } else if (idx == 4) {
-                specialVacationAlert();
+                specialVacationAlert(idx);
             } else {
-                saveVacation();
+                saveVacation(idx);
             }
         } else if (view == cancelButton) {
             dismiss();
         }
+    }
+
+    private void saveVacation(int idx) {
+        final boolean isFullVac = idx == 0;
+        final boolean isSpecialVac = idx == 4;
+        final boolean isVacationLengthLong = vacationLength != 1;
+
+        if (dateCalendar != null) {
+            vacation.setStartDate(dateCalendar.getTime());
+        }
+
+        if ((isFullVac || isSpecialVac) && isVacationLengthLong) {
+            dateCalendar.add(DATE, -1);
+            for (int i = 1; i <= vacationLength; i++) {
+                vacation.setVacation(vacationEditText.getText().toString().trim() + " (" + i + "/" + vacationLength + ")");
+                dateCalendar.add(DATE, 1);
+                vacation.setStartDate(dateCalendar.getTime());
+                saveFirstVacation(vacation);
+            }
+        } else {
+            vacation.setVacation(vacationEditText.getText().toString().trim());
+            saveFirstVacation(vacation);
+        }
+        ((MainActivity) getActivity()).setRemainVac();
+        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
+
+        if (typeOfVac == vacType.firstYearVac) {
+            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.firstYearVac);
+        } else if (typeOfVac == vacType.secondYearVac) {
+            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.secondYearVac);
+        } else {
+            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.sickVac);
+        }
+        dismiss();
     }
 
     @Override
@@ -269,42 +347,15 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
             outState.putLong("dateCalendar", dateCalendar.getTime().getTime());
     }
 
-    private void saveVacation() {
-        firstVacation.setVacation(vacationEditText.getText().toString().trim());
-        if (dateCalendar != null) {
-            firstVacation.setStartDate(dateCalendar.getTime());
-        }
-
-        revise(firstVacation);
-        ((MainActivity) getActivity()).setRemainVac();
-        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
-        if (typeOfVac == vacType.firstYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.firstYearVac);
-        } else if (typeOfVac == vacType.secondYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.secondYearVac);
-        } else {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.sickVac);
-        }
-        dismiss();
+    public void saveFirstVacation(Vacation vacation) {
+        DBmanager.insertFirstVacation(vacation);
     }
 
-    private void revise(FirstVacation firstVacation) {
-        ContentValues values = new ContentValues();
-        values.put("vacation", firstVacation.getVacation());
-        values.put("startDate", formatter.format(firstVacation.getStartDate()));
-        values.put("type", firstVacation.getType());
-        values.put("count", firstVacation.getCount());
-        DBmanager.updateFirstVacation(id, values);
-    }
-
-    private String getOnlyNumber(String string) {
+    public String getOnlyNumber(String string) {
         return string.replaceAll("[^0-9]", "");
     }
 
-    private void blankAlert() {
+    public void blankAlert() {
         new AlertDialog.Builder(getActivity())
                 .setMessage("시작일을 입력해주세요")
                 .setCancelable(false)
@@ -316,33 +367,26 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                 .show();
     }
 
-    private void specialVacationAlert() {
+    private void specialVacationAlert(final int idx) {
         new AlertDialog.Builder(getActivity())
                 .setMessage("기타(특별휴가, 청원휴가, 공가)는 연가에서 차감되지 않습니다")
                 .setCancelable(false)
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        saveVacation();
+                        saveVacation(idx);
                     }
                 })
                 .show();
     }
 
+
     @Override
-    public void onCheckedChanged(RadioGroup radioGroup, int i) {
-        if (radioGroup == vacationTypeRadioGroup) {
-            if (i == R.id.radio_outing) {
-                outingSetter.setVisibility(VISIBLE);
-            } else {
-                outingSetter.setVisibility(GONE);
-            }
-        } else if (radioGroup == sickVacationTypeRadioGroup) {
-            if (i == R.id.radio_sickVac_outing) {
-                outingSetter.setVisibility(VISIBLE);
-            } else {
-                outingSetter.setVisibility(GONE);
-            }
-        }
+    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
     }
 
+    @Override
+    public void onNothingSelected(AdapterView<?> adapterView) {
+
+    }
 }

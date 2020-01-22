@@ -8,14 +8,14 @@ import android.database.sqlite.SQLiteDatabase;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-public class vacationDBManager {
+public class DBHelper {
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
 
-    private static final String DB_FIRST_VACATION = "FirstVacation.db";
+    private static final String DB_FIRST_VACATION = "Vacation.db";
 
-    static final String TABLE_FIRST = "FirstVacation";
-    static final String TABLE_USER = "User";
+    public static final String TABLE_FIRST = "FirstVacation";
+    public static final String TABLE_USER = "User";
 
     private static final String CREATE_TABLE_FIRST_VACATION = "CREATE TABLE IF NOT EXISTS " + TABLE_FIRST + "(" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT, " + "vacation TEXT, " + "startDate DATE, " +
@@ -28,18 +28,18 @@ public class vacationDBManager {
     static final int FIRST_VERSION = 1;
 
     Context mContext;
-    private static vacationDBManager mDBmanager = null;
+    private static DBHelper mDBmanager = null;
     private SQLiteDatabase mDatabase;
 
 
-    public static vacationDBManager getInstance(Context context){
+    public static DBHelper getInstance(Context context){
             if(mDBmanager == null){
-            mDBmanager = new vacationDBManager(context);
+            mDBmanager = new DBHelper(context);
         }
         return mDBmanager;
     }
 
-    private vacationDBManager(Context context){
+    private DBHelper(Context context){
         mContext = context;
         mDatabase = context.openOrCreateDatabase(DB_FIRST_VACATION, Context.MODE_PRIVATE, null);
         mDatabase.execSQL(CREATE_TABLE_FIRST_VACATION);
@@ -47,12 +47,12 @@ public class vacationDBManager {
     }
 
     //data 추가
-    public long insertFirstVacation(FirstVacation firstVacation){
+    public long insertFirstVacation(Vacation vacation){
         ContentValues values = new ContentValues();
-        values.put("vacation", firstVacation.getVacation());
-        values.put("startDate", formatter.format(firstVacation.getStartDate()));
-        values.put("type", firstVacation.getType());
-        values.put("count", firstVacation.getCount());
+        values.put("vacation", vacation.getVacation());
+        values.put("startDate", formatter.format(vacation.getStartDate()));
+        values.put("type", vacation.getType());
+        values.put("count", vacation.getCount());
         return mDatabase.insert(TABLE_FIRST, null, values);
     }
 
@@ -71,8 +71,8 @@ public class vacationDBManager {
     }
 
     // data 삭제
-    public int deleteFirstVacation(FirstVacation firstVacation) {
-        int id = firstVacation.getId();
+    public int deleteFirstVacation(Vacation vacation) {
+        int id = vacation.getId();
         String[] idArr = new String[] { String.valueOf(id) };
         return mDatabase.delete(TABLE_FIRST, "id =?", idArr);
     }

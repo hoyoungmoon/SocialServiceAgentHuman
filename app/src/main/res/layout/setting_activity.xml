@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:background="#ffffff"
         android:orientation="vertical"
-        tools:context=".SettingExtraActivity">
+        tools:context=".activities.SettingExtraActivity">
 
         <TextView
             android:layout_width="match_parent"

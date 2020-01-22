@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.fragments;
 
 
 import android.app.AlertDialog;
@@ -23,6 +23,10 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.project.realproject.R;
+import com.project.realproject.User;
+import com.project.realproject.activities.MainActivity;
+import com.project.realproject.DBHelper;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -30,7 +34,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
-import static com.project.realproject.vacationDBManager.TABLE_USER;
+import static com.project.realproject.DBHelper.TABLE_USER;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 
@@ -64,7 +68,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     DatePickerDialog firstDatePickerDialog;
     DatePickerDialog lastDatePickerDialog;
     Calendar dateCalendar;
-    vacationDBManager DBmanager;
+    DBHelper DBmanager;
 
     public SettingUserInfoFragment() {
     }
@@ -73,7 +77,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        DBmanager = vacationDBManager.getInstance(getActivity());
+        DBmanager = DBHelper.getInstance(getActivity());
     }
 
     @Override
@@ -105,7 +109,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
 
 
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
 
             mealCost = c.getInt(4);
@@ -248,7 +252,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                         if (DBmanager.getDataCount(TABLE_USER) == 0) {
                             DBmanager.insertUser(user);
                         } else {
-                            Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+                            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
                             c.moveToFirst();
                             int id = c.getInt(0);
                             ContentValues values = new ContentValues();
@@ -264,7 +268,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                             DBmanager.updateUser(id, values);
                         }
 
-                        if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+                        if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
                             ((MainActivity) getActivity()).load();
                         }
                         dismiss();

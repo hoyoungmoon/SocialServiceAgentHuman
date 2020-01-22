@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -21,6 +21,10 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.project.realproject.fragments.NumberPickerFragment;
+import com.project.realproject.PayDependsOnMonth;
+import com.project.realproject.R;
+import com.project.realproject.DBHelper;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -32,7 +36,7 @@ import java.util.Locale;
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.project.realproject.vacationDBManager.TABLE_USER;
+import static com.project.realproject.DBHelper.TABLE_USER;
 import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.SATURDAY;
@@ -81,7 +85,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
     private AdView mAdView;
 
-    vacationDBManager DBmanager;
+    DBHelper DBmanager;
     PayDependsOnMonth pay;
 
     @Override
@@ -98,7 +102,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         mAdView.loadAd(adRequest);
 
         getSupportActionBar().setDisplayShowTitleEnabled(true);
-        DBmanager = vacationDBManager.getInstance(this);
+        DBmanager = DBHelper.getInstance(this);
 
 
         calculateLinear = findViewById(R.id.cal_linear1);
@@ -132,7 +136,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
 
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(columns, vacationDBManager.TABLE_USER, null, null, null, null, null);
+            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
             c.moveToFirst();
             mealSetValue = c.getInt(4);
             trafficSetValue = c.getInt(5);

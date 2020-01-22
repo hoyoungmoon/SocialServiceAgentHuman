@@ -15,7 +15,7 @@
             android:value="@string/admob_app_id" />
 
         <activity
-            android:name="com.project.realproject.SplashActivity"
+            android:name="com.project.realproject.activities.SplashActivity"
             android:screenOrientation="portrait"
             android:theme="@style/SplashTheme">
             <intent-filter>
@@ -25,24 +25,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.project.realproject.MainActivity"
+            android:name="com.project.realproject.activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.project.realproject.ManualActivity"
+            android:name="com.project.realproject.activities.ManualActivity"
             android:label="휴가 및 월급 계산 방식"
-            android:parentActivityName="com.project.realproject.MainActivity"
+            android:parentActivityName="com.project.realproject.activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/ManualTheme" />
         <activity
-            android:name="com.project.realproject.CalculatorActivity"
+            android:name="com.project.realproject.activities.CalculatorActivity"
             android:label="월급 계산기"
-            android:parentActivityName="com.project.realproject.MainActivity"
+            android:parentActivityName="com.project.realproject.activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CalculatorTheme" />
         <activity
-            android:name="com.project.realproject.SettingExtraActivity"
+            android:name="com.project.realproject.activities.SettingExtraActivity"
             android:label="설정하기"
-            android:parentActivityName="com.project.realproject.MainActivity"
+            android:parentActivityName="com.project.realproject.activities.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/CalculatorTheme" />
     </application>

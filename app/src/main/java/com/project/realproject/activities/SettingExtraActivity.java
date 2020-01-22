@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +14,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.project.realproject.R;
 import com.xw.repo.BubbleSeekBar;
 
 import java.text.SimpleDateFormat;

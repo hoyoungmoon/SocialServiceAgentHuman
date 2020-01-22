@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import java.util.Date;
 
-public class FirstVacation implements Parcelable  {
+public class Vacation implements Parcelable  {
 
     private int id;
     private String type;
@@ -13,11 +13,11 @@ public class FirstVacation implements Parcelable  {
     private Date startDate;
     private double count;
 
-    public FirstVacation(){
+    public Vacation(){
         super();
     }
 
-    private FirstVacation(Parcel in){
+    private Vacation(Parcel in){
         super();
         this.id = in.readInt();
         this.type = in.readString();
@@ -69,7 +69,7 @@ public class FirstVacation implements Parcelable  {
 
     @Override
     public String toString() {
-        return "FirstVacation [id=" + id + ", vacation=" + vacation + ", startDate="
+        return "Vacation [id=" + id + ", vacation=" + vacation + ", startDate="
                 + startDate + ", type=" + type + ", count=" + count + "]";
     }
 
@@ -89,7 +89,7 @@ public class FirstVacation implements Parcelable  {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        FirstVacation other = (FirstVacation) obj;
+        Vacation other = (Vacation) obj;
         if (id != other.id)
             return false;
         return true;
@@ -109,13 +109,13 @@ public class FirstVacation implements Parcelable  {
         parcel.writeDouble(getCount());
     }
 
-    public static final Parcelable.Creator<FirstVacation> CREATOR = new Parcelable.Creator<FirstVacation>() {
-        public FirstVacation createFromParcel(Parcel in) {
-            return new FirstVacation(in);
+    public static final Parcelable.Creator<Vacation> CREATOR = new Parcelable.Creator<Vacation>() {
+        public Vacation createFromParcel(Parcel in) {
+            return new Vacation(in);
         }
 
-        public FirstVacation[] newArray(int size) {
-            return new FirstVacation[size];
+        public Vacation[] newArray(int size) {
+            return new Vacation[size];
         }
     };
 

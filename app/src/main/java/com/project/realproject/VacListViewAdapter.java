@@ -18,7 +18,7 @@ import java.util.Locale;
 public class VacListViewAdapter extends BaseAdapter {
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
-    private ArrayList<FirstVacation> listViewItemList = new ArrayList<FirstVacation>() ;
+    private ArrayList<Vacation> listViewItemList = new ArrayList<Vacation>() ;
     private Button deleteButton;
     private Button reviseButton;
     private ImageView menuButton;
@@ -52,7 +52,7 @@ public class VacListViewAdapter extends BaseAdapter {
 
 
     public void addItem(int id, String vacation, Date startDate, String type, double count){
-        FirstVacation item = new FirstVacation();
+        Vacation item = new Vacation();
 
         item.setId(id);
         item.setVacation(vacation);
@@ -115,7 +115,7 @@ public class VacListViewAdapter extends BaseAdapter {
             }
         });
 
-        FirstVacation listViewItem = listViewItemList.get(position);
+        Vacation listViewItem = listViewItemList.get(position);
 
         titleTextView.setText(listViewItem.getVacation());
         typeTextView.setText(listViewItem.getType());
@@ -125,8 +125,8 @@ public class VacListViewAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public void removeFirstVacation(FirstVacation firstVacation){
-        listViewItemList.remove(firstVacation);
+    public void removeFirstVacation(Vacation vacation){
+        listViewItemList.remove(vacation);
         notifyDataSetChanged();
     }
 

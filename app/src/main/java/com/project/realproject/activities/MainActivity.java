@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +28,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
+import com.project.realproject.fragments.BlankFragment;
+import com.project.realproject.R;
+import com.project.realproject.fragments.SettingUserInfoFragment;
+import com.project.realproject.fragments.VacListFragment;
+import com.project.realproject.fragments.VacSaveFragment;
+import com.project.realproject.DBHelper;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -50,7 +56,7 @@ import static java.util.Calendar.YEAR;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
-    vacationDBManager DBmanager = null;
+    DBHelper DBmanager = null;
     private static final SimpleDateFormat formatter = new SimpleDateFormat(
             "yyyy-MM-dd", Locale.ENGLISH);
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -141,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        DBmanager = vacationDBManager.getInstance(this);
+        DBmanager = DBHelper.getInstance(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
@@ -223,14 +229,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void load() {
-        if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+        if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
             setUserProfile();
             setRemainVac();
             setSearchStartDate();
             setThisMonthInfo(searchStartDate);
             progressBar.setProgress((int) getPercentage());
             if (percentIsChange) {
-                if (!timerIsRunning && DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
+                if (!timerIsRunning && DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
                     resetTimer();
                     startTimer();
                 }
@@ -563,8 +569,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setUserProfile() {
-        if (DBmanager.getDataCount(vacationDBManager.TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(userColumns, vacationDBManager.TABLE_USER,
+        if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
+            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
                     null, null, null, null, null);
             c.moveToFirst();
             firstDate = c.getString(2);
@@ -625,7 +631,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setRemainVac() {
-        Cursor c = DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST,
+        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_FIRST,
                 null, null, null, null, null);
         try {
             double firstCount = (double) totalFirstVac * 480;
@@ -791,7 +797,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         numberOfMeal = numberOfWork;
         numberOfTraffic = numberOfWork;
 
-        Cursor c = DBmanager.query(vacationColumns, vacationDBManager.TABLE_FIRST, null,
+        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_FIRST, null,
                 null, null, null, null);
         while (c.moveToNext()) {
             String type = c.getString(3);

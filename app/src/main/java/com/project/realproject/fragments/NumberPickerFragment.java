@@ -1,4 +1,4 @@
-package com.project.realproject;
+package com.project.realproject.fragments;
 
 
 import android.os.Bundle;
@@ -10,6 +10,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.NumberPicker;
+
+import com.project.realproject.R;
 
 public class NumberPickerFragment extends DialogFragment implements View.OnClickListener {
 

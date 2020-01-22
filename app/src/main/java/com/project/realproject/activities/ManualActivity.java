@@ -1,8 +1,10 @@
-package com.project.realproject;
+package com.project.realproject.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.project.realproject.R;
 
 public class ManualActivity extends AppCompatActivity {
 
