@@ -40,7 +40,7 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.setting_activity);
+        setContentView(R.layout.activity_setting);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         editor = preferences.edit();
@@ -77,9 +77,11 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean check) {
                 if (check) {
+                    Toast.makeText(SettingExtraActivity.this, "퍼센트 움직임 사용", Toast.LENGTH_SHORT).show();
                     editor.putBoolean("percentIsChange", true);
                     editor.apply();
                 } else {
+                    Toast.makeText(SettingExtraActivity.this, "퍼센트 움직임 사용하지 않음", Toast.LENGTH_SHORT).show();
                     editor.putBoolean("percentIsChange", false);
                     editor.apply();
                 }
@@ -96,10 +98,12 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean check) {
                 if (check) {
+                    Toast.makeText(SettingExtraActivity.this, "월급계산에 훈련소 포함", Toast.LENGTH_SHORT).show();
                     editor.putBoolean("bootCampInclude", true);
                     editor.apply();
                     bootCampDateLinear.setVisibility(VISIBLE);
                 } else {
+                    Toast.makeText(SettingExtraActivity.this, "월급계산에 훈련소 포함하지 않음", Toast.LENGTH_SHORT).show();
                     editor.putBoolean("bootCampInclude", false);
                     editor.apply();
                     bootCampDateLinear.setVisibility(GONE);

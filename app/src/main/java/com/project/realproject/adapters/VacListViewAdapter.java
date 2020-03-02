@@ -71,7 +71,7 @@ public class VacListViewAdapter extends BaseAdapter {
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.frag2_list_1, parent, false);
+            convertView = inflater.inflate(R.layout.adapter_vac_list_view, parent, false);
         }
 
         // ViewHolder 넣어보기
@@ -126,11 +126,6 @@ public class VacListViewAdapter extends BaseAdapter {
         startDateTextView.setText((formatter.format(listViewItem.getStartDate())));
 
         return convertView;
-    }
-
-    public void removeFirstVacation(Vacation vacation){
-        listViewItemList.remove(vacation);
-        notifyDataSetChanged();
     }
 
     public int getTagOnlyInt(String tag){

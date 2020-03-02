@@ -104,22 +104,21 @@ public class DBHelper extends SQLiteOpenHelper {
     // data 삭제
     public void deleteVacation(Vacation vacation) {
         SQLiteDatabase mDatabase = getWritableDatabase();
-        int id = vacation.getId();
-        String[] idArr = new String[] { String.valueOf(id) };
-        mDatabase.delete(TABLE_VACATION, "id =?", idArr);
+        mDatabase.delete(TABLE_VACATION, "id =?",
+                new String[] { String.valueOf(vacation.getId()) });
     }
 
     // data 수정
     public void updateVacation (int id, ContentValues addRowValue){
         SQLiteDatabase mDatabase = getWritableDatabase();
-        String[] idArr = new String[] { String.valueOf(id) };
-        mDatabase.update(TABLE_VACATION, addRowValue, "id =?", idArr);
+        mDatabase.update(TABLE_VACATION, addRowValue, "id =?",
+                new String[] { String.valueOf(id) });
     }
 
     public void updateUser (int id, ContentValues addRowValue){
         SQLiteDatabase mDatabase = getWritableDatabase();
-        String[] idArr = new String[] { String.valueOf(id) };
-        mDatabase.update(TABLE_USER, addRowValue, "id =?", idArr);
+        mDatabase.update(TABLE_USER, addRowValue, "id =?",
+                new String[] { String.valueOf(id) });
     }
 
     public Cursor query (String[] columns, String tableName, String selection, String[] selectionArgs,

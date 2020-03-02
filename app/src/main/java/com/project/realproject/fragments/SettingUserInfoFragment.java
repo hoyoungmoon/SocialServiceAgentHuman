@@ -59,9 +59,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private int totalSickVac;
     private int payDay;
 
-    private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
-            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
-
     DatePickerDialog firstDatePickerDialog;
     DatePickerDialog lastDatePickerDialog;
     Calendar dateCalendar;
@@ -80,7 +77,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.dialog_frag_date_revise, container, false);
+        View view = inflater.inflate(R.layout.fragment_setting_user_info, container, false);
 
         MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
             @Override
@@ -106,7 +103,8 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
 
 
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
+            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
+                    null, null, null, null, null);
             c.moveToFirst();
 
             mealCost = c.getInt(4);
@@ -231,9 +229,10 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     lastDatePickerDialog.show();
                     break;
                 case R.id.btn_save:
-                    if ((formatter.parse(lastDateEditText.getText().toString()).getTime() -
-                            formatter.parse(firstDateEditText.getText().toString()).getTime()) / (24 * 60 * 60 * 1000) < 367) {
-                        blankAlert("복무기간이 1년을 초과하도록 설정해주세요");
+
+                    if ((formatter.parse(lastDateEditText.getText().toString()).getTime() <=
+                            formatter.parse(firstDateEditText.getText().toString()).getTime())) {
+                        blankAlert("소집해제일을 다시 설정해주세요");
                     } else {
                         User user = new User();
                         user.setNickName(nickNameEditText.getText().toString());
@@ -249,7 +248,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                         if (DBmanager.getDataCount(TABLE_USER) == 0) {
                             DBmanager.insertUser(user);
                         } else {
-                            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
+                            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER, null, null, null, null, null);
                             c.moveToFirst();
                             int id = c.getInt(0);
                             ContentValues values = new ContentValues();

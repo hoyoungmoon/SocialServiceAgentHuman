@@ -106,7 +106,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_frag2_save, container, false);
+        View view = inflater.inflate(R.layout.fragment_vac_save, container, false);
 
         MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
             @Override
@@ -200,7 +200,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
         try {
             long min = formatter.parse(limitStartDate).getTime();
             long max = formatter.parse(limitLastDate).getTime();
-            if (min < max) {
+            if (max - min >= 0) {
                 datePickerDialog.getDatePicker().setMinDate(min);
                 datePickerDialog.getDatePicker().setMaxDate(max);
             } else {

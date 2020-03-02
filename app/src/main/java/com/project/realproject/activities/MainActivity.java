@@ -26,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 import com.project.realproject.fragments.BlankFragment;
@@ -49,37 +50,6 @@ import static android.view.View.VISIBLE;
 import static java.util.Calendar.*;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
-
-    DBHelper DBmanager = null;
-
-    private static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
-            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
-    private static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
-    private static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
-    private static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441700, 488200, 540900};
-    private static final String[] listOfHoliday = new String[]{"0101", "0301", "0505", "0606", "0815",
-            "1003", "1009", "1225"};
-    private static final String[] listOfHoliday2020 = new String[]{"0124", "0127", "0415", "0430", "0930",
-            "1001", "1002"};
-    private static final String[] listOfHoliday2021 = new String[]{"0211", "0212", "0519", "0920", "0921",
-            "0922"};
-    private static final String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
-    private static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
-    public enum vacType {firstYearVac, secondYearVac, sickVac}
-    public static Context mContext;
-    private String firstDate;
-    private String lastDate;
-    private String pivotDate;
-    private String pivotPlusOneDate;
-    private int mealCost;
-    private int trafficCost;
-    private int totalFirstVac;
-    private int totalSecondVac;
-    private int totalSickVac;
-    private int payDay;
-    private String searchStartDate;
-    private String toolTipText;
-
 
     private TextView firstVacRemain;
     private TextView secondVacRemain;
@@ -107,6 +77,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView toolTipRank;
     private ImageView toolTipPay;
 
+    private LinearLayout vacCard1;
+    private LinearLayout vacCard2;
+    private LinearLayout vacCard3;
+    private LinearLayout container;
+
+    DBHelper dbHelper = null;
+
+    private static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
+    public enum vacType {firstYearVac, secondYearVac, sickVac}
+    public static Context mContext;
+    private String firstDate;
+    private String lastDate;
+    private String pivotDate;
+    private String pivotPlusOneDate;
+    private int mealCost;
+    private int trafficCost;
+    private int totalFirstVac;
+    private int totalSecondVac;
+    private int totalSickVac;
+    private int payDay;
+    private String searchStartDate;
+    private String toolTipText;
+
     // countDownTimer values
     private CountDownTimer countDownTimer;
     private boolean timerIsRunning;
@@ -114,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long current;
 
     // sharedPreference values
+    private SharedPreferences preferences;
     private boolean percentIsChange;
     private boolean bootCampCalculationInclude;
     private String bootCampStart;
@@ -122,19 +116,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Date bootCampEndDate;
     private int decimalPlaces;
 
-    private LinearLayout vacCard1;
-    private LinearLayout vacCard2;
-    private LinearLayout vacCard3;
-    private LinearLayout container;
-
-    private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_activity);
+        setContentView(R.layout.activity_main);
 
-        DBmanager = new DBHelper(this);
+        dbHelper = new DBHelper(this);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
@@ -216,14 +204,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void load() {
-        if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
+        if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
             setUserProfile();
             setRemainVac();
             setSearchStartDate();
             setThisMonthInfo(searchStartDate);
             progressBar.setProgress((int) getPercentage());
             if (percentIsChange) {
-                if (!timerIsRunning && DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
+                if (!timerIsRunning && dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
                     resetTimer();
                     startTimer();
                 }
@@ -333,13 +321,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.spendButton_1:
-                dialog = new VacSaveFragment().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
+                // 1년 이하의 복무기간일 경우 1년차 연가사용 기간 조정 (pivotDate 대신 lastDate)
+                if (lastDate.compareTo(pivotDate) >= 0) {
+                    dialog = new VacSaveFragment().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
+                } else {
+                    dialog = new VacSaveFragment().newInstance(firstDate, lastDate, vacType.firstYearVac, searchStartDate);
+                }
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.spendButton_2:
-                dialog = new VacSaveFragment().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
-                dialog.show(fg, "dialog");
+                if (lastDate.compareTo(pivotDate) < 0) {
+                    Toast.makeText(this, "복무기간이 1년 이하인 경우 2년차 연가를 사용할 수 없습니다", Toast.LENGTH_SHORT).show();
+                } else {
+                    dialog = new VacSaveFragment().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
+                    dialog.show(fg, "dialog");
+                }
                 break;
 
             case R.id.spendButton_3:
@@ -543,7 +540,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         })
                         .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                DBmanager.deleteAll();
+                                dbHelper.deleteAll();
                                 FragmentManager fragmentManager = getSupportFragmentManager();
                                 new SettingUserInfoFragment().show(fragmentManager, "dialog");
                                 dialog.dismiss();
@@ -556,8 +553,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setUserProfile() {
-        if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
+        if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
+            Cursor c = dbHelper.query(userColumns, DBHelper.TABLE_USER,
                     null, null, null, null, null);
             c.moveToFirst();
             firstDate = c.getString(2);
@@ -603,7 +600,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int month = calendar.get(MONTH) + 1;
         int diff = ((year - firstYear) * 12) + (month - firstMonth);
 
-        // 2020년을 기준으로도 알아야함
         if (year <= 2019) {
             if (diff < 3) return payDependsOnRankBefore2020[0];
             else if (diff >= 3 && diff < 10) return payDependsOnRankBefore2020[1];
@@ -618,7 +614,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void setRemainVac() {
-        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION,
+        Cursor c = dbHelper.query(vacationColumns, DBHelper.TABLE_VACATION,
                 null, null, null, null, null);
         try {
             double firstCount = (double) totalFirstVac * 480;
@@ -633,11 +629,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 long startTime = formatter.parse(startDate).getTime();
 
                 // 특별휴가(특별, 청원, 공가) count를 차감하지 않는다
-                if (type.equals("병가") || type.equals("오전지참")
-                        || type.equals("오후조퇴") || type.equals("병가외출")) {
+                if (Arrays.asList(listOfSickVac).contains(type)) {
                     thirdCount -= c.getDouble(4);
-                } else if(type.equals("연가") || type.equals("오전반가")
-                        || type.equals("오후반가") || type.equals("외출")){
+                } else if(Arrays.asList(listOfVacExceptSpecialVac).contains(type)){
                     if(startTime - firstTime >= 0 && pivotTime - startTime >= 0){
                         firstCount -= c.getDouble(4);
                     }else if(startTime - pivotTime > 0 && lastTime - startTime >= 0){
@@ -784,7 +778,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         numberOfMeal = numberOfWork;
         numberOfTraffic = numberOfWork;
 
-        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION, null,
+        Cursor c = dbHelper.query(vacationColumns, DBHelper.TABLE_VACATION, null,
                 null, null, null, null);
         while (c.moveToNext()) {
             String type = c.getString(3);

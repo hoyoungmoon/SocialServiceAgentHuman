@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 
 import static android.view.View.GONE;
@@ -32,10 +33,8 @@ import com.project.realproject.activities.MainActivity.vacType;
 import com.project.realproject.helpers.DBHelper;
 
 
-
 public class VacListFragment extends Fragment implements VacListViewAdapter.ListBtnClickListener {
 
-       private String[] columns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public DBHelper DBmanager = null;
     private ListView mListView = null;
     private VacListViewAdapter mAdapter = null;
@@ -85,7 +84,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView = inflater.inflate(R.layout.frag2_listview, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_vac_list, container, false);
         mListView = rootView.findViewById(R.id.listview);
 
         mAdapter = new VacListViewAdapter(this);
@@ -168,7 +167,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
     public void setListItemView(VacListViewAdapter mAdapter) {
         DBmanager = new DBHelper(getActivity());
-        Cursor c = DBmanager.query(columns, DBHelper.TABLE_VACATION,
+        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION,
                 null, null, null, null, null);
 
         try {
@@ -184,8 +183,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
                     if (typeOfVac == vacType.sickVac) {
                         if (lowerDiff >= 0 && upperDiff >= 0) {
-                            if (type.equals("병가") || type.equals("오전지참")
-                                    || type.equals("오후조퇴") || type.equals("병가외출")) {
+                            if (Arrays.asList(listOfSickVac).contains(type)) {
                                 int id = c.getInt(0);
                                 String vacation = c.getString(1);
                                 double count = c.getDouble(4);
@@ -194,8 +192,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                         }
                     } else {
                         if (lowerDiff >= 0 && upperDiff >= 0) {
-                            if (type.equals("연가") || type.equals("오전반가") || type.equals("오후반가") ||
-                                    type.equals("외출") || type.equals("특별휴가") || type.equals("청원휴가") || type.equals("공가")) {
+                            if (Arrays.asList(listOfVac).contains(type)) {
                                 int id = c.getInt(0);
                                 String vacation = c.getString(1);
                                 double count = c.getDouble(4);
@@ -203,8 +200,8 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                             }
                         }
                     }
-                } else{
-                   break;
+                } else {
+                    break;
                 }
             }
             c.close();

@@ -53,7 +53,7 @@ public class NumberPickerFragment extends DialogFragment implements View.OnClick
             maxValue = getArguments().getInt("maxValue");
             step = getArguments().getInt("step");
         }
-        View view = inflater.inflate(R.layout.number_picker_dialog, container, false);
+        View view = inflater.inflate(R.layout.dialog_number_picker, container, false);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
         saveButton = view.findViewById(R.id.numberPicker_save);
         cancelButton = view.findViewById(R.id.numberPicker_cancel);
