@@ -6,6 +6,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.transition.TransitionManager;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -16,17 +17,24 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.TextSwitcher;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import com.google.android.material.navigation.NavigationView;
 import com.project.realproject.fragments.BlankFragment;
@@ -36,6 +44,7 @@ import com.project.realproject.fragments.VacListFragment;
 import com.project.realproject.fragments.VacSaveFragment;
 import static com.project.realproject.helpers.Formatter.*;
 import com.project.realproject.helpers.DBHelper;
+import com.transitionseverywhere.Rotate;
 
 import java.text.ParseException;
 import java.util.Arrays;
@@ -63,7 +72,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView searchPeriodTextView;
     private ImageView goToNextPeriod;
     private ImageView goToPreviousPeriod;
-    private TextView salaryTextView;
+
+    private TextSwitcher salaryTextSwitcher;
     private TextView thisMonthOuting;
     private TextView thisMonthVac;
     private TextView thisMonthSickVac;
@@ -80,7 +90,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private LinearLayout vacCard1;
     private LinearLayout vacCard2;
     private LinearLayout vacCard3;
-    private LinearLayout container;
+    private LinearLayout expandableListViewContainer;
+    private LinearLayout slideContainer;
+    private RelativeLayout rotateContainer1;
+    private RelativeLayout rotateContainer2;
+    private RelativeLayout rotateContainer3;
 
     DBHelper dbHelper = null;
 
@@ -116,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Date bootCampEndDate;
     private int decimalPlaces;
 
+    private static Handler mHandler ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         percentIsChange = preferences.getBoolean("percentIsChange", true);
         decimalPlaces = preferences.getInt("decimalPlaces", 7);
 
-       // 관련 data 초기화
+        // 관련 data 초기화
         try {
             bootCampCalculationInclude = preferences.getBoolean("bootCampInclude", false);
             bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
@@ -148,12 +163,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         nav_button = findViewById(R.id.navigation_drawer_button);
         cal_button = findViewById(R.id.calculator_button);
         nickNameTextView = findViewById(R.id.tv_nickName);
+        nickNameTextView.setSelected(true);
         dDayTextView = findViewById(R.id.tv_dDay);
         servicePeriodTextView = findViewById(R.id.tv_servicePeriod);
         searchPeriodTextView = findViewById(R.id.tv_search_period);
         goToNextPeriod = findViewById(R.id.iv_search_next_period);
         goToPreviousPeriod = findViewById(R.id.iv_search_previous_period);
-        salaryTextView = findViewById(R.id.tv_salary);
+        salaryTextSwitcher = findViewById(R.id.ts_salary);
         thisMonthOuting = findViewById(R.id.thisMonthOuting);
         thisMonthVac = findViewById(R.id.thisMonthVac);
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
@@ -165,7 +181,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         vacCard1 = findViewById(R.id.vacCardView_1);
         vacCard2 = findViewById(R.id.vacCardView_2);
         vacCard3 = findViewById(R.id.vacCardView_3);
-        container = findViewById(R.id.fragment_container_1);
+        expandableListViewContainer = findViewById(R.id.expandableListViewContainer);
+        slideContainer = findViewById(R.id.slide_container);
+        rotateContainer1 = findViewById(R.id.rotate_container1);
+        rotateContainer2 = findViewById(R.id.rotate_container2);
+        rotateContainer3 = findViewById(R.id.rotate_container3);
         toolTipRank = findViewById(R.id.btn_rank_info);
         toolTipPay = findViewById(R.id.btn_pay_info);
 
@@ -178,6 +198,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         firstVacTotal = findViewById(R.id.first_vacation_total);
         secondVacTotal = findViewById(R.id.second_vacation_total);
         sickVacTotal = findViewById(R.id.sick_vacation_total);
+
+        // 다음 업데이트 때 textSwitcher 안에 textView 하나 추가하는 방식으로 변경하는게 나을듯
+        salaryTextSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
+            @Override
+            public View makeView() {
+               TextView tv =  new TextView(MainActivity.this);
+                tv.setGravity(Gravity.CENTER_HORIZONTAL);
+                tv.setTextSize(22);
+                tv.setTextColor(getResources().getColor(R.color.selector_text));
+                return tv;
+            }
+        });
+        setLayoutTransition(slideContainer);
+
 
         vacCard1.setOnClickListener(this);
         vacCard2.setOnClickListener(this);
@@ -192,7 +226,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         nav_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -201,6 +234,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
         load();
+    }
+
+    private void setTextViewWidth(TextView nickNameTextView, float sp, Context context) {
+        int spToPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
+        ViewGroup.LayoutParams param = nickNameTextView.getLayoutParams();
+        int nickNameLength = nickNameTextView.getText().length();
+        if (nickNameLength <= 4) {
+            param.width = nickNameLength * spToPx;
+        } else {
+            param.width = 4 * spToPx;
+        }
+        nickNameTextView.setLayoutParams(param);
     }
 
     public void load() {
@@ -243,81 +288,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public long getCurrentSecond() {
-        try {
-            return (Calendar.getInstance().getTime().getTime() - formatter.parse(firstDate).getTime()) / 50;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
 
-    public long getEntireSecond() {
-        try {
-            return (formatter.parse(lastDate).getTime() - formatter.parse(firstDate).getTime()) / 50;
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public double getPercentage() {
-        return (100 * getCurrentSecond() / getEntireSecond());
-    }
-
-
-    public void startTimer() {
-        countDownTimer = new CountDownTimer(entire, 50) {
-
-            @Override
-            public void onTick(long millisUntilFinished) {
-                current++; // 0.05초 지날때마다 0.05초씩 더해주는 것과 같다.
-                updateCountDownText();
-            }
-
-            @Override
-            public void onFinish() {
-                timerIsRunning = false;
-            }
-        }.start();
-        timerIsRunning = true;
-    }
-
-    public void pauseTimer() {
-        countDownTimer.cancel();
-        timerIsRunning = false;
-    }
-
-    public void resetTimer() {
-        entire = getEntireSecond();
-        current = getCurrentSecond();
-        updateCountDownText();
-    }
-
-    public void updateCountDownText() {
-        double p = ((double) current / (double) entire) * 100;
-        progressPercentage.setText(String.format("%." + decimalPlaces + "f", p) + "%");
-    }
 
     @Override
     public void onClick(View view) {
 
         Calendar calendar = Calendar.getInstance();
         FragmentManager fg = getSupportFragmentManager();
-        FragmentTransaction ft = fg.beginTransaction();
         VacSaveFragment dialog;
 
         switch (view.getId()) {
             case R.id.vacCardView_1:
-                setListView(R.id.first_vacation_image, ft, firstDate, pivotDate, vacType.firstYearVac);
+                salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+                setListView(R.id.first_vacation_image, rotateContainer1, firstDate, pivotDate, vacType.firstYearVac);
                 break;
 
             case R.id.vacCardView_2:
-                setListView(R.id.second_vacation_image, ft, pivotPlusOneDate, lastDate, vacType.secondYearVac);
+                salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+                setListView(R.id.second_vacation_image, rotateContainer2, pivotPlusOneDate, lastDate, vacType.secondYearVac);
                 break;
 
             case R.id.vacCardView_3:
-                setListView(R.id.sick_vacation_image, ft, firstDate, lastDate, vacType.sickVac);
+                salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+                setListView(R.id.sick_vacation_image, rotateContainer3, firstDate, lastDate, vacType.sickVac);
                 break;
 
             case R.id.spendButton_1:
@@ -346,6 +342,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.iv_search_next_period:
                 try {
+                    salaryTextSwitcher.setInAnimation(this, R.anim.slide_in_right);
+                    salaryTextSwitcher.setOutAnimation(this, R.anim.slide_out_left);
                     calendar.setTime(dateFormat.parse(searchStartDate));
                     calendar.add(MONTH, 1);
                     searchStartDate = dateFormat.format(calendar.getTime());
@@ -360,6 +358,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.iv_search_previous_period:
                 try {
+                    salaryTextSwitcher.setInAnimation(this, R.anim.slide_in_left);
+                    salaryTextSwitcher.setOutAnimation(this, R.anim.slide_out_right);
                     calendar.setTime(dateFormat.parse(searchStartDate));
                     calendar.add(MONTH, -1);
                     searchStartDate = dateFormat.format(calendar.getTime());
@@ -379,12 +379,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void setListView(int imageId, FragmentTransaction ft, String lowerBoundDate,
-                            String upperBoundDate, vacType typeOfVac) {
-        ImageView imageView = findViewById(imageId);
-        Fragment fragment;
+// runnable을 이용한 vacListView Thread 관리
+    private static class mHandler extends Handler {
+        final String lowerBoundDate;
+        final String upperBoundDate;
+        final vacType typeOfVac;
+        final FragmentTransaction ft;
+        final String firstDate;
+        final String lastDate;
+        final String searchStartDate;
+        private mHandler(final String lowerBoundDate, final String upperBoundDate,
+                        final vacType typeOfVac, final FragmentTransaction ft, String firstDate,
+                        String lastDate, String searchStartDate){
+            this.lowerBoundDate = lowerBoundDate;
+            this.upperBoundDate = upperBoundDate;
+            this.typeOfVac = typeOfVac;
+            this.firstDate = firstDate;
+            this.lastDate = lastDate;
+            this.searchStartDate = searchStartDate;
+            this.ft = ft;
+        }
 
-        if (container.getVisibility() == GONE) {
+        @Override
+        public void handleMessage(Message msg) {
+            Fragment fragment;
+            fragment = new VacListFragment().newInstance(lowerBoundDate, upperBoundDate, firstDate,
+                    lastDate, typeOfVac, searchStartDate);
+
+            ft.replace(R.id.expandableListViewContainer, fragment);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+            ft.commit();
+        }
+    }
+
+    class NewRunnable implements Runnable {
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(300);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            mHandler.sendEmptyMessage(0);
+        }
+    }
+
+    public void setListView(int imageId, ViewGroup rotateContainer, final String lowerBoundDate,
+                            final String upperBoundDate, final vacType typeOfVac) {
+
+        FragmentManager fg2 = getSupportFragmentManager();
+        final FragmentTransaction ft2 = fg2.beginTransaction();
+        FragmentManager fg1 = getSupportFragmentManager();
+        final FragmentTransaction ft1 = fg1.beginTransaction();
+        mHandler = new mHandler(lowerBoundDate, upperBoundDate,typeOfVac, ft1, firstDate,
+                lastDate, searchStartDate);
+
+        ImageView imageView = findViewById(imageId);
+        TransitionManager.beginDelayedTransition(rotateContainer, new Rotate().setDuration(200));
+        if (expandableListViewContainer.getVisibility() == GONE) {
+            NewRunnable nr = new NewRunnable();
+            Thread t = new Thread(nr) ;
+            t.start() ;
+            expandableListViewContainer.setVisibility(VISIBLE);
             switch (typeOfVac) {
                 case firstYearVac:
                     vacCard1.setVisibility(VISIBLE);
@@ -402,23 +458,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     vacCard3.setVisibility(VISIBLE);
                     break;
             }
+            imageView.setRotation(180);
 
-            imageView.setImageResource(R.drawable.ic_expand_less_black_24dp);
-            fragment = new VacListFragment().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, typeOfVac, searchStartDate);
-
-            ft.replace(R.id.fragment_container_1, fragment);
-            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-            ft.commit();
-            container.setVisibility(VISIBLE);
         } else {
             vacCard1.setVisibility(VISIBLE);
             vacCard2.setVisibility(VISIBLE);
             vacCard3.setVisibility(VISIBLE);
-            container.setVisibility(GONE);
-            imageView.setImageResource(R.drawable.ic_expand_more_black_24dp);
-            ft.replace(R.id.fragment_container_1, new BlankFragment(), "empty");
-            ft.commit();
+            expandableListViewContainer.setVisibility(GONE);
+            imageView.setRotation(360);
+            ft2.replace(R.id.expandableListViewContainer, new BlankFragment(), "empty");
+            ft2.commit();
         }
     }
 
@@ -461,7 +510,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
                         + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | "
                         + dateFormat_dot.format(calendar.getTime()) + "");
-            } else if (view == toolTipPay || view == salaryTextView) {
+            } else if (view == toolTipPay || view == salaryTextSwitcher) {
+                salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
                 view = toolTipPay;
                 setThisMonthInfo(searchStartDate);
             }
@@ -567,6 +618,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             payDay = c.getInt(9);
 
             nickNameTextView.setText(c.getString(1));
+            setTextViewWidth(nickNameTextView, 27, mContext);
             servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
             countDdayFromToday();
 
@@ -860,7 +912,63 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
                 + "공휴일 출근횟수에서 제외");
 
-        salaryTextView.setText(decimalFormat.format(sumOfPay) + " KRW");
+        salaryTextSwitcher.setText(decimalFormat.format(sumOfPay) + " KRW");
+    }
+
+    public long getCurrentSecond() {
+        try {
+            return (Calendar.getInstance().getTime().getTime() - formatter.parse(firstDate).getTime()) / 50;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public long getEntireSecond() {
+        try {
+            return (formatter.parse(lastDate).getTime() - formatter.parse(firstDate).getTime()) / 50;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public double getPercentage() {
+        return (100 * getCurrentSecond() / getEntireSecond());
+    }
+
+
+    public void startTimer() {
+        countDownTimer = new CountDownTimer(entire, 50) {
+
+            @Override
+            public void onTick(long millisUntilFinished) {
+                current++; // 0.05초 지날때마다 0.05초씩 더해주는 것과 같다.
+                updateCountDownText();
+            }
+
+            @Override
+            public void onFinish() {
+                timerIsRunning = false;
+            }
+        }.start();
+        timerIsRunning = true;
+    }
+
+    public void pauseTimer() {
+        countDownTimer.cancel();
+        timerIsRunning = false;
+    }
+
+    public void resetTimer() {
+        entire = getEntireSecond();
+        current = getCurrentSecond();
+        updateCountDownText();
+    }
+
+    public void updateCountDownText() {
+        double p = ((double) current / (double) entire) * 100;
+        progressPercentage.setText(String.format("%." + decimalPlaces + "f", p) + "%");
     }
 
     public int getDateLength(int first, int last) {
@@ -919,7 +1027,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public boolean checkBootCampInclude(Date date){
-       return ((bootCampStartDate.compareTo(date) != 1) && (bootCampEndDate.compareTo(date) != -1));
+        return ((bootCampStartDate.compareTo(date) != 1) && (bootCampEndDate.compareTo(date) != -1));
     }
 
     public boolean checkBootCampEndInclude(Date firstSearchDate, Date lastSearchDate, Date date){
@@ -1006,7 +1114,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         VacListFragment fragment = new VacListFragment().newInstance(limitStartDate, limitLastDate,
                 firstDate, lastDate, numOfYear, searchStartDate);
-        ft.replace(R.id.fragment_container_1, fragment);
+        ft.replace(R.id.expandableListViewContainer, fragment);
         ft.commit();
     }
 

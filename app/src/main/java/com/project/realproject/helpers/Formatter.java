@@ -1,5 +1,10 @@
 package com.project.realproject.helpers;
 
+import android.animation.LayoutTransition;
+import android.os.Build;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -30,4 +35,19 @@ public class Formatter {
             "0922"};
     public static final String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
 
+    public static final String toMoneyUnit(double money) {
+        return decimalFormat2.format(Math.round((money) / 100.0) * 100);
+    }
+
+    public static final void setLayoutTransition(LinearLayout viewGroup) {
+
+        LayoutTransition lt = new LayoutTransition();
+        lt.setDuration(200);
+        lt.enableTransitionType(LayoutTransition.APPEARING);
+        lt.disableTransitionType(LayoutTransition.DISAPPEARING);
+        lt.enableTransitionType(LayoutTransition.CHANGE_APPEARING);
+        lt.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
+
+        viewGroup.setLayoutTransition(lt);
+    }
 }

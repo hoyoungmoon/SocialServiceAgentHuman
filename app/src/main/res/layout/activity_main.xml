@@ -82,10 +82,14 @@
 
             <TextView
                 android:id="@+id/tv_nickName"
-                android:layout_width="wrap_content"
+                android:layout_width="130dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="5dp"
+                android:maxWidth="130dp"
+                android:singleLine="true"
+                android:ellipsize="marquee"
+                android:scrollHorizontally="true"
                 android:clickable="true"
                 android:onClick="toolTipRank"
                 android:text="공익인간"
@@ -310,6 +314,8 @@
                             android:orientation="vertical">
 
                             <RelativeLayout
+                                android:id="@+id/search_period_container"
+                                android:animateLayoutChanges="true"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent">
 
@@ -318,7 +324,6 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_centerHorizontal="true"
-                                    android:layout_marginBottom="5dp"
                                     android:text="이번달 급여"
                                     android:textColor="@color/colorMainBright"
                                     android:textSize="13sp" />
@@ -332,18 +337,17 @@
                                     android:onClick="toolTipRank"
                                     android:src="@drawable/ic_info_outline_white_24dp" />
 
-                                <TextView
-                                    android:id="@+id/tv_salary"
-                                    android:layout_width="wrap_content"
+                                <TextSwitcher
+                                    android:id="@+id/ts_salary"
+                                    android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_below="@+id/tv_search_period"
+                                    android:layout_marginTop="5dp"
+                                    android:layout_marginStart="70dp"
                                     android:layout_centerHorizontal="true"
-                                    android:clickable="true"
-                                    android:onClick="toolTipRank"
-                                    android:text="468,000 KRW"
-                                    android:textColor="@color/selector_text"
-                                    android:textSize="20sp"
-                                    android:textStyle="bold" />
+                                    android:onClick="toolTipRank">
+
+                                </TextSwitcher>
                             </RelativeLayout>
                         </LinearLayout>
 
@@ -473,6 +477,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/spendVacCardView">
 
                 <LinearLayout
+                    android:id="@+id/slide_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical">
@@ -491,6 +496,7 @@
                             android:paddingEnd="20dp">
 
                             <RelativeLayout
+                                android:id="@+id/rotate_container1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true">
@@ -564,6 +570,7 @@
                             android:paddingEnd="20dp">
 
                             <RelativeLayout
+                                android:id="@+id/rotate_container2"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true">
@@ -638,6 +645,7 @@
                             android:paddingEnd="20dp">
 
                             <RelativeLayout
+                                android:id="@+id/rotate_container3"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_centerVertical="true"
@@ -699,13 +707,12 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/fragment_container_1"
+                        android:id="@+id/expandableListViewContainer"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="2"
                         android:orientation="vertical"
-                        android:visibility="gone"></LinearLayout>
-
+                        android:visibility="gone"/>
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>

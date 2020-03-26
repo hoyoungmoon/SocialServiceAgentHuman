@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -91,7 +93,6 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);
 
-
         mListView.setOnTouchListener(new ListView.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -143,6 +144,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                         DBmanager.deleteVacation(vacation);
                         ((MainActivity) getActivity()).setRemainVac();
                         ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
+
                         reloadListView();
                         dialog.dismiss();
                     }

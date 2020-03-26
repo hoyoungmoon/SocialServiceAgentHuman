@@ -25,7 +25,7 @@
             <item
                 android:id="@+id/manual"
                 android:icon="@drawable/ic_method_black_24dp"
-                android:title="휴가 및 월급 계산 방식" />
+                android:title="규정 및 월급 계산법" />
             <item
                 android:id="@+id/rating"
                 android:icon="@drawable/ic_star_black_24dp"

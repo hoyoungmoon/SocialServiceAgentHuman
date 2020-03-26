@@ -71,7 +71,7 @@ public class VacListViewAdapter extends BaseAdapter {
 
         if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = inflater.inflate(R.layout.adapter_vac_list_view, parent, false);
+            convertView = inflater.inflate(R.layout.item_vac_list, parent, false);
         }
 
         // ViewHolder 넣어보기

@@ -53,6 +53,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     private boolean isOriginalPay = true;
     private boolean resultOpen = false;
 
+    private LinearLayout entireLayout;
     private LinearLayout calculateLinear;
     private LinearLayout resultLinear;
     private TextView startSearchDateTextView;
@@ -95,6 +96,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         DBmanager = new DBHelper(this);
 
 
+        entireLayout = findViewById(R.id.calculatorLayout);
         calculateLinear = findViewById(R.id.cal_linear1);
         resultLinear = findViewById(R.id.cal_linear2);
         startSearchDateTextView = findViewById(R.id.cal_first);
@@ -115,6 +117,7 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         resultTrafficTextView = findViewById(R.id.cal_result_traffic);
         resultTotalTextView = findViewById(R.id.cal_result_total);
 
+        setLayoutTransition(entireLayout);
         startSearchDateTextView.setOnClickListener(this);
         endSearchDateTextView.setOnClickListener(this);
         payTextView.setOnClickListener(this);
@@ -367,10 +370,6 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
     public int getLength(Date startDate, Date endDate) {
         return (int) ((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
-    }
-
-    public String toMoneyUnit(double money) {
-        return decimalFormat.format(Math.round((money) / 100.0) * 100);
     }
 
     public int getTagOnlyInt(String tag) {

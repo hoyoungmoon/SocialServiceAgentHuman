@@ -9,7 +9,6 @@
     android:paddingBottom="10dp"
     android:orientation="vertical"
     tools:context=".fragments.VacListFragment">
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
