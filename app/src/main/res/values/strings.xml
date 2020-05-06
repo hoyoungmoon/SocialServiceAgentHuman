@@ -28,6 +28,9 @@
         교통두절, 그 밖의 사유로 출근이 불가능한 경우
     </string>
 
-    <string name="cal_manual">* 한달 이하의 기간동안 급여를 계산할 수 있습니다\n* 주말(토, 일)을 제외한 날은 모두 출근일로 포함하고 있습니다</string>
+    <string name="cal_manual">* 복무 기간 동안의 급여를 계산할 수 있습니다\n* 주말(토, 일)을 제외한 날은 모두 출근일로 포함하고 있습니다</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
 

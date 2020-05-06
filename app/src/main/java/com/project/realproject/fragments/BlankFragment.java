@@ -1,6 +1,7 @@
 package com.project.realproject.fragments;
 
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -10,8 +11,13 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.project.realproject.R;
+import com.project.realproject.activities.MainActivity;
 
-public class BlankFragment extends Fragment {
+import java.util.Calendar;
+
+import kotlin.jvm.internal.MagicApiIntrinsics;
+
+public class BlankFragment extends Fragment implements DialogInterface.OnDismissListener {
 
 
     public BlankFragment() {
@@ -26,4 +32,9 @@ public class BlankFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_blank, container, false);
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+        //((MainActivity) getActivity()).setRemainVac();
+        //((MainActivity) getActivity()).setMonthlyInfo(Calendar.getInstance().getTime());
+    }
 }

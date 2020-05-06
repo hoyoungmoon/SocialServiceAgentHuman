@@ -267,80 +267,21 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:background="#f6f6f6" />
-
-            <LinearLayout
-                android:id="@+id/group_payDay"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingStart="20dp">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:gravity="center_vertical"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="월급 책정 시작일" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="2dp"
-                            android:text="사용자가 매달 받는 월급의 첫날을 입력하시면 됩니다"
-                            android:textColor="#7E121533"
-                            android:textSize="11sp" />
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_payDay"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:paddingTop="20dp"
-                        android:paddingEnd="20dp"
-                        android:paddingBottom="20dp"
-                        android:textColor="#666666" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#f6f6f6"
-                android:paddingStart="20dp"
-                android:paddingTop="10dp"
-                android:textSize="11sp"
-                android:textColor="#7E121533"
-                android:text="* 훈련소 일정은 프로필 저장 후 설정창에서 포함시킬 수 있습니다"/>
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#f6f6f6"
                 android:gravity="end"
                 android:orientation="horizontal"
-                android:paddingTop="20dp"
-                android:paddingEnd="10dp"
-                android:paddingBottom="30dp">
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingEnd="10dp">
 
                 <Button
                     android:id="@+id/btn_cancel"
                     android:layout_width="50dp"
                     android:layout_height="wrap_content"
+                    android:layout_marginEnd="10dp"
                     android:background="#f6f6f6"
                     android:text="취소"
                     android:textSize="15sp" />
@@ -351,16 +292,9 @@
                     android:layout_height="wrap_content"
                     android:background="#f6f6f6"
                     android:text="저장"
+                    android:textStyle="bold"
                     android:textSize="15sp" />
             </LinearLayout>
-
-            <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/banner_ad"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:background="#f6f6f6"
-                ads:adSize="BANNER"
-                ads:adUnitId="@string/admob_ad_unit_id" />
 
         </LinearLayout>
     </ScrollView>

@@ -4,6 +4,7 @@ package com.project.realproject.fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,14 +33,32 @@ public class NumberPickerFragment extends DialogFragment implements View.OnClick
         // Required empty public constructor
     }
 
+    public static NumberPickerFragment newInstance(NumberPickerSaveListener saveListener,
+                                                   String userInfo, int setValue, int minValue,
+                                                   int maxValue, int step){
+        NumberPickerFragment numberPickerFragment = new NumberPickerFragment(saveListener);
+        Bundle bundle = new Bundle(5);
+        bundle.putString("userInfo", userInfo);
+        bundle.putInt("setValue", setValue);
+        bundle.putInt("minValue", minValue);
+        bundle.putInt("maxValue", maxValue);
+        bundle.putInt("step", step);
+        numberPickerFragment.setArguments(bundle);
+        return numberPickerFragment;
+    }
+
+
+    // interface
     public interface NumberPickerSaveListener{
         void onSaveBtnClick(String userInfo, String saveValue);
     }
+
     private NumberPickerSaveListener numberPickerSaveListener;
 
-    public NumberPickerFragment(NumberPickerSaveListener saveListener){
+    private NumberPickerFragment(NumberPickerSaveListener saveListener){
         this.numberPickerSaveListener = saveListener;
     }
+
 
 
     @Override

@@ -14,13 +14,13 @@ import com.project.realproject.R;
 import com.project.realproject.Vacation;
 
 import java.util.ArrayList;
-import java.util.Date;
+
 import static com.project.realproject.helpers.Formatter.*;
 
 
 public class VacListViewAdapter extends BaseAdapter {
 
-    private ArrayList<Vacation> listViewItemList = new ArrayList<Vacation>() ;
+    private ArrayList<Vacation> listViewItemList = new ArrayList<>() ;
     private Button deleteButton;
     private Button reviseButton;
     private ImageView menuButton;
@@ -54,15 +54,8 @@ public class VacListViewAdapter extends BaseAdapter {
     }
 
 
-    public void addItem(int id, String vacation, Date startDate, String type, double count){
-        Vacation item = new Vacation();
-
-        item.setId(id);
-        item.setVacation(vacation);
-        item.setStartDate(startDate);
-        item.setType(type);
-        item.setCount(count);
-        listViewItemList.add(item);
+    public void setListItems(ArrayList<Vacation> list){
+        listViewItemList = list;
     }
 
     @Override

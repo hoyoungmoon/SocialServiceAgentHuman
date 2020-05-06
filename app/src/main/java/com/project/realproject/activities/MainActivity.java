@@ -2,25 +2,24 @@ package com.project.realproject.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionManager;
+import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,17 +36,32 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import com.project.realproject.FirstYearVacationList;
+import com.project.realproject.MonthlyVacationList;
+import com.project.realproject.Salary;
+import com.project.realproject.SecondYearVacationList;
+import com.project.realproject.SickVacationList;
+import com.project.realproject.User;
+import com.project.realproject.VacationList;
+import com.project.realproject.adapters.ContentViewPagerAdapter;
 import com.project.realproject.fragments.BlankFragment;
 import com.project.realproject.R;
+import com.project.realproject.fragments.SalaryCalculatorFragment;
+import com.project.realproject.fragments.SalaryInfoFragment;
+import com.project.realproject.fragments.SavingsCalculatorFragment;
 import com.project.realproject.fragments.SettingUserInfoFragment;
 import com.project.realproject.fragments.VacListFragment;
 import com.project.realproject.fragments.VacSaveFragment;
+
+import static android.app.AlertDialog.*;
 import static com.project.realproject.helpers.Formatter.*;
+
 import com.project.realproject.helpers.DBHelper;
 import com.transitionseverywhere.Rotate;
+//import com.transitionseverywhere.Rotate;
 
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -58,7 +72,8 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Calendar.*;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener,
+        OnDismissListener {
 
     private TextView firstVacRemain;
     private TextView secondVacRemain;
@@ -67,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView secondVacTotal;
     private TextView sickVacTotal;
     private TextView nickNameTextView;
+    private TextView gradeTextView;
     private TextView dDayTextView;
     private TextView servicePeriodTextView;
     private TextView searchPeriodTextView;
@@ -79,39 +95,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private TextView thisMonthSickVac;
     private ProgressBar progressBar;
     private TextView progressPercentage;
-    private TextView entireService;
-    private TextView currentService;
-    private TextView remainService;
+
     private ImageView nav_button;
     private ImageView cal_button;
     private ImageView toolTipRank;
     private ImageView toolTipPay;
 
+    private CardView vacCardView;
     private LinearLayout vacCard1;
     private LinearLayout vacCard2;
     private LinearLayout vacCard3;
-    private LinearLayout expandableListViewContainer;
+
     private LinearLayout slideContainer;
+    private LinearLayout expandableListViewContainer;
     private RelativeLayout rotateContainer1;
     private RelativeLayout rotateContainer2;
     private RelativeLayout rotateContainer3;
 
     DBHelper dbHelper = null;
 
-    private static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
     public enum vacType {firstYearVac, secondYearVac, sickVac}
+
     public static Context mContext;
+    private static final String FRAGMENT_VACATION_LIST = "FRAGMENT_VACATION_LIST";
     private String firstDate;
     private String lastDate;
     private String pivotDate;
     private String pivotPlusOneDate;
-    private int mealCost;
-    private int trafficCost;
     private int totalFirstVac;
     private int totalSecondVac;
     private int totalSickVac;
-    private int payDay;
-    private String searchStartDate;
+
+    // private String searchStartDate;
+    private Date searchDate;
     private String toolTipText;
 
     // countDownTimer values
@@ -121,42 +137,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private long current;
 
     // sharedPreference values
-    private SharedPreferences preferences;
-    private boolean percentIsChange;
-    private boolean bootCampCalculationInclude;
-    private String bootCampStart;
-    private String bootCampEnd;
-    private Date bootCampStartDate;
-    private Date bootCampEndDate;
+    private boolean isPercentChanging;
     private int decimalPlaces;
 
-    private static Handler mHandler ;
+    private static Handler mHandler;
+    private User user;
+    private Salary salary;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /*
+        mAdView = findViewById(R.id.banner_ad);  // 배너 광고 뷰
+        mAdView.setClientId("DAN-us3hscbyxzs6");  // 할당 받은 광고 단위(clientId) 설정
+        mAdView.setAdListener(new AdListener() {  // 광고 수신 리스너 설정
+
+            @Override
+            public void onAdLoaded() {
+            }
+
+            @Override
+            public void onAdFailed(int errorCode) {
+            }
+
+            @Override
+            public void onAdClicked() {
+            }
+        });
+
+        mAdView.loadAd();
+
+         */
+
         dbHelper = new DBHelper(this);
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        percentIsChange = preferences.getBoolean("percentIsChange", true);
-        decimalPlaces = preferences.getInt("decimalPlaces", 7);
-
-        // 관련 data 초기화
-        try {
-            bootCampCalculationInclude = preferences.getBoolean("bootCampInclude", false);
-            bootCampStart = preferences.getString("bootCampStart", "2020-01-01");
-            bootCampEnd = preferences.getString("bootCampEnd", "2020-01-29");
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(formatter.parse(bootCampStart));
-            bootCampStartDate = calendar.getTime();
-            calendar.setTime(formatter.parse(bootCampEnd));
-            bootCampEndDate = calendar.getTime();
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
         mContext = this;
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -164,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         cal_button = findViewById(R.id.calculator_button);
         nickNameTextView = findViewById(R.id.tv_nickName);
         nickNameTextView.setSelected(true);
+        gradeTextView = findViewById(R.id.tv_grade);
         dDayTextView = findViewById(R.id.tv_dDay);
         servicePeriodTextView = findViewById(R.id.tv_servicePeriod);
         searchPeriodTextView = findViewById(R.id.tv_search_period);
@@ -175,14 +191,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         thisMonthSickVac = findViewById(R.id.thisMonthSickVac);
         progressBar = findViewById(R.id.progressBar);
         progressPercentage = findViewById(R.id.progress_percentage);
-        entireService = findViewById(R.id.tv_entireService);
-        currentService = findViewById(R.id.tv_currentService);
-        remainService = findViewById(R.id.tv_remainService);
+
         vacCard1 = findViewById(R.id.vacCardView_1);
         vacCard2 = findViewById(R.id.vacCardView_2);
         vacCard3 = findViewById(R.id.vacCardView_3);
-        expandableListViewContainer = findViewById(R.id.expandableListViewContainer);
+
         slideContainer = findViewById(R.id.slide_container);
+        expandableListViewContainer = findViewById(R.id.expandableListViewContainer);
         rotateContainer1 = findViewById(R.id.rotate_container1);
         rotateContainer2 = findViewById(R.id.rotate_container2);
         rotateContainer3 = findViewById(R.id.rotate_container3);
@@ -199,19 +214,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         secondVacTotal = findViewById(R.id.second_vacation_total);
         sickVacTotal = findViewById(R.id.sick_vacation_total);
 
+
         // 다음 업데이트 때 textSwitcher 안에 textView 하나 추가하는 방식으로 변경하는게 나을듯
         salaryTextSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
             public View makeView() {
-               TextView tv =  new TextView(MainActivity.this);
+                TextView tv = new TextView(MainActivity.this);
                 tv.setGravity(Gravity.CENTER_HORIZONTAL);
-                tv.setTextSize(22);
-                tv.setTextColor(getResources().getColor(R.color.selector_text));
+                tv.setTextSize(20);
+                tv.setTextColor(getResources().getColor(R.color.colorMainBright));
                 return tv;
             }
         });
         setLayoutTransition(slideContainer);
-
 
         vacCard1.setOnClickListener(this);
         vacCard2.setOnClickListener(this);
@@ -222,7 +237,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         goToNextPeriod.setOnClickListener(this);
         goToPreviousPeriod.setOnClickListener(this);
         cal_button.setOnClickListener(this);
-
 
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -236,26 +250,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         load();
     }
 
-    private void setTextViewWidth(TextView nickNameTextView, float sp, Context context) {
-        int spToPx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, sp, context.getResources().getDisplayMetrics());
-        ViewGroup.LayoutParams param = nickNameTextView.getLayoutParams();
-        int nickNameLength = nickNameTextView.getText().length();
-        if (nickNameLength <= 4) {
-            param.width = nickNameLength * spToPx;
-        } else {
-            param.width = 4 * spToPx;
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+        setRemainVac();
+        setMonthlyInfo(searchDate);
+        VacListFragment fragment = (VacListFragment) getSupportFragmentManager().findFragmentByTag(FRAGMENT_VACATION_LIST);
+        if (fragment != null) {
+            fragment.reloadListView();
         }
-        nickNameTextView.setLayoutParams(param);
     }
 
     public void load() {
         if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
+            Calendar calendar = Calendar.getInstance();
+            searchDate = calendar.getTime();
             setUserProfile();
             setRemainVac();
-            setSearchStartDate();
-            setThisMonthInfo(searchStartDate);
+            setMonthlyInfo(searchDate);
+
             progressBar.setProgress((int) getPercentage());
-            if (percentIsChange) {
+            if (isPercentChanging) {
                 if (!timerIsRunning && dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
                     resetTimer();
                     startTimer();
@@ -263,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else {
                 resetTimer();
             }
+
 
             progressPercentage.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                 @Override
@@ -289,7 +304,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-
     @Override
     public void onClick(View view) {
 
@@ -298,30 +312,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         VacSaveFragment dialog;
 
         switch (view.getId()) {
+
             case R.id.vacCardView_1:
                 salaryTextSwitcher.setInAnimation(this, R.anim.stop);
                 salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
-                setListView(R.id.first_vacation_image, rotateContainer1, firstDate, pivotDate, vacType.firstYearVac);
+                setListView(new FirstYearVacationList(this, firstDate, pivotDate),
+                        R.id.first_vacation_image, rotateContainer1, vacType.firstYearVac);
                 break;
 
             case R.id.vacCardView_2:
                 salaryTextSwitcher.setInAnimation(this, R.anim.stop);
                 salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
-                setListView(R.id.second_vacation_image, rotateContainer2, pivotPlusOneDate, lastDate, vacType.secondYearVac);
+                setListView(new SecondYearVacationList(this, pivotPlusOneDate, lastDate),
+                        R.id.second_vacation_image, rotateContainer2, vacType.secondYearVac);
                 break;
 
             case R.id.vacCardView_3:
                 salaryTextSwitcher.setInAnimation(this, R.anim.stop);
                 salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
-                setListView(R.id.sick_vacation_image, rotateContainer3, firstDate, lastDate, vacType.sickVac);
+                setListView(new SickVacationList(this, firstDate, lastDate),
+                        R.id.sick_vacation_image, rotateContainer3, vacType.sickVac);
                 break;
+
+
 
             case R.id.spendButton_1:
                 // 1년 이하의 복무기간일 경우 1년차 연가사용 기간 조정 (pivotDate 대신 lastDate)
                 if (lastDate.compareTo(pivotDate) >= 0) {
-                    dialog = new VacSaveFragment().newInstance(firstDate, pivotDate, vacType.firstYearVac, searchStartDate);
+                    dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, pivotDate));
                 } else {
-                    dialog = new VacSaveFragment().newInstance(firstDate, lastDate, vacType.firstYearVac, searchStartDate);
+                    dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, pivotDate));
                 }
                 dialog.show(fg, "dialog");
                 break;
@@ -330,45 +350,49 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (lastDate.compareTo(pivotDate) < 0) {
                     Toast.makeText(this, "복무기간이 1년 이하인 경우 2년차 연가를 사용할 수 없습니다", Toast.LENGTH_SHORT).show();
                 } else {
-                    dialog = new VacSaveFragment().newInstance(pivotPlusOneDate, lastDate, vacType.secondYearVac, searchStartDate);
+                    dialog = new VacSaveFragment().newInstance(new SecondYearVacationList(this, pivotPlusOneDate, lastDate));
                     dialog.show(fg, "dialog");
                 }
                 break;
 
             case R.id.spendButton_3:
-                dialog = new VacSaveFragment().newInstance(firstDate, lastDate, vacType.sickVac, searchStartDate);
+                dialog = new VacSaveFragment().newInstance(new SickVacationList(this, firstDate, lastDate));
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.iv_search_next_period:
-                try {
+                calendar.setTime(searchDate);
+                calendar.add(MONTH, 1);
+                searchDate = calendar.getTime();
+                Salary nextSalary = new Salary(mContext, searchDate);
+                if (nextSalary.isIncludedInPeriod()) {
                     salaryTextSwitcher.setInAnimation(this, R.anim.slide_in_right);
                     salaryTextSwitcher.setOutAnimation(this, R.anim.slide_out_left);
-                    calendar.setTime(dateFormat.parse(searchStartDate));
-                    calendar.add(MONTH, 1);
-                    searchStartDate = dateFormat.format(calendar.getTime());
-                    if (!setThisMonthInfo(searchStartDate)) {
-                        calendar.add(MONTH, -1);
-                        searchStartDate = dateFormat.format(calendar.getTime());
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    setMonthlyInfo(searchDate);
+                } else {
+                    salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                    salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+                    calendar.add(MONTH, -1);
+                    searchDate = calendar.getTime();
+                    setMonthlyInfo(searchDate);
                 }
                 break;
 
             case R.id.iv_search_previous_period:
-                try {
+                calendar.setTime(searchDate);
+                calendar.add(MONTH, -1);
+                searchDate = calendar.getTime();
+                Salary previousSalary = new Salary(mContext, searchDate);
+                if (previousSalary.isIncludedInPeriod()) {
                     salaryTextSwitcher.setInAnimation(this, R.anim.slide_in_left);
                     salaryTextSwitcher.setOutAnimation(this, R.anim.slide_out_right);
-                    calendar.setTime(dateFormat.parse(searchStartDate));
-                    calendar.add(MONTH, -1);
-                    searchStartDate = dateFormat.format(calendar.getTime());
-                    if (!setThisMonthInfo(searchStartDate)) {
-                        calendar.add(MONTH, 1);
-                        searchStartDate = dateFormat.format(calendar.getTime());
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                    setMonthlyInfo(searchDate);
+                } else {
+                    salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+                    salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+                    calendar.add(MONTH, 1);
+                    searchDate = calendar.getTime();
+                    setMonthlyInfo(searchDate);
                 }
                 break;
 
@@ -379,34 +403,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-// runnable을 이용한 vacListView Thread 관리
+
+    // runnable을 이용한 vacListView Thread 관리
     private static class mHandler extends Handler {
-        final String lowerBoundDate;
-        final String upperBoundDate;
         final vacType typeOfVac;
         final FragmentTransaction ft;
-        final String firstDate;
-        final String lastDate;
-        final String searchStartDate;
-        private mHandler(final String lowerBoundDate, final String upperBoundDate,
-                        final vacType typeOfVac, final FragmentTransaction ft, String firstDate,
-                        String lastDate, String searchStartDate){
-            this.lowerBoundDate = lowerBoundDate;
-            this.upperBoundDate = upperBoundDate;
+        final VacationList vacationList;
+
+        private mHandler(final VacationList vacationList, final vacType typeOfVac, final FragmentTransaction ft) {
+            this.vacationList = vacationList;
             this.typeOfVac = typeOfVac;
-            this.firstDate = firstDate;
-            this.lastDate = lastDate;
-            this.searchStartDate = searchStartDate;
             this.ft = ft;
         }
 
         @Override
         public void handleMessage(Message msg) {
             Fragment fragment;
-            fragment = new VacListFragment().newInstance(lowerBoundDate, upperBoundDate, firstDate,
-                    lastDate, typeOfVac, searchStartDate);
+            fragment = new VacListFragment().newInstance(vacationList, typeOfVac);
 
-            ft.replace(R.id.expandableListViewContainer, fragment);
+            ft.replace(R.id.expandableListViewContainer, fragment, FRAGMENT_VACATION_LIST);
             ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
             ft.commit();
         }
@@ -424,22 +439,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void setListView(int imageId, ViewGroup rotateContainer, final String lowerBoundDate,
-                            final String upperBoundDate, final vacType typeOfVac) {
+    public void setListView(VacationList vacationList, int imageId, ViewGroup rotateContainer, final vacType typeOfVac) {
 
-        FragmentManager fg2 = getSupportFragmentManager();
-        final FragmentTransaction ft2 = fg2.beginTransaction();
         FragmentManager fg1 = getSupportFragmentManager();
+        FragmentManager fg2 = getSupportFragmentManager();
         final FragmentTransaction ft1 = fg1.beginTransaction();
-        mHandler = new mHandler(lowerBoundDate, upperBoundDate,typeOfVac, ft1, firstDate,
-                lastDate, searchStartDate);
+        final FragmentTransaction ft2 = fg2.beginTransaction();
+
+        mHandler = new mHandler(vacationList, typeOfVac, ft1);
 
         ImageView imageView = findViewById(imageId);
         TransitionManager.beginDelayedTransition(rotateContainer, new Rotate().setDuration(200));
         if (expandableListViewContainer.getVisibility() == GONE) {
             NewRunnable nr = new NewRunnable();
-            Thread t = new Thread(nr) ;
-            t.start() ;
+            Thread t = new Thread(nr);
+            t.start();
             expandableListViewContainer.setVisibility(VISIBLE);
             switch (typeOfVac) {
                 case firstYearVac:
@@ -471,72 +485,46 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void toolTipRank(View view) {
-        try {
-            if (view == toolTipRank || view == nickNameTextView) {
-                view = toolTipRank;
-                Calendar calendar = Calendar.getInstance();
-                Calendar today = Calendar.getInstance();
-                calendar.setTime(formatter.parse(firstDate));
-                calendar.set(DATE, 1);
-                int currentPay = payDependsOnMonth(today.getTime());
-                String rank = null;
 
-                if (currentPay == payDependsOnRankBefore2020[0]) {
-                    calendar.add(MONTH, 3);
-                    rank = "이등병 (2020년 개정전 기준)";
-                } else if (currentPay == payDependsOnRankAfter2020[0]) {
-                    calendar.add(MONTH, 2);
-                    rank = "이등병 (2020년 개정후 기준)";
-                } else if (currentPay == payDependsOnRankBefore2020[1]) {
-                    calendar.add(MONTH, 10);
-                    rank = "일병 (2020년 개정전 기준)";
-                } else if (currentPay == payDependsOnRankAfter2020[1]) {
-                    calendar.add(MONTH, 8);
-                    rank = "일병 (2020년 개정후 기준)";
-                } else if (currentPay == payDependsOnRankBefore2020[2]) {
-                    calendar.add(MONTH, 17);
-                    rank = "상병 (2020년 개정전 기준)";
-                } else if (currentPay == payDependsOnRankAfter2020[2]) {
-                    calendar.add(MONTH, 14);
-                    rank = "상병 (2020년 개정후 기준)";
-                } else if (currentPay == payDependsOnRankBefore2020[3]) {
-                    calendar.setTime(formatter.parse(lastDate));
-                    rank = "병장 (2020년 개정전 기준)";
-                } else if (currentPay == payDependsOnRankAfter2020[3]) {
-                    calendar.setTime(formatter.parse(lastDate));
-                    rank = "병장 (2020년 개정후 기준)";
-                }
-                toolTipText = ("<b>계급</b> | " + rank + "<br><br>" + "<b>현재 기본급</b> | "
-                        + decimalFormat.format(currentPay) + "원<br><br>" + "<b>다음 진급일</b> | "
-                        + dateFormat_dot.format(calendar.getTime()) + "");
-            } else if (view == toolTipPay || view == salaryTextSwitcher) {
-                salaryTextSwitcher.setInAnimation(this, R.anim.stop);
-                salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
-                view = toolTipPay;
-                setThisMonthInfo(searchStartDate);
-            }
+    public void onClickToolTip(View view) {
 
-            Tooltip toolTip = new Tooltip.Builder(this)
-                    .styleId(R.style.ToolTipLayoutCustomStyle)
-                    .text(toolTipText)
-                    .anchor(view, 0, 0, false)
-                    .activateDelay(0)
-                    .showDuration(20000)
-                    .closePolicy(new ClosePolicy.Builder()
-                            .inside(true)
-                            .outside(true)
-                            .build())
-                    .arrow(true)
-                    .create();
-            if (view == toolTipRank) {
+        if (view == toolTipRank || view == gradeTextView) {
+            view = toolTipRank;
+            toolTipText = user.getRankToolTip();}
+         else if (view == toolTipPay || view == salaryTextSwitcher) {
+            salaryTextSwitcher.setInAnimation(this, R.anim.stop);
+            salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
+            view = toolTipPay;
+            toolTipText = user.getRankToolTip();
+        }
+
+        else {
+            return;
+        }
+
+        Tooltip toolTip = new Tooltip.Builder(this)
+                .styleId(R.style.ToolTipLayoutCustomStyle)
+                .text(toolTipText)
+                .anchor(view, 0, 0, false)
+                .activateDelay(0)
+                .showDuration(20000)
+                .closePolicy(new ClosePolicy.Builder()
+                        .inside(true)
+                        .outside(true)
+                        .build())
+                .arrow(true)
+                .create();
+        if (view == toolTipRank) {
+            if(nickNameTextView.getText().length() <= 2) {
                 toolTip.show(view, Tooltip.Gravity.RIGHT, false);
-            } else if (view == toolTipPay) {
-                toolTip.show(view, Tooltip.Gravity.LEFT, false);
+            } else {
+                toolTip.show(view, Tooltip.Gravity.BOTTOM, false);
             }
-
-        } catch (ParseException e) {
-
+        } else if (view == toolTipPay) {
+            //toolTip.show(view, Tooltip.Gravity.LEFT, false);
+            FragmentManager fg = getSupportFragmentManager();
+            SalaryInfoFragment dialog = new SalaryInfoFragment(mContext, searchDate);
+            dialog.show(fg, "dialog");
         }
     }
 
@@ -605,315 +593,66 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setUserProfile() {
         if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
-            Cursor c = dbHelper.query(userColumns, DBHelper.TABLE_USER,
-                    null, null, null, null, null);
-            c.moveToFirst();
-            firstDate = c.getString(2);
-            lastDate = c.getString(3);
-            mealCost = c.getInt(4);
-            trafficCost = c.getInt(5);
-            totalFirstVac = c.getInt(6);
-            totalSecondVac = c.getInt(7);
-            totalSickVac = c.getInt(8);
-            payDay = c.getInt(9);
-
-            nickNameTextView.setText(c.getString(1));
-            setTextViewWidth(nickNameTextView, 27, mContext);
-            servicePeriodTextView.setText(firstDate + " ~ " + lastDate);
-            countDdayFromToday();
-
-            firstVacTotal.setText(" / " + totalFirstVac);
-            secondVacTotal.setText(" / " + totalSecondVac);
-            sickVacTotal.setText(" / " + totalSickVac);
-
-            Calendar cal = Calendar.getInstance();
             try {
+                user = new User(mContext);
+                firstDate = user.getFirstDate();
+                lastDate = user.getLastDate();
+                totalFirstVac = user.getTotalFirstVac();
+                totalSecondVac = user.getTotalSecondVac();
+                totalSickVac = user.getTotalSickVac();
+
+                decimalPlaces = user.getDecimalPlaces();
+                isPercentChanging = user.isPercentChanging();
+
+                nickNameTextView.setText(user.getNickName());
+                gradeTextView.setText(user.getGrade());
+                servicePeriodTextView.setText(dateFormat_kor.format(user.getFirstDateTime())
+                        + "  ~  " + dateFormat_kor.format(user.getLastDateTime()) );
+                countDdayFromToday();
+
+                firstVacTotal.setText(" / " + totalFirstVac);
+                secondVacTotal.setText(" / " + totalSecondVac);
+                sickVacTotal.setText(" / " + totalSickVac);
+
+                Calendar cal = Calendar.getInstance();
                 cal.setTime(formatter.parse(firstDate));
+                cal.add(YEAR, 1);
+                Date pivotTime = cal.getTime();
+                cal.add(DATE, 1);
+                Date pivotPlusOneTime = cal.getTime();
+                pivotDate = formatter.format(pivotTime);
+                pivotPlusOneDate = formatter.format(pivotPlusOneTime);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
-            cal.add(YEAR, 1);
-            Date pivotTime = cal.getTime();
-            cal.add(DATE, 1);
-            Date pivotPlusOneTime = cal.getTime();
-            pivotDate = formatter.format(pivotTime);
-            pivotPlusOneDate = formatter.format(pivotPlusOneTime);
-            c.close();
         }
     }
 
-    public int payDependsOnMonth(Date searchDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(searchDate);
-        int firstYear = Integer.parseInt(firstDate.substring(0, 4));
-        int firstMonth = Integer.parseInt(firstDate.substring(5, 7));
-        int year = calendar.get(YEAR);
-        int month = calendar.get(MONTH) + 1;
-        int diff = ((year - firstYear) * 12) + (month - firstMonth);
+    public void setMonthlyInfo(Date today) {
+        salary = new Salary(mContext, today);
+        MonthlyVacationList monthlyVacationList = salary.getMonthlyVacationList();
 
-        if (year <= 2019) {
-            if (diff < 3) return payDependsOnRankBefore2020[0];
-            else if (diff >= 3 && diff < 10) return payDependsOnRankBefore2020[1];
-            else if (diff >= 10 && diff < 17) return payDependsOnRankBefore2020[2];
-            else return payDependsOnRankBefore2020[3];
-        } else {
-            if (diff < 2) return payDependsOnRankAfter2020[0];
-            else if (diff >= 2 && diff < 8) return payDependsOnRankAfter2020[1];
-            else if (diff >= 8 && diff < 14) return payDependsOnRankAfter2020[2];
-            else return payDependsOnRankAfter2020[3];
-        }
+        searchPeriodTextView.setText(dateFormat_dot.format(monthlyVacationList.getStartDateTime())
+                + " ~ " + dateFormat_dot.format(monthlyVacationList.getLastDateTime()));
+        thisMonthVac.setText(convertMinuteToProperUnit((int) salary.countNumberOfGeneralVacation()));
+        thisMonthSickVac.setText(convertMinuteToProperUnit((int) salary.countNumberOfSickVacation()));
+        thisMonthOuting.setText(convertMinuteToProperUnit((int) salary.countNumberOfOutingVacation()));
+        salaryTextSwitcher.setText(decimalFormat.format(salary.calculateTotalSalary()) + " KRW");
     }
 
     public void setRemainVac() {
-        Cursor c = dbHelper.query(vacationColumns, DBHelper.TABLE_VACATION,
-                null, null, null, null, null);
-        try {
-            double firstCount = (double) totalFirstVac * 480;
-            double secondCount = (double) totalSecondVac * 480;
-            double thirdCount = (double) totalSickVac * 480;
-            long firstTime = formatter.parse(firstDate).getTime();
-            long lastTime = formatter.parse(lastDate).getTime();
-            long pivotTime = formatter.parse(pivotDate).getTime();
-            while (c.moveToNext()) {
-                String startDate = c.getString(2);
-                String type = c.getString(3);
-                long startTime = formatter.parse(startDate).getTime();
+        double firstCount = (double) totalFirstVac * 480;
+        double secondCount = (double) totalSecondVac * 480;
+        double thirdCount = (double) totalSickVac * 480;
 
-                // 특별휴가(특별, 청원, 공가) count를 차감하지 않는다
-                if (Arrays.asList(listOfSickVac).contains(type)) {
-                    thirdCount -= c.getDouble(4);
-                } else if(Arrays.asList(listOfVacExceptSpecialVac).contains(type)){
-                    if(startTime - firstTime >= 0 && pivotTime - startTime >= 0){
-                        firstCount -= c.getDouble(4);
-                    }else if(startTime - pivotTime > 0 && lastTime - startTime >= 0){
-                        secondCount -= c.getDouble(4);
-                    }
-                }
-            }
-            c.close();
-            firstVacRemain.setText(convertMinuteToProperUnit((int) firstCount));
-            secondVacRemain.setText(convertMinuteToProperUnit((int) secondCount));
-            sickVacRemain.setText(convertMinuteToProperUnit((int) thirdCount));
-        } catch (ParseException e) {
-        }
+        firstCount -= new FirstYearVacationList(this, firstDate, pivotDate).getTotalCount();
+        secondCount -= new SecondYearVacationList(this, pivotPlusOneDate, lastDate).getTotalCount();
+        thirdCount -= new SickVacationList(this, firstDate, lastDate).getTotalCount();
+        firstVacRemain.setText(convertMinuteToProperUnit((int) firstCount));
+        secondVacRemain.setText(convertMinuteToProperUnit((int) secondCount));
+        sickVacRemain.setText(convertMinuteToProperUnit((int) thirdCount));
     }
 
-
-    public boolean setThisMonthInfo(String searchDate) {
-        int first, last, entireLength;
-        Calendar cal = Calendar.getInstance();
-        Calendar c = Calendar.getInstance();
-        // 월급 검색기간 first(시작일), last(종료일) 기간을 정한다
-        try {
-            cal.setTime(dateFormat.parse(searchDate));
-            int year = cal.get(YEAR);
-            int month = cal.get(MONTH) + 1;
-            int tmp = (year * 10000) + (month * 100) + (payDay);
-            c.set(year, month - 1, payDay);
-            Date compareDate = dateFormat.parse(tmp + "");
-            long diff = cal.getTimeInMillis() - compareDate.getTime();
-            // 이번달 월급날이 지난것
-            if (diff >= 0) {
-                c.add(MONTH, 1);
-                c.add(DATE, -1);
-                first = tmp;
-                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
-                entireLength = getDateLength(first, last);
-                first = checkFirstDayInclude(first);
-                last = checkLastDayInclude(last);
-            }
-            // 이번달 월급날이 지나지 않은것
-            else {
-                c.add(MONTH, -1);
-                first = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
-                c.add(MONTH, 1);
-                c.add(DATE, -1);
-                last = ((c.get(YEAR) * 10000) + ((c.get(MONTH) + 1) * 100)) + c.get(DATE);
-                entireLength = getDateLength(first, last);
-                first = checkFirstDayInclude(first);
-                last = checkLastDayInclude(last);
-            }
-
-            // 검색기간 시작일이 종료일보다 작은지 확인
-            if (last - first >= 0) {
-                searchPeriodTextView.setText(intToDateFormatString(first) + " ~ " + intToDateFormatString(last));
-                setThisMonthSpendVac(first, last, entireLength);
-                return true;
-            } else {
-                return false;
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    public void setThisMonthSpendVac(int first_tmp, int last_tmp, int entireLength) throws ParseException {
-
-        Calendar cal = Calendar.getInstance();
-        double sum_sickVac = 0;
-        double sum_Vac = 0;
-        double sum_outing = 0;
-        // 출근횟수 구하기
-        int numberOfEntire; // 전체 날짜수
-        int numberOfWork; // 출근횟수 넣기 (토, 일, 변하지않는공휴일, 변하는공휴일(추석, 설, 부처님) 빼고 카운트)
-        int numberOfMeal;
-        int numberOfTraffic;
-        double pay = 0;
-        boolean isPromoted = false;
-        boolean isAmended = false;
-        boolean isBootCampIncluded = false;
-        int payBeforePromotion;
-        int payAfterPromotion = 0;
-        int numberOfAfterPromotion = 0;
-
-        Date first_payDate = dateFormat.parse(first_tmp + "");
-        Date last_payDate = dateFormat.parse(last_tmp + "");
-        numberOfEntire = getDateLength(first_tmp, last_tmp);
-        numberOfWork = numberOfEntire;
-        Date searchDate = first_payDate;
-        cal.setTime(searchDate);
-
-        payBeforePromotion = payDependsOnMonth(searchDate);
-        double checkPromotion = (double) (payDependsOnMonth(searchDate) / entireLength);
-        int checkYear = cal.get(YEAR);
-        String[] holiday = listOfHoliday;
-
-        while (searchDate.compareTo(last_payDate) <= 0) {
-            cal.setTime(searchDate);
-            String onlyMonthAndDate = dateFormat.format(searchDate).substring(4);
-
-            // 공휴일, 주말 일한 일수에서 차감
-            if (cal.get(YEAR) == 2020) {
-                holiday = listOfHoliday2020;
-            } else if (cal.get(YEAR) == 2021) {
-                holiday = listOfHoliday2021;
-            } else if (cal.get(YEAR) == 2022) {
-                holiday = listOfHoliday2022;
-            }
-
-            double payPerDay = (double) (payDependsOnMonth(searchDate) / entireLength);
-            // 하루 기본급이 바뀌면 진급 또는 2020년 개정 반영된 것이므로 따로 count시작
-            int year = cal.get(YEAR);
-            if (checkPromotion != payPerDay) {
-                if (checkYear == 2019 && year == 2020) {
-                    isAmended = true;
-                } else {
-                    isPromoted = true;
-                }
-                payAfterPromotion = payDependsOnMonth(searchDate);
-                numberOfAfterPromotion++;
-            }
-
-            // 토, 일, 공휴일, 훈련소가 포함되어 있으면 근무일수에서 제외
-            if (cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
-                    Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate) ||
-                    checkBootCampInclude(cal.getTime())){
-                if(bootCampCalculationInclude && checkBootCampInclude(cal.getTime())){
-                    numberOfEntire--;
-                    pay -= payPerDay;  // 출근한날 아니므로 pay에서는 뺀다
-                    isBootCampIncluded = true;  // tooltip에 훈련소 월급 나타낸다
-                    numberOfWork--;
-                } else if(cal.get(Calendar.DAY_OF_WEEK) == SATURDAY || cal.get(Calendar.DAY_OF_WEEK) == SUNDAY ||
-                        Arrays.asList(listOfHoliday).contains(onlyMonthAndDate) || Arrays.asList(holiday).contains(onlyMonthAndDate)){
-                    numberOfWork--;
-                }
-            }
-
-            pay += payPerDay;
-            cal.add(DATE, 1);
-            searchDate = cal.getTime();
-        }
-
-        numberOfMeal = numberOfWork;
-        numberOfTraffic = numberOfWork;
-
-        Cursor c = dbHelper.query(vacationColumns, DBHelper.TABLE_VACATION, null,
-                null, null, null, null);
-        while (c.moveToNext()) {
-            String type = c.getString(3);
-            double count = c.getDouble(4);
-            Date startDate = formatter.parse(c.getString(2));
-            long lowerDiff = startDate.getTime() - first_payDate.getTime();
-            long upperDiff = last_payDate.getTime() - startDate.getTime();
-            if (lowerDiff >= 0 && upperDiff >= 0) {
-                if (type.equals("연가") || type.equals("청원휴가") || type.equals("특별휴가") || type.equals("공가")) {
-                    numberOfMeal--;
-                    numberOfTraffic--;
-                    sum_Vac += count;
-                } else if (type.equals("오전반가")) {
-                    numberOfMeal--;
-                    sum_Vac += count;
-                } else if (type.equals("오후반가")) {
-                    sum_Vac += count;
-                } else if (type.equals("외출")) {
-                    sum_outing += count;
-                } else if (type.equals("병가")) {
-                    numberOfMeal--;
-                    numberOfTraffic--;
-                    sum_sickVac += count;
-                } else if (type.equals("오전지참")) {
-                    numberOfMeal--;
-                    sum_sickVac += count;
-                } else if (type.equals("오후조퇴") || type.equals("병가외출")) {
-                    sum_sickVac += count;
-                }
-            }
-        }
-
-        thisMonthVac.setText(convertMinuteToProperUnit((int) sum_Vac));
-        thisMonthSickVac.setText(convertMinuteToProperUnit((int) sum_sickVac));
-        thisMonthOuting.setText(convertMinuteToProperUnit((int) sum_outing));
-        int sumOfPay = (int) Math.round((pay + (mealCost * numberOfMeal) + (trafficCost * numberOfTraffic)) / 100.0) * 100;
-        int sumOfMeal = mealCost * numberOfMeal;
-        int sumOfTraffic = trafficCost * numberOfTraffic;
-        int sumOfBeforePromotion = payBeforePromotion * (numberOfEntire - numberOfAfterPromotion) / entireLength;
-        int sumOfAfterPromotion = payAfterPromotion * numberOfAfterPromotion / entireLength;
-        int sumOfNoPromotion = payBeforePromotion * numberOfEntire / entireLength;
-
-
-        if (isAmended) {
-            toolTipText = ("<b>2019년 개정전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
-                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>2020년 개정후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
-                    + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)");
-        } else if (isPromoted) {
-            toolTipText = ("<b>진급 전</b><br>" + decimalFormat2.format(sumOfBeforePromotion) + " <b>|</b> "
-                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + (numberOfEntire - numberOfAfterPromotion)
-                    + "/" + entireLength + "일)" + "<br><br>" + "<b>진급 후</b><br>" + decimalFormat2.format(sumOfAfterPromotion)
-                    + " <b>|</b> " + decimalFormat2.format(payAfterPromotion) + " x " + "(" + (numberOfAfterPromotion)
-                    + "/" + entireLength + "일)");
-        } else {
-            toolTipText = ("<b>기본급여</b><br>" + decimalFormat2.format(sumOfNoPromotion) + " <b>|</b> "
-                    + decimalFormat2.format(payBeforePromotion) + " x " + "(" + numberOfEntire
-                    + "/" + entireLength + "일)");
-        }
-
-        if(bootCampCalculationInclude && isBootCampIncluded){
-            String bootCampTooltipText = setToolTipTextAboutBootCamp(bootCampStartDate, bootCampEndDate);
-            if(checkBootCampEndInclude(first_payDate, last_payDate, bootCampEndDate)){
-                toolTipText += ("<br><br>" + "<b>훈련소</b><br>"
-                        + decimalFormat2.format(calculateBootCampPay(bootCampStartDate, bootCampEndDate)))
-                        + "<br>= " + bootCampTooltipText;
-                sumOfPay += calculateBootCampPay(bootCampStartDate, bootCampEndDate);
-            } else{
-                toolTipText += ("<br><br>" + "<b>훈련소 (다음달 급여에 포함)</b><br>"
-                        + decimalFormat2.format(calculateBootCampPay(bootCampStartDate, bootCampEndDate)))
-                        + "<br>= " + bootCampTooltipText;
-            }
-        }
-
-        toolTipText += ("<br><br>" + "<b>식비</b><br>" + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
-                + decimalFormat2.format(mealCost) + " x " + numberOfMeal + "일" + "<br><br>"
-                + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
-                + decimalFormat2.format(trafficCost) + " x " + numberOfTraffic + "일" + "<br><br>"
-                + "공휴일 출근횟수에서 제외");
-
-        salaryTextSwitcher.setText(decimalFormat.format(sumOfPay) + " KRW");
-    }
 
     public long getCurrentSecond() {
         try {
@@ -971,116 +710,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         progressPercentage.setText(String.format("%." + decimalPlaces + "f", p) + "%");
     }
 
-    public int getDateLength(int first, int last) {
-        Date first_payDate = null;
-        Date last_payDate = null;
-        try {
-            first_payDate = dateFormat.parse(first + "");
-            last_payDate = dateFormat.parse(last + "");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return (int) (((last_payDate.getTime() - first_payDate.getTime()) / dayIntoMilliSecond) + 1);
-    }
-
-    public int getMonthLength(Date date){
-        Calendar c1 = Calendar.getInstance();
-        Calendar c2 = Calendar.getInstance();
-        c1.setTime(date);
-        c2.setTime(date);
-
-        c1.set(DATE, 1);
-        c2.add(MONTH, 1);
-        c2.set(DATE, 1);
-
-        return (int) ((c2.getTimeInMillis() - c1.getTimeInMillis()) / dayIntoMilliSecond);
-    }
-
-    public int checkFirstDayInclude(int first) {
-        Calendar calendar = Calendar.getInstance();
-        try {
-            calendar.setTime(formatter.parse(firstDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        int firstDateToInt = ((calendar.get(YEAR) * 10000) + ((calendar.get(MONTH) + 1) * 100)) + calendar.get(DATE);
-        if (first - firstDateToInt > 0) {
-            return first;
-        } else {
-            return firstDateToInt;
-        }
-    }
-
-    public int checkLastDayInclude(int last) {
-        Calendar calendar = Calendar.getInstance();
-        try {
-            calendar.setTime(formatter.parse(lastDate));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        int lastDateToInt = ((calendar.get(YEAR) * 10000) + ((calendar.get(MONTH) + 1) * 100)) + calendar.get(DATE);
-        if (last - lastDateToInt < 0) {
-            return last;
-        } else {
-            return lastDateToInt;
-        }
-    }
-
-    public boolean checkBootCampInclude(Date date){
-        return ((bootCampStartDate.compareTo(date) != 1) && (bootCampEndDate.compareTo(date) != -1));
-    }
-
-    public boolean checkBootCampEndInclude(Date firstSearchDate, Date lastSearchDate, Date date){
-        return ((firstSearchDate.compareTo(date) != 1) && (lastSearchDate.compareTo(date) != -1));
-    }
-
-    public int calculateBootCampPay(Date bootCampStartDate, Date bootCampEndDate){
-        int bootCampPay = 0;
-        Calendar cal = Calendar.getInstance();
-        Date searchDate = bootCampStartDate;
-        cal.setTime(searchDate);
-        while (searchDate.compareTo(bootCampEndDate) <= 0) {
-            cal.setTime(searchDate);
-            double payPerDay = (double) (payDependsOnMonth(searchDate) / getMonthLength(searchDate));
-
-            bootCampPay += payPerDay;
-            cal.add(DATE, 1);
-            searchDate = cal.getTime();
-        }
-        return bootCampPay;
-    }
-
-    public String setToolTipTextAboutBootCamp(Date bootCampStartDate, Date bootCampEndDate){
-        Calendar cal = Calendar.getInstance();
-        Date searchDate = bootCampStartDate;
-        cal.setTime(searchDate);
-        int startMonth = cal.get(MONTH);
-        int previousMonth = 0;
-        int currentMonth = 0;
-        boolean monthChange = false;
-        while (searchDate.compareTo(bootCampEndDate) <= 0) {
-            cal.setTime(searchDate);
-            if(startMonth == cal.get(MONTH)){
-                previousMonth++;
-            }else{
-                currentMonth++;
-                monthChange = true;
-            }
-            cal.add(DATE, 1);
-            searchDate = cal.getTime();
-        }
-        return monthChange ? decimalFormat2.format(payDependsOnMonth(bootCampStartDate)) + " x " + "(" + previousMonth
-                + "/" + getMonthLength(bootCampStartDate) + "일)" + "<br>+ " + decimalFormat2.format(payDependsOnMonth(bootCampEndDate))
-                + " x " + "(" + currentMonth + "/" + getMonthLength(bootCampEndDate) + "일)"
-                : decimalFormat2.format(payDependsOnMonth(bootCampStartDate)) + " x " + "(" + previousMonth
-                + "/" + getMonthLength(bootCampStartDate) + "일)";
-    }
-
-    public String intToDateFormatString(int date) {
-        String tmp = Integer.toString(date);
-        return tmp.substring(0, 4) + "." + tmp.substring(4, 6) + "." + tmp.substring(6);
-    }
-
     String convertMinuteToProperUnit(int minute) {
         if (minute < 0) return "남은휴가없음";
         else {
@@ -1108,54 +737,66 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /*
     public void refreshListView(String limitStartDate, String limitLastDate, vacType numOfYear) {
         FragmentManager fg = getSupportFragmentManager();
         FragmentTransaction ft = fg.beginTransaction();
-
-        VacListFragment fragment = new VacListFragment().newInstance(limitStartDate, limitLastDate,
+        VacationList vacationList = new FirstYearVacationList(this, firstDate, pivotDate);
+        VacListFragment fragment = new VacListFragment().newInstance(vacationList, limitStartDate, limitLastDate,
                 firstDate, lastDate, numOfYear, searchStartDate);
         ft.replace(R.id.expandableListViewContainer, fragment);
         ft.commit();
-    }
-
-    public void setSearchStartDate() {
-        try {
-            Date firstDay = formatter.parse(firstDate);
-            Date lastDay = formatter.parse(lastDate);
-            Date today = Calendar.getInstance().getTime();
-
-            if (today.getTime() < firstDay.getTime()) {
-                searchStartDate = dateFormat.format(firstDay);
-            } else if (today.getTime() > lastDay.getTime()) {
-                searchStartDate = dateFormat.format(lastDay);
-            } else {
-                searchStartDate = dateFormat.format(today);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-    }
-
+    }*/
     public void countDdayFromToday() {
-        Calendar today = Calendar.getInstance();
-        long todayTime = today.getTime().getTime();
-        long lastTime = 0;
-        long firstTime = 0;
         try {
+            Calendar today = Calendar.getInstance();
+            long todayTime = today.getTime().getTime();
+            long lastTime;
+            long firstTime;
+
             lastTime = formatter.parse(lastDate).getTime();
             firstTime = formatter.parse(firstDate).getTime();
+
+            long count = (lastTime - todayTime);
+            if (count > 0) {
+                dDayTextView.setText("D-" + ((count / dayIntoMilliSecond) + 1));
+            } else {
+                dDayTextView.setText("소집해제");
+            }
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        long count = (lastTime - todayTime);
-        if (count > 0) {
-            dDayTextView.setText("D-" + ((count / dayIntoMilliSecond) + 1));
-        } else {
-            dDayTextView.setText("소집해제");
-        }
-        entireService.setText((((lastTime - firstTime) / dayIntoMilliSecond)) + " 일");
-        currentService.setText((((todayTime - firstTime) / dayIntoMilliSecond)) + " 일");
-        remainService.setText(((count / dayIntoMilliSecond)) + 1 + " 일");
     }
+
+
+    /*
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.pause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.destroy();
+    }
+
+     */
 }

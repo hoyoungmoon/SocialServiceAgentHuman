@@ -1,13 +1,16 @@
 package com.project.realproject.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +24,9 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.kakao.adfit.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
@@ -36,8 +41,13 @@ import static android.view.View.VISIBLE;
 import static java.util.Calendar.DATE;
 import static com.project.realproject.helpers.Formatter.*;
 
-import com.project.realproject.Vacation;
+import com.kakao.adfit.ads.ba.BannerAdView;
+import com.project.realproject.FirstYearVacationList;
 import com.project.realproject.R;
+import com.project.realproject.SecondYearVacationList;
+import com.project.realproject.SickVacationList;
+import com.project.realproject.Vacation;
+import com.project.realproject.VacationList;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
 import com.project.realproject.helpers.DBHelper;
@@ -60,18 +70,14 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private LinearLayout vacationSetter;
-    private AdView mAdView;
-
+    private BannerAdView mAdView;
 
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
 
-    private String limitStartDate;
-    private String limitLastDate;
-    private vacType typeOfVac;
     private int vacationLength = 1;
     private int outingLength = 10;
-    private String searchStartDate;
+    private VacationList vacationList;
 
     private Vacation vacation = null;
     public DBHelper DBmanager = null;
@@ -79,43 +85,33 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     public VacSaveFragment() {
     }
 
-    public static VacSaveFragment newInstance(String param1, String param2, vacType param3, String param4) {
+    public static VacSaveFragment newInstance(VacationList vacationList) {
         VacSaveFragment dialog = new VacSaveFragment();
-        Bundle bundle = new Bundle(4);
-        bundle.putString("limitStartDate", param1);
-        bundle.putString("limitLastDate", param2);
-        bundle.putSerializable("typeOfVac", param3);
-        bundle.putString("searchStartDate", param4);
+        dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+        Bundle bundle = new Bundle(1);
+        bundle.putParcelable("vacationList", vacationList);
         dialog.setArguments(bundle);
         return dialog;
     }
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DBmanager = new DBHelper(getActivity());
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
+
         if (getArguments() != null) {
-            limitStartDate = getArguments().getString("limitStartDate");
-            limitLastDate = getArguments().getString("limitLastDate");
-            typeOfVac = (vacType)getArguments().getSerializable("typeOfVac");
-            searchStartDate = getArguments().getString("searchStartDate");
+            vacationList = getArguments().getParcelable("vacationList");
         }
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_vac_save, container, false);
 
-        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        mAdView = view.findViewById(R.id.banner_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
 
         startDateEditText = view.findViewById(R.id.et_startDate);
         startDateEditText.setInputType(InputType.TYPE_NULL);
@@ -138,7 +134,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
         outingSetter = view.findViewById(R.id.linear_outingSetter);
         vacationSetter = view.findViewById(R.id.linear_vacationSetter);
 
-        if (typeOfVac == vacType.sickVac) {
+        if (vacationList instanceof SickVacationList) {
             vacationTypeRelative.setVisibility(GONE);
             sickVacationTypeRadioGroup.setVisibility(VISIBLE);
         } else {
@@ -197,19 +193,16 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
                 }, newCalendar.get(Calendar.YEAR),
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
-        try {
-            long min = formatter.parse(limitStartDate).getTime();
-            long max = formatter.parse(limitLastDate).getTime();
-            if (max - min >= 0) {
-                datePickerDialog.getDatePicker().setMinDate(min);
-                datePickerDialog.getDatePicker().setMaxDate(max);
-            } else {
-                // 더 좋은 범위 설정 있는지 생각해보기 (지금으로써는 1년 이하로 복무기간을 설정했을때
-                // 2년차 연가를 쓸 필요는 없지만 그래도 max(소집해제일) 설정만 해두었음.
-                datePickerDialog.getDatePicker().setMaxDate(max);
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
+
+        long min = vacationList.getStartDateTime().getTime();
+        long max = vacationList.getLastDateTime().getTime();
+        if (max - min >= 0) {
+            datePickerDialog.getDatePicker().setMinDate(min);
+            datePickerDialog.getDatePicker().setMaxDate(max);
+        } else {
+            // 더 좋은 범위 설정 있는지 생각해보기 (지금으로써는 1년 이하로 복무기간을 설정했을때
+            // 2년차 연가를 쓸 필요는 없지만 그래도 max(소집해제일) 설정만 해두었음.
+            datePickerDialog.getDatePicker().setMaxDate(max);
         }
 
         return view;
@@ -242,8 +235,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
         } else if (view == saveButton) {
             int idx;
             vacation = new Vacation();
-
-            if (typeOfVac == vacType.sickVac) {
+            if (vacationList instanceof SickVacationList) {
                 int radioButtonId = sickVacationTypeRadioGroup.getCheckedRadioButtonId();
                 idx = sickVacationTypeRadioGroup.indexOfChild(sickVacationTypeRadioGroup.findViewById(radioButtonId));
                 switch (idx) {
@@ -325,16 +317,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
             vacation.setVacation(vacationEditText.getText().toString().trim());
             saveFirstVacation(vacation);
         }
-        ((MainActivity) getActivity()).setRemainVac();
-        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
 
-        if (typeOfVac == vacType.firstYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.firstYearVac);
-        } else if (typeOfVac == vacType.secondYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.secondYearVac);
-        } else {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate, vacType.sickVac);
-        }
         dismiss();
     }
 
@@ -385,5 +368,42 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onNothingSelected(AdapterView<?> adapterView) {
 
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        final Activity activity = getActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.pause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.destroy();
     }
 }

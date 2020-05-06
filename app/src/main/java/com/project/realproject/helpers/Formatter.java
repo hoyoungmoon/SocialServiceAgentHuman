@@ -6,8 +6,13 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
+
+import static java.util.Calendar.*;
 
 public class Formatter {
     public static final SimpleDateFormat formatter = new SimpleDateFormat(
@@ -16,14 +21,17 @@ public class Formatter {
             "yyyyMMdd", Locale.ENGLISH);
     public static final SimpleDateFormat dateFormat_dot = new SimpleDateFormat(
             "yyyy.MM.dd", Locale.ENGLISH);
+    public static final SimpleDateFormat dateFormat_kor = new SimpleDateFormat(
+            "yyyy년 MM월 dd일", Locale.ENGLISH);
     public static final DecimalFormat decimalFormat = new DecimalFormat("###,###,###");
     public static final DecimalFormat decimalFormat2 = new DecimalFormat("###,###,###원");
     public static final String[] listOfSickVac = new String[]{"병가", "오전지참", "오후조퇴", "병가외출"};
     public static final String[] listOfVacExceptSpecialVac = new String[]{"연가", "오전반가", "오후반가", "외출"};
     public static final String[] listOfVac = new String[]{"연가", "오전반가", "오후반가", "외출", "특별휴가", "청원휴가", "공가"};
 
+    public static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
     public static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
-            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
+            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac"};
     public static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
     public static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441700, 488200, 540900};
@@ -39,8 +47,7 @@ public class Formatter {
         return decimalFormat2.format(Math.round((money) / 100.0) * 100);
     }
 
-    public static final void setLayoutTransition(LinearLayout viewGroup) {
-
+    public static void setLayoutTransition(LinearLayout viewGroup) {
         LayoutTransition lt = new LayoutTransition();
         lt.setDuration(200);
         lt.enableTransitionType(LayoutTransition.APPEARING);
@@ -49,5 +56,39 @@ public class Formatter {
         lt.disableTransitionType(LayoutTransition.CHANGE_DISAPPEARING);
 
         viewGroup.setLayoutTransition(lt);
+    }
+
+    public static int getDateLength(Date firstDate, Date lastDate) {
+        return (int) (((lastDate.getTime() - firstDate.getTime()) / dayIntoMilliSecond) + 1);
+    }
+
+    public static int getDateLengthExceptSaturdayAndSunday(Date firstDate, Date lastDate){
+        int count = 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(firstDate);
+        while(calendar.getTime().compareTo(lastDate) <= 0){
+            if(calendar.get(Calendar.DAY_OF_WEEK) == SATURDAY || calendar.get(Calendar.DAY_OF_WEEK) == SUNDAY) {
+                count++;
+            }
+            calendar.add(DATE, 1);
+        }
+        return getDateLength(firstDate, lastDate) - count;
+    }
+
+    public static int getMonthLength(Date searchDate) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(searchDate);
+        calendar.set(DATE, 1);
+        Date firstDayOfTheMonth = calendar.getTime();
+        calendar.add(MONTH, 1);
+        Date endDayOfTheMonth = calendar.getTime();
+
+        return (int) ((endDayOfTheMonth.getTime() - firstDayOfTheMonth.getTime()) / dayIntoMilliSecond);
+    }
+
+    public static int getTagOnlyInt(String tag) {
+        if(tag.equals("")) return 0;
+        String reTag = tag.replaceAll("[^0-9]", "");
+        return Integer.parseInt(reTag);
     }
 }

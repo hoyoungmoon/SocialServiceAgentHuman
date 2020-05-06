@@ -17,12 +17,12 @@ import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.initialization.InitializationStatus;
-import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.kakao.adfit.ads.AdListener;
+import com.kakao.adfit.ads.ba.BannerAdView;
 import com.project.realproject.R;
 import com.project.realproject.User;
 import com.project.realproject.activities.MainActivity;
@@ -37,7 +37,8 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import static com.project.realproject.helpers.Formatter.*;
 
-public class SettingUserInfoFragment extends DialogFragment implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
+public class SettingUserInfoFragment extends DialogFragment implements View.OnClickListener,
+        NumberPickerFragment.NumberPickerSaveListener {
 
     private EditText nickNameEditText;
     private TextView firstDateEditText;
@@ -47,22 +48,21 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private TextView totalFirstVacEditText;
     private TextView totalSecondVacEditText;
     private TextView totalSickVacEditText;
-    private TextView payDayEditText;
     private Button saveButton;
     private Button cancelButton;
-    private AdView mAdView;
+    private BannerAdView mAdView;
 
     private int mealCost;
     private int trafficCost;
     private int totalFirstVac;
     private int totalSecondVac;
     private int totalSickVac;
-    private int payDay;
 
-    DatePickerDialog firstDatePickerDialog;
-    DatePickerDialog lastDatePickerDialog;
-    Calendar dateCalendar;
-    DBHelper DBmanager;
+
+    private DatePickerDialog firstDatePickerDialog;
+    private DatePickerDialog lastDatePickerDialog;
+    private Calendar dateCalendar;
+    private DBHelper DBmanager;
 
     public SettingUserInfoFragment() {
     }
@@ -79,15 +79,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting_user_info, container, false);
 
-        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        mAdView = view.findViewById(R.id.banner_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
         nickNameEditText = view.findViewById(R.id.et_nickName);
         nickNameEditText.setInputType(TYPE_CLASS_TEXT);
         firstDateEditText = view.findViewById(R.id.tv_firstDate);
@@ -97,7 +88,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
         totalFirstVacEditText = view.findViewById(R.id.tv_totalFirstVac);
         totalSecondVacEditText = view.findViewById(R.id.tv_totalSecondVac);
         totalSickVacEditText = view.findViewById(R.id.tv_totalSickVac);
-        payDayEditText = view.findViewById(R.id.tv_payDay);
         saveButton = view.findViewById(R.id.btn_save);
         cancelButton = view.findViewById(R.id.btn_cancel);
 
@@ -112,7 +102,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             totalFirstVac = c.getInt(6);
             totalSecondVac = c.getInt(7);
             totalSickVac = c.getInt(8);
-            payDay = c.getInt(9);
 
             nickNameEditText.setText(c.getString(1));
             firstDateEditText.setText(c.getString(2));
@@ -121,9 +110,8 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             mealCost = 6000;
             trafficCost = 2700;
             totalFirstVac = 15;
-            totalSecondVac = 15;
+            totalSecondVac = 13;
             totalSickVac = 30;
-            payDay = 1;
 
             cancelButton.setVisibility(View.GONE);
             Calendar calendar = Calendar.getInstance();
@@ -138,7 +126,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
         totalFirstVacEditText.setText(totalFirstVac + " 일");
         totalSecondVacEditText.setText(totalSecondVac + " 일");
         totalSickVacEditText.setText(totalSickVac + " 일");
-        payDayEditText.setText("매월 " + payDay + " 일");
 
         nickNameEditText.setOnClickListener(this);
         firstDateEditText.setOnClickListener(this);
@@ -150,44 +137,27 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
         totalFirstVacEditText.setOnClickListener(this);
         totalSecondVacEditText.setOnClickListener(this);
         totalSickVacEditText.setOnClickListener(this);
-        payDayEditText.setOnClickListener(this);
-
-        firstDatePickerDialog = setDatePickerDialog(firstDateEditText);
-        lastDatePickerDialog = setDatePickerDialog(lastDateEditText);
 
         return view;
     }
 
-    public DatePickerDialog setDatePickerDialog(TextView dateTextView) {
-        final TextView someDateTextView = dateTextView;
-        Calendar newCalendar = Calendar.getInstance();
-        DatePickerDialog returnDialog = new DatePickerDialog(getActivity(),
+    private DatePickerDialog setDatePickerDialog(final TextView dateTextView, String currentDate) {
+        final Calendar newCalendar = Calendar.getInstance();
+        try {
+            newCalendar.setTime(formatter.parse(currentDate));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker view, int year,
                                           int monthOfYear, int dayOfMonth) {
-                        dateCalendar = Calendar.getInstance();
-                        dateCalendar.set(year, monthOfYear, dayOfMonth);
-                        someDateTextView.setText(formatter.format(dateCalendar
-                                .getTime()));
+                        newCalendar.set(year, monthOfYear, dayOfMonth);
+                        dateTextView.setText(formatter.format(newCalendar.getTime()));
                     }
                 }, newCalendar.get(YEAR),
                 newCalendar.get(MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
-        return returnDialog;
-    }
-
-    public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
-        NumberPickerFragment dialog = new NumberPickerFragment(this);
-        Bundle bundle = new Bundle(5);
-        // 이미 세팅되어있던 값 넣기
-        // 원래 세팅 되어있는 값(string)을 int로 받아서 index화 시켜야할듯
-        bundle.putString("userInfo", userInfo);
-        bundle.putInt("setValue", setValue);
-        bundle.putInt("minValue", minValue);
-        bundle.putInt("maxValue", maxValue);
-        bundle.putInt("step", step);
-        dialog.setArguments(bundle);
-        dialog.show(fg, "dialog");
     }
 
     @Override
@@ -208,9 +178,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             case "totalSickVac":
                 totalSickVacEditText.setText(saveValue + " 일");
                 break;
-            case "payDay":
-                payDayEditText.setText("매월 " + saveValue + " 일");
-                break;
         }
     }
 
@@ -223,10 +190,10 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     nickNameEditText.setSelection(nickNameEditText.length());
                     break;
                 case R.id.tv_firstDate:
-                    firstDatePickerDialog.show();
+                    setDatePickerDialog(firstDateEditText, firstDateEditText.getText().toString()).show();
                     break;
                 case R.id.tv_lastDate:
-                    lastDatePickerDialog.show();
+                    setDatePickerDialog(lastDateEditText, lastDateEditText.getText().toString()).show();
                     break;
                 case R.id.btn_save:
 
@@ -234,34 +201,23 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                             formatter.parse(firstDateEditText.getText().toString()).getTime())) {
                         blankAlert("소집해제일을 다시 설정해주세요");
                     } else {
-                        User user = new User();
-                        user.setNickName(nickNameEditText.getText().toString());
-                        user.setFirstDate(formatter.parse(firstDateEditText.getText().toString()));
-                        user.setLastDate(formatter.parse(lastDateEditText.getText().toString()));
-                        user.setMealCost(getTagOnlyInt(mealCostEditText.getText().toString()));
-                        user.setTrafficCost(getTagOnlyInt(trafficCostEditText.getText().toString()));
-                        user.setTotalFirstVac(getTagOnlyInt(totalFirstVacEditText.getText().toString()));
-                        user.setTotalSecondVac(getTagOnlyInt(totalSecondVacEditText.getText().toString()));
-                        user.setTotalSickVac(getTagOnlyInt(totalSickVacEditText.getText().toString()));
-                        user.setPayDay(getTagOnlyInt(payDayEditText.getText().toString()));
+                        User user = new User(nickNameEditText.getText().toString(),
+                                firstDateEditText.getText().toString(),
+                                lastDateEditText.getText().toString(),
+                                getTagOnlyInt(mealCostEditText.getText().toString()),
+                                getTagOnlyInt(trafficCostEditText.getText().toString()),
+                                getTagOnlyInt(totalFirstVacEditText.getText().toString()),
+                                getTagOnlyInt(totalSecondVacEditText.getText().toString()),
+                                getTagOnlyInt(totalSickVacEditText.getText().toString()));
 
                         if (DBmanager.getDataCount(TABLE_USER) == 0) {
                             DBmanager.insertUser(user);
                         } else {
-                            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER, null, null, null, null, null);
+                            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
+                                    null, null, null, null, null);
                             c.moveToFirst();
                             int id = c.getInt(0);
-                            ContentValues values = new ContentValues();
-                            values.put("nickName", user.getNickName());
-                            values.put("firstDate", formatter.format(user.getFirstDate()));
-                            values.put("lastDate", formatter.format(user.getLastDate()));
-                            values.put("mealCost", user.getMealCost());
-                            values.put("trafficCost", user.getTrafficCost());
-                            values.put("totalFirstVac", user.getTotalFirstVac());
-                            values.put("totalSecondVac", user.getTotalSecondVac());
-                            values.put("totalSickVac", user.getTotalSickVac());
-                            values.put("payDay", user.getPayDay());
-                            DBmanager.updateUser(id, values);
+                            DBmanager.updateUser(id, user);
                         }
 
                         if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
@@ -271,22 +227,24 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     }
                     break;
                 case R.id.tv_mealCost:
-                    setNumberPickerDialog("mealCost", mealCost, 0, 10000, 500, fg);
+                    NumberPickerFragment.newInstance(this, "mealCost", mealCost,
+                            0, 10000, 500).show(fg, "dialog");
                     break;
                 case R.id.tv_trafficCost:
-                    setNumberPickerDialog("trafficCost", trafficCost, 0, 5000, 100, fg);
+                    NumberPickerFragment.newInstance(this, "trafficCost", trafficCost,
+                            0, 5000, 1000).show(fg, "dialog");
                     break;
                 case R.id.tv_totalFirstVac:
-                    setNumberPickerDialog("totalFirstVac", totalFirstVac, 0, 30, 1, fg);
+                    NumberPickerFragment.newInstance(this, "totalFirstVac", totalFirstVac,
+                            0, 30, 1).show(fg, "dialog");
                     break;
                 case R.id.tv_totalSecondVac:
-                    setNumberPickerDialog("totalSecondVac", totalSecondVac, 0, 30, 1, fg);
+                    NumberPickerFragment.newInstance(this, "totalSecondVac", totalSecondVac,
+                            0, 30, 1).show(fg, "dialog");
                     break;
                 case R.id.tv_totalSickVac:
-                    setNumberPickerDialog("totalSickVac", totalSickVac, 0, 50, 1, fg);
-                    break;
-                case R.id.tv_payDay:
-                    setNumberPickerDialog("payDay", payDay, 1, 26, 1, fg);
+                    NumberPickerFragment.newInstance(this, "totalSickVac", totalSickVac,
+                            0, 50, 1).show(fg, "dialog");
                     break;
                 case R.id.btn_cancel:
                     ((MainActivity) getActivity()).resetTimer();
@@ -297,6 +255,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
         } catch (ParseException e) {
         }
     }
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -319,5 +278,31 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                 .show();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.resume();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.pause();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.destroy();
+    }
 }
 

@@ -18,14 +18,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.25" />
+            app:layout_constraintGuide_percent="0.3" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideLine2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_end="20dp" />
+            app:layout_constraintGuide_end="60dp" />
 
         <View
             android:id="@+id/background"
@@ -40,7 +40,7 @@
             android:id="@+id/guideLine3"
             android:layout_width="match_parent"
             android:layout_height="0.1dp"
-            android:layout_marginBottom="40dp"
+            android:layout_marginBottom="65dp"
             app:layout_constraintBottom_toTopOf="@id/guideLine1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -80,53 +80,77 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/navigation_drawer_button">
 
-            <TextView
-                android:id="@+id/tv_nickName"
-                android:layout_width="130dp"
+            <LinearLayout
+                android:id="@+id/linearUserInfo"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="5dp"
-                android:maxWidth="130dp"
-                android:singleLine="true"
-                android:ellipsize="marquee"
-                android:scrollHorizontally="true"
-                android:clickable="true"
-                android:onClick="toolTipRank"
-                android:text="공익인간"
-                android:textColor="@color/selector_text"
-                android:textSize="27sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="7dp"
+                android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/btn_rank_info"
-                android:layout_width="20dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="10dp"
-                android:layout_toEndOf="@+id/tv_nickName"
-                android:clickable="true"
-                android:onClick="toolTipRank"
-                android:src="@drawable/ic_info_outline_white_24dp" />
+                <TextView
+                    android:id="@+id/tv_nickName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="marquee"
+                    android:maxWidth="140dp"
+                    android:singleLine="true"
+                    android:text="공익인간"
+                    android:textColor="@color/colorMainBright"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/tv_dDay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="10dp"
-                android:text="D-400"
-                android:textColor="@color/colorMainBright"
-                android:textSize="27sp"
-                android:textStyle="bold" />
+                <View
+                    android:id="@+id/seperate_view"
+                    android:layout_width="1dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_toEndOf="@+id/tv_nickName"
+                    android:background="@color/colorMainBright" />
+
+                <TextView
+                    android:id="@+id/tv_grade"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="7dp"
+                    android:clickable="true"
+                    android:onClick="onClickToolTip"
+                    android:textColor="@color/colorMainBright"
+                    android:text="이병"
+                    android:textSize="14sp" />
+
+                <ImageView
+                    android:id="@+id/btn_rank_info"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:clickable="true"
+                    android:onClick="onClickToolTip"
+                    android:src="@drawable/ic_info_outline_white_24dp" />
+
+                <TextView
+                    android:id="@+id/tv_dDay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="D-400"
+                    android:textColor="@color/colorMainBright"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_servicePeriod"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/tv_nickName"
+                android:layout_below="@+id/linearUserInfo"
                 android:layout_marginBottom="5dp"
-                android:text="2019-04-18 ~ 2021-02-09"
+                android:textSize="12sp"
+                android:text="2019년 04월 18일 ~ 2021년 02월 09일"
                 android:textColor="@color/colorMainBright" />
 
             <ProgressBar
@@ -154,134 +178,25 @@
             android:id="@+id/ConstraintLayout1"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
+            android:paddingStart="15dp"
+            android:paddingEnd="15dp"
             app:layout_constraintBottom_toTopOf="@id/guideLine2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/guideLine3">
 
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/userCardView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="5dp"
-                app:cardCornerRadius="5dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/progress_percentage"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="7dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="8dp"
-                            android:background="@drawable/button_bg_3"
-                            android:gravity="center"
-                            android:text="전체 복무일"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_entireService"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="580일"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:background="#D1CECE" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="8dp"
-                            android:background="@drawable/button_bg_3"
-                            android:gravity="center"
-                            android:text="현재 복무일"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_currentService"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="180일"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="30dp"
-                        android:layout_gravity="center"
-                        android:background="#D1CECE" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginBottom="8dp"
-                            android:background="@drawable/button_bg_3"
-                            android:gravity="center"
-                            android:text="남은 복무일"
-                            android:textSize="12sp" />
-
-                        <TextView
-                            android:id="@+id/tv_remainService"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text="400일"
-                            android:textSize="15sp" />
-                    </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
 
             <androidx.cardview.widget.CardView
                 android:id="@+id/spendVacCardView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:layout_marginTop="10dp"
-                app:cardBackgroundColor="@color/colorMain"
+                app:cardBackgroundColor="#37485F"
+                app:layout_constraintVertical_weight="1"
                 app:cardCornerRadius="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/vacCardViewEntire"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/userCardView">
+                app:layout_constraintBottom_toTopOf="@id/vacCardViewEntire">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -294,6 +209,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:layout_weight="1"
+                        android:gravity="center"
                         android:orientation="horizontal"
                         android:paddingStart="15dp"
                         android:paddingEnd="15dp">
@@ -301,8 +217,9 @@
                         <ImageView
                             android:id="@+id/iv_search_previous_period"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1.2"
+                            android:layout_height="25dp"
+                            android:layout_weight="1"
+                            android:layout_marginStart="10dp"
                             android:clickable="true"
                             android:src="@drawable/ic_navigation_before_selector" />
 
@@ -326,7 +243,7 @@
                                     android:layout_centerHorizontal="true"
                                     android:text="이번달 급여"
                                     android:textColor="@color/colorMainBright"
-                                    android:textSize="13sp" />
+                                    android:textSize="12sp" />
 
                                 <ImageView
                                     android:id="@+id/btn_pay_info"
@@ -334,7 +251,7 @@
                                     android:layout_height="17dp"
                                     android:layout_alignParentEnd="true"
                                     android:clickable="true"
-                                    android:onClick="toolTipRank"
+                                    android:onClick="onClickToolTip"
                                     android:src="@drawable/ic_info_outline_white_24dp" />
 
                                 <TextSwitcher
@@ -342,10 +259,9 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_below="@+id/tv_search_period"
-                                    android:layout_marginTop="5dp"
                                     android:layout_marginStart="70dp"
                                     android:layout_centerHorizontal="true"
-                                    android:onClick="toolTipRank">
+                                    android:onClick="onClickToolTip">
 
                                 </TextSwitcher>
                             </RelativeLayout>
@@ -354,8 +270,9 @@
                         <ImageView
                             android:id="@+id/iv_search_next_period"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_weight="1.2"
+                            android:layout_height="25dp"
+                            android:layout_weight="1"
+                            android:layout_marginEnd="10dp"
                             android:clickable="true"
                             android:src="@drawable/ic_navigation_next_selector" />
 
@@ -383,7 +300,7 @@
                                 android:gravity="center"
                                 android:text="외출"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="11sp" />
+                                android:textSize="10sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthOuting"
@@ -392,7 +309,7 @@
                                 android:layout_gravity="center"
                                 android:text="0일"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="15sp" />
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <View
@@ -416,7 +333,7 @@
                                 android:gravity="center"
                                 android:text="연 / 반가 / 기타"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="11sp" />
+                                android:textSize="10sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthVac"
@@ -425,7 +342,7 @@
                                 android:layout_gravity="center"
                                 android:text="0일"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="15sp" />
+                                android:textSize="12sp" />
                         </LinearLayout>
 
                         <View
@@ -449,7 +366,7 @@
                                 android:gravity="center"
                                 android:text="병가"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="11sp" />
+                                android:textSize="10sp" />
 
                             <TextView
                                 android:id="@+id/thisMonthSickVac"
@@ -458,7 +375,7 @@
                                 android:layout_gravity="center"
                                 android:text="0일"
                                 android:textColor="@color/colorMainBright"
-                                android:textSize="15sp" />
+                                android:textSize="12sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -471,8 +388,8 @@
                 android:layout_height="0dp"
                 android:layout_marginTop="10dp"
                 app:cardCornerRadius="5dp"
+                app:layout_constraintVertical_weight="3"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintHeight_max="380dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spendVacCardView">
 
@@ -492,8 +409,8 @@
                         <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="30dp"
+                            android:paddingEnd="30dp">
 
                             <RelativeLayout
                                 android:id="@+id/rotate_container1"
@@ -507,13 +424,13 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
                                     android:text="1년차 연가"
-                                    android:textSize="17sp"
-                                    android:textStyle="bold" />
+                                    android:textSize="13sp"
+                                    />
 
                                 <ImageView
                                     android:id="@+id/first_vacation_image"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
                                     android:layout_toEndOf="@+id/first_vacation_title"
                                     android:src="@drawable/ic_expand_more_black_24dp"
                                     android:tint="#3B4357" />
@@ -525,7 +442,8 @@
                                     android:layout_below="@+id/first_vacation_title"
                                     android:layout_marginTop="8dp"
                                     android:text="15일"
-                                    android:textSize="21sp" />
+                                    android:textStyle="bold"
+                                    android:textSize="18sp" />
 
                                 <TextView
                                     android:id="@+id/first_vacation_total"
@@ -533,26 +451,28 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignBottom="@+id/first_vacation_remain"
                                     android:layout_toRightOf="@+id/first_vacation_remain"
+                                    android:layout_marginStart="3dp"
                                     android:text="/15"
-                                    android:textSize="15sp" />
+                                    android:textSize="14sp" />
                             </RelativeLayout>
 
                             <Button
                                 android:id="@+id/spendButton_1"
-                                android:layout_width="70dp"
-                                android:layout_height="35dp"
+                                android:layout_width="45dp"
+                                android:layout_height="27dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
-                                android:text="휴가사용"
-                                android:textColor="@color/selector_text"
-                                android:textSize="14sp" />
+                                android:text="사용"
+                                android:textStyle="bold"
+                                android:textColor="@color/selector_text_spend_button"
+                                android:textSize="12sp" />
 
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
                                 android:layout_alignParentBottom="true"
-                                android:background="#D1CECE" />
+                                android:background="#E9E6E6" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -566,8 +486,8 @@
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="30dp"
+                            android:paddingEnd="30dp">
 
                             <RelativeLayout
                                 android:id="@+id/rotate_container2"
@@ -581,13 +501,12 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
                                     android:text="2년차 연가"
-                                    android:textSize="17sp"
-                                    android:textStyle="bold" />
+                                    android:textSize="13sp" />
 
                                 <ImageView
                                     android:id="@+id/second_vacation_image"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
                                     android:layout_toRightOf="@+id/second_vacation_title"
                                     android:src="@drawable/ic_expand_more_black_24dp"
                                     android:tint="#3B4357" />
@@ -599,7 +518,8 @@
                                     android:layout_below="@+id/second_vacation_title"
                                     android:layout_marginTop="8dp"
                                     android:text="15일"
-                                    android:textSize="21sp" />
+                                    android:textStyle="bold"
+                                    android:textSize="18sp" />
 
                                 <TextView
                                     android:id="@+id/second_vacation_total"
@@ -607,27 +527,29 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignBottom="@+id/second_vacation_remain"
                                     android:layout_toRightOf="@+id/second_vacation_remain"
+                                    android:layout_marginStart="3dp"
                                     android:text="/15"
-                                    android:textSize="15sp" />
+                                    android:textSize="14sp" />
 
                             </RelativeLayout>
 
                             <Button
                                 android:id="@+id/spendButton_2"
-                                android:layout_width="70dp"
-                                android:layout_height="35dp"
+                                android:layout_width="45dp"
+                                android:layout_height="27dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
-                                android:text="휴가사용"
-                                android:textColor="@color/selector_text"
-                                android:textSize="14sp" />
+                                android:text="사용"
+                                android:textStyle="bold"
+                                android:textColor="@color/selector_text_spend_button"
+                                android:textSize="12sp" />
 
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
                                 android:layout_alignParentBottom="true"
-                                android:background="#D1CECE" />
+                                android:background="#E9E6E6" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -641,8 +563,8 @@
                         <RelativeLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:paddingStart="20dp"
-                            android:paddingEnd="20dp">
+                            android:paddingStart="30dp"
+                            android:paddingEnd="30dp">
 
                             <RelativeLayout
                                 android:id="@+id/rotate_container3"
@@ -657,13 +579,12 @@
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="2dp"
                                     android:text="병가"
-                                    android:textSize="17sp"
-                                    android:textStyle="bold" />
+                                    android:textSize="13sp" />
 
                                 <ImageView
                                     android:id="@+id/sick_vacation_image"
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
+                                    android:layout_width="18dp"
+                                    android:layout_height="18dp"
                                     android:layout_toRightOf="@+id/sick_vacation_title"
                                     android:src="@drawable/ic_expand_more_black_24dp"
                                     android:tint="#3B4357" />
@@ -675,7 +596,8 @@
                                     android:layout_below="@+id/sick_vacation_title"
                                     android:layout_marginTop="8dp"
                                     android:text="15일"
-                                    android:textSize="21sp" />
+                                    android:textStyle="bold"
+                                    android:textSize="18sp" />
 
                                 <TextView
                                     android:id="@+id/sick_vacation_total"
@@ -683,26 +605,28 @@
                                     android:layout_height="wrap_content"
                                     android:layout_alignBottom="@+id/sick_vacation_remain"
                                     android:layout_toRightOf="@+id/sick_vacation_remain"
+                                    android:layout_marginStart="3dp"
                                     android:text="/15"
-                                    android:textSize="15sp" />
+                                    android:textSize="14sp" />
                             </RelativeLayout>
 
                             <Button
                                 android:id="@+id/spendButton_3"
-                                android:layout_width="70dp"
-                                android:layout_height="35dp"
+                                android:layout_width="45dp"
+                                android:layout_height="27dp"
                                 android:layout_alignParentEnd="true"
                                 android:layout_centerVertical="true"
                                 android:background="@drawable/spend_button_bg"
-                                android:text="휴가사용"
-                                android:textColor="@color/selector_text"
-                                android:textSize="14sp" />
+                                android:text="사용"
+                                android:textStyle="bold"
+                                android:textColor="@color/selector_text_spend_button"
+                                android:textSize="12sp" />
 
                             <View
                                 android:layout_width="match_parent"
                                 android:layout_height="1dp"
                                 android:layout_alignParentBottom="true"
-                                android:background="#D1CECE" />
+                                android:background="#E9E6E6" />
                         </RelativeLayout>
                     </LinearLayout>
 
@@ -716,6 +640,15 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.kakao.adfit.ads.ba.BannerAdView
+            android:id="@+id/banner_ad"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -726,8 +659,3 @@
         app:menu="@menu/main_navigation_menu" />
 
 </androidx.drawerlayout.widget.DrawerLayout>
-
-
-
-
-
