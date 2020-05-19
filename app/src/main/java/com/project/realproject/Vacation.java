@@ -47,6 +47,7 @@ public class Vacation implements Parcelable  {
         } else {
             return new SpecialVacation();
         }
+
     }
 
     public int getId(){

@@ -6,11 +6,17 @@ import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -47,11 +53,11 @@ import com.project.realproject.helpers.DBHelper;
 
 public class VacReviseFragment extends DialogFragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
-    private EditText startDateEditText;
+    private TextView startDateEditText;
     private EditText vacationEditText;
     private TextView outingLengthTextView;
     private Button saveButton;
-    private Button cancelButton;
+    private ImageButton cancelButton;
     private ImageButton plusOutingButton;
     private ImageButton minusOutingButton;
     private RadioGroup vacationTypeRadioGroup;
@@ -85,6 +91,27 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        Window window;
+        if (getDialog() == null) {
+            return;
+        } else {
+            window = getDialog().getWindow();
+        }
+        window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+        Display display = window.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        window.setLayout((int) (size.x * 0.85), WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setGravity(Gravity.CENTER);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DBmanager = new DBHelper(getActivity());
@@ -111,6 +138,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
 
         saveButton = view.findViewById(R.id.button_save);
         cancelButton = view.findViewById(R.id.button_cancel);
+        saveButton.setText("수 정");
         plusOutingButton = view.findViewById(R.id.button_outing_plus);
         minusOutingButton = view.findViewById(R.id.button_outing_minus);
 

@@ -11,7 +11,6 @@ import static com.project.realproject.helpers.Formatter.*;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 public abstract class VacationList implements Parcelable {
@@ -164,7 +163,7 @@ public abstract class VacationList implements Parcelable {
             case CLASS_TYPE_SICK_VACATION:
                 return new SickVacationList(source);
             case CLASS_TYPE_MONTHLY_VACATION:
-                return new MonthlyVacationList(source);
+                return new SpecificPeriodVacationList(source);
             default:
                 return null;
         }

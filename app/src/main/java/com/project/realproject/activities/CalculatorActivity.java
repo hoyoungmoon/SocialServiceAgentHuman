@@ -7,6 +7,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager.widget.ViewPager;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.tabs.TabLayout;
 import com.kakao.adfit.ads.ba.BannerAdView;
 import com.project.realproject.R;
@@ -20,13 +25,14 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private BannerAdView mAdView;
+    private AdView mAdView;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
+
 
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
@@ -35,29 +41,6 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
 
-        /*
-        mAdView = findViewById(R.id.banner_ad);  // 배너 광고 뷰
-        mAdView.setClientId("DAN-rl2aq9y534va");  // 할당 받은 광고 단위(clientId) 설정
-        mAdView.setAdListener(new AdListener() {  // 광고 수신 리스너 설정
-
-            @Override
-            public void onAdLoaded() {
-            }
-
-            @Override
-            public void onAdFailed(int errorCode) {
-            }
-
-            @Override
-            public void onAdClicked() {
-            }
-        });
-
-        mAdView.loadAd();
-
-         */
-
-        //getSupportActionBar().setDisplayShowTitleEnabled(false);
 
     }
 

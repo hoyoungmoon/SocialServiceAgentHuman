@@ -156,6 +156,41 @@ public class User {
         promotionDateTime = calendar.getTime();
     }
 
+    public Date getPromotionDate(String grade){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(firstDateTime);
+        calendar.set(DATE, 1);
+
+        int differenceBefore2020 = 0;
+        int differenceAfter2020 = 0;
+        int difference;
+        switch(grade){
+            case "second":
+                differenceBefore2020 = 3;
+                differenceAfter2020 = 2;
+                break;
+
+            case "third":
+                differenceBefore2020 = 10;
+                differenceAfter2020 = 8;
+                break;
+
+            case "fourth":
+                differenceBefore2020 = 17;
+                differenceAfter2020 = 14;
+                break;
+        }
+
+        while (true) {
+            difference = (calendar.get(YEAR) >= 2020) ? differenceAfter2020 : differenceBefore2020;
+            if (MonthsOfService(calendar.getTime()) < difference) {
+                calendar.add(MONTH, 1);
+            } else {
+                return calendar.getTime();
+            }
+        }
+    }
+
     private int BaseSalary(Date searchDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(searchDate);
@@ -295,6 +330,10 @@ public class User {
 
     private long getCurrentServicePeriod(){
         return (Calendar.getInstance().getTimeInMillis() - firstDateTime.getTime()) / dayIntoMilliSecond;
+    }
+
+    public long getRemainServicePeriod(){
+        return getEntireServicePeriod() - getCurrentServicePeriod();
     }
 
     public String getBootCampStartDate() {

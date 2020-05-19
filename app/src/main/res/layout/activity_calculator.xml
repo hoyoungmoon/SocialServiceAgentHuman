@@ -17,8 +17,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
-    <com.kakao.adfit.ads.ba.BannerAdView
-        android:id="@+id/banner_ad"
-        android:layout_width="match_parent"
-        android:layout_height="100dp"/>
 </LinearLayout>

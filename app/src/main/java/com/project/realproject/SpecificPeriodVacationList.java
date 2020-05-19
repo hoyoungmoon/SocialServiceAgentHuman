@@ -9,11 +9,11 @@ import java.util.Date;
 
 import static com.project.realproject.helpers.Formatter.listOfSickVac;
 
-public class MonthlyVacationList extends VacationList {
+public class SpecificPeriodVacationList extends VacationList {
 
     private ArrayList<Vacation> vacations;
 
-    public MonthlyVacationList(Context context, String startDate, String lastDate) {
+    public SpecificPeriodVacationList(Context context, String startDate, String lastDate) {
         super(context, startDate, lastDate);
         this.vacations = getVacations();
     }
@@ -23,7 +23,7 @@ public class MonthlyVacationList extends VacationList {
         return true;
     }
 
-    public MonthlyVacationList(Parcel in) {
+    public SpecificPeriodVacationList(Parcel in) {
         super(in);
     }
 

@@ -3,25 +3,27 @@ package com.project.realproject.fragments;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
-import androidx.lifecycle.OnLifecycleEvent;
 
-import com.kakao.adfit.ads.AdListener;
 import com.kakao.adfit.ads.ba.BannerAdView;
 import com.project.realproject.R;
 import com.project.realproject.User;
@@ -49,8 +51,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private TextView totalSecondVacEditText;
     private TextView totalSickVacEditText;
     private Button saveButton;
-    private Button cancelButton;
-    private BannerAdView mAdView;
+    private ImageButton cancelButton;
 
     private int mealCost;
     private int trafficCost;
@@ -58,10 +59,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private int totalSecondVac;
     private int totalSickVac;
 
-
-    private DatePickerDialog firstDatePickerDialog;
-    private DatePickerDialog lastDatePickerDialog;
-    private Calendar dateCalendar;
+    private Calendar calendar;
     private DBHelper DBmanager;
 
     public SettingUserInfoFragment() {
@@ -78,6 +76,12 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_setting_user_info, container, false);
+
+        calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         nickNameEditText = view.findViewById(R.id.et_nickName);
         nickNameEditText.setInputType(TYPE_CLASS_TEXT);
@@ -114,7 +118,6 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             totalSickVac = 30;
 
             cancelButton.setVisibility(View.GONE);
-            Calendar calendar = Calendar.getInstance();
             calendar.add(YEAR, 1);
             calendar.add(MONTH, 9);
             firstDateEditText.setText(formatter.format(Calendar.getInstance().getTime()));
@@ -142,7 +145,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     }
 
     private DatePickerDialog setDatePickerDialog(final TextView dateTextView, String currentDate) {
-        final Calendar newCalendar = Calendar.getInstance();
+        final Calendar newCalendar = (Calendar)calendar.clone();
         try {
             newCalendar.setTime(formatter.parse(currentDate));
         } catch (ParseException e) {
@@ -221,7 +224,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                         }
 
                         if (DBmanager.getDataCount(DBHelper.TABLE_USER) != 0) {
-                            ((MainActivity) getActivity()).load();
+                            ((MainActivity) getActivity()).initialLoad();
                         }
                         dismiss();
                     }
@@ -232,7 +235,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     break;
                 case R.id.tv_trafficCost:
                     NumberPickerFragment.newInstance(this, "trafficCost", trafficCost,
-                            0, 5000, 1000).show(fg, "dialog");
+                            0, 5000, 50).show(fg, "dialog");
                     break;
                 case R.id.tv_totalFirstVac:
                     NumberPickerFragment.newInstance(this, "totalFirstVac", totalFirstVac,
@@ -279,30 +282,24 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
 
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.resume();
-    }
+        Window window;
+        if (getDialog() == null) {
+            return;
+        } else {
+            window = getDialog().getWindow();
+        }
+        window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 
-    @Override
-    public void onPause() {
-        super.onPause();
 
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.pause();
-    }
+        Display display = window.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.destroy();
+        window.setLayout((int) (size.x * 0.90), WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setGravity(Gravity.CENTER);
     }
 }
 

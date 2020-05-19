@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
@@ -11,9 +13,13 @@ import androidx.fragment.app.Fragment;
 
 import android.text.InputType;
 import android.util.Log;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.DatePicker;
@@ -54,12 +60,12 @@ import com.project.realproject.helpers.DBHelper;
 
 public class VacSaveFragment extends DialogFragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
 
-    private EditText startDateEditText;
+    private TextView startDateEditText;
     private EditText vacationEditText;
     private TextView outingLengthTextView;
     private TextView vacationLengthTextView;
     private Button saveButton;
-    private Button cancelButton;
+    private ImageButton cancelButton;
     private ImageButton plusOutingButton;
     private ImageButton minusOutingButton;
     private ImageButton plusVacationButton;
@@ -70,7 +76,6 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
     private LinearLayout vacationSetter;
-    private BannerAdView mAdView;
 
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
@@ -94,6 +99,26 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
         return dialog;
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Window window;
+        if (getDialog() == null) {
+            return;
+        } else {
+            window = getDialog().getWindow();
+        }
+        window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+        Display display = window.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        window.setLayout((int) (size.x * 0.85), WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setGravity(Gravity.CENTER);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -284,7 +309,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
             }
 
             String getDate = startDateEditText.getText().toString().trim();
-            if (getDate.equals("")) {
+            if (getDate.equals("시작일")) {
                 blankAlert();
             } else if (idx == 4) {
                 specialVacationAlert(idx);
@@ -380,30 +405,4 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.resume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.pause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.destroy();
-    }
 }

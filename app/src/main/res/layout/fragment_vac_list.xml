@@ -15,6 +15,7 @@
         android:padding="3dp"
         android:text="사용 내역"
         android:textSize="11sp"
+        android:background="#f6f6f6"
         android:textAlignment="center"/>
     <View
         android:layout_width="match_parent"

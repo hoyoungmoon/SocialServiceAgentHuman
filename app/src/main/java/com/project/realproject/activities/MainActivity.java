@@ -8,10 +8,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.transition.TransitionManager;
-import androidx.viewpager.widget.ViewPager;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +19,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,21 +34,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.tabs.TabLayout;
 import com.project.realproject.FirstYearVacationList;
-import com.project.realproject.MonthlyVacationList;
+import com.project.realproject.SpecificPeriodVacationList;
 import com.project.realproject.Salary;
 import com.project.realproject.SecondYearVacationList;
 import com.project.realproject.SickVacationList;
 import com.project.realproject.User;
 import com.project.realproject.VacationList;
-import com.project.realproject.adapters.ContentViewPagerAdapter;
 import com.project.realproject.fragments.BlankFragment;
 import com.project.realproject.R;
-import com.project.realproject.fragments.SalaryCalculatorFragment;
 import com.project.realproject.fragments.SalaryInfoFragment;
-import com.project.realproject.fragments.SavingsCalculatorFragment;
 import com.project.realproject.fragments.SettingUserInfoFragment;
 import com.project.realproject.fragments.VacListFragment;
 import com.project.realproject.fragments.VacSaveFragment;
@@ -59,7 +59,6 @@ import static com.project.realproject.helpers.Formatter.*;
 
 import com.project.realproject.helpers.DBHelper;
 import com.transitionseverywhere.Rotate;
-//import com.transitionseverywhere.Rotate;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -117,6 +116,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public enum vacType {firstYearVac, secondYearVac, sickVac}
 
     public static Context mContext;
+    private AdView mAdView;
+    private Calendar calendar;
     private static final String FRAGMENT_VACATION_LIST = "FRAGMENT_VACATION_LIST";
     private String firstDate;
     private String lastDate;
@@ -149,27 +150,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        /*
-        mAdView = findViewById(R.id.banner_ad);  // 배너 광고 뷰
-        mAdView.setClientId("DAN-us3hscbyxzs6");  // 할당 받은 광고 단위(clientId) 설정
-        mAdView.setAdListener(new AdListener() {  // 광고 수신 리스너 설정
-
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
             @Override
-            public void onAdLoaded() {
-            }
-
-            @Override
-            public void onAdFailed(int errorCode) {
-            }
-
-            @Override
-            public void onAdClicked() {
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
             }
         });
-
-        mAdView.loadAd();
-
-         */
+        mAdView = findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         dbHelper = new DBHelper(this);
         mContext = this;
@@ -215,19 +203,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         sickVacTotal = findViewById(R.id.sick_vacation_total);
 
 
-        // 다음 업데이트 때 textSwitcher 안에 textView 하나 추가하는 방식으로 변경하는게 나을듯
         salaryTextSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
-            public View makeView() {
-                TextView tv = new TextView(MainActivity.this);
-                tv.setGravity(Gravity.CENTER_HORIZONTAL);
-                tv.setTextSize(20);
-                tv.setTextColor(getResources().getColor(R.color.colorMainBright));
-                return tv;
+            public View makeView()  {
+                LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
+                return inflater.inflate(R.layout.item_text_switcher, null);
             }
         });
+
         setLayoutTransition(slideContainer);
 
+        salaryTextSwitcher.setOnClickListener(this);
+        toolTipPay.setOnClickListener(this);
         vacCard1.setOnClickListener(this);
         vacCard2.setOnClickListener(this);
         vacCard3.setOnClickListener(this);
@@ -247,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        load();
+        initialLoad();
     }
 
     @Override
@@ -260,9 +247,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    public void load() {
+    public void initialLoad() {
+        calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
         if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
-            Calendar calendar = Calendar.getInstance();
             searchDate = calendar.getTime();
             setUserProfile();
             setRemainVac();
@@ -307,11 +298,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onClick(View view) {
 
-        Calendar calendar = Calendar.getInstance();
         FragmentManager fg = getSupportFragmentManager();
         VacSaveFragment dialog;
 
         switch (view.getId()) {
+            case R.id.btn_pay_info:
+                SalaryInfoFragment infoFragment1 = new SalaryInfoFragment(mContext, searchDate);
+                infoFragment1.show(fg, "dialog");
+                break;
+
+            case R.id.ts_salary:
+                SalaryInfoFragment infoFragment2 = new SalaryInfoFragment(mContext, searchDate);
+                infoFragment2.show(fg, "dialog");
+                break;
 
             case R.id.vacCardView_1:
                 salaryTextSwitcher.setInAnimation(this, R.anim.stop);
@@ -333,7 +332,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 setListView(new SickVacationList(this, firstDate, lastDate),
                         R.id.sick_vacation_image, rotateContainer3, vacType.sickVac);
                 break;
-
 
 
             case R.id.spendButton_1:
@@ -490,15 +488,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (view == toolTipRank || view == gradeTextView) {
             view = toolTipRank;
-            toolTipText = user.getRankToolTip();}
-         else if (view == toolTipPay || view == salaryTextSwitcher) {
-            salaryTextSwitcher.setInAnimation(this, R.anim.stop);
-            salaryTextSwitcher.setOutAnimation(this, R.anim.stop);
-            view = toolTipPay;
             toolTipText = user.getRankToolTip();
-        }
-
-        else {
+        } else {
             return;
         }
 
@@ -515,16 +506,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .arrow(true)
                 .create();
         if (view == toolTipRank) {
-            if(nickNameTextView.getText().length() <= 2) {
+            if (nickNameTextView.getText().length() <= 2) {
                 toolTip.show(view, Tooltip.Gravity.RIGHT, false);
             } else {
                 toolTip.show(view, Tooltip.Gravity.BOTTOM, false);
             }
-        } else if (view == toolTipPay) {
-            //toolTip.show(view, Tooltip.Gravity.LEFT, false);
-            FragmentManager fg = getSupportFragmentManager();
-            SalaryInfoFragment dialog = new SalaryInfoFragment(mContext, searchDate);
-            dialog.show(fg, "dialog");
         }
     }
 
@@ -593,44 +579,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setUserProfile() {
         if (dbHelper.getDataCount(DBHelper.TABLE_USER) != 0) {
-            try {
-                user = new User(mContext);
-                firstDate = user.getFirstDate();
-                lastDate = user.getLastDate();
-                totalFirstVac = user.getTotalFirstVac();
-                totalSecondVac = user.getTotalSecondVac();
-                totalSickVac = user.getTotalSickVac();
 
-                decimalPlaces = user.getDecimalPlaces();
-                isPercentChanging = user.isPercentChanging();
+            user = new User(mContext);
+            firstDate = user.getFirstDate();
+            lastDate = user.getLastDate();
+            totalFirstVac = user.getTotalFirstVac();
+            totalSecondVac = user.getTotalSecondVac();
+            totalSickVac = user.getTotalSickVac();
 
-                nickNameTextView.setText(user.getNickName());
-                gradeTextView.setText(user.getGrade());
-                servicePeriodTextView.setText(dateFormat_kor.format(user.getFirstDateTime())
-                        + "  ~  " + dateFormat_kor.format(user.getLastDateTime()) );
-                countDdayFromToday();
+            decimalPlaces = user.getDecimalPlaces();
+            isPercentChanging = user.isPercentChanging();
 
-                firstVacTotal.setText(" / " + totalFirstVac);
-                secondVacTotal.setText(" / " + totalSecondVac);
-                sickVacTotal.setText(" / " + totalSickVac);
+            nickNameTextView.setText(user.getNickName());
+            gradeTextView.setText(user.getGrade());
+            servicePeriodTextView.setText(dateFormat_kor.format(user.getFirstDateTime())
+                    + "  ~  " + dateFormat_kor.format(user.getLastDateTime()));
+            countDdayFromToday();
 
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(formatter.parse(firstDate));
-                cal.add(YEAR, 1);
-                Date pivotTime = cal.getTime();
-                cal.add(DATE, 1);
-                Date pivotPlusOneTime = cal.getTime();
-                pivotDate = formatter.format(pivotTime);
-                pivotPlusOneDate = formatter.format(pivotPlusOneTime);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
+            firstVacTotal.setText(" / " + totalFirstVac);
+            secondVacTotal.setText(" / " + totalSecondVac);
+            sickVacTotal.setText(" / " + totalSickVac);
+
+            Calendar cal = (Calendar) calendar.clone();
+            cal.setTime(user.getFirstDateTime());
+            cal.add(YEAR, 1);
+            pivotDate = formatter.format(cal.getTime());
+            cal.add(DATE, 1);
+            pivotPlusOneDate = formatter.format(cal.getTime());
+
         }
     }
 
     public void setMonthlyInfo(Date today) {
         salary = new Salary(mContext, today);
-        MonthlyVacationList monthlyVacationList = salary.getMonthlyVacationList();
+        SpecificPeriodVacationList monthlyVacationList = salary.getMonthlyVacationList();
 
         searchPeriodTextView.setText(dateFormat_dot.format(monthlyVacationList.getStartDateTime())
                 + " ~ " + dateFormat_dot.format(monthlyVacationList.getLastDateTime()));
@@ -737,36 +719,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    /*
-    public void refreshListView(String limitStartDate, String limitLastDate, vacType numOfYear) {
-        FragmentManager fg = getSupportFragmentManager();
-        FragmentTransaction ft = fg.beginTransaction();
-        VacationList vacationList = new FirstYearVacationList(this, firstDate, pivotDate);
-        VacListFragment fragment = new VacListFragment().newInstance(vacationList, limitStartDate, limitLastDate,
-                firstDate, lastDate, numOfYear, searchStartDate);
-        ft.replace(R.id.expandableListViewContainer, fragment);
-        ft.commit();
-    }*/
     public void countDdayFromToday() {
-        try {
-            Calendar today = Calendar.getInstance();
-            long todayTime = today.getTime().getTime();
-            long lastTime;
-            long firstTime;
 
-            lastTime = formatter.parse(lastDate).getTime();
-            firstTime = formatter.parse(firstDate).getTime();
+        long count = user.getRemainServicePeriod();
+        dDayTextView.setText(count > 0 ? "D-" + count : "소집해제");
 
-            long count = (lastTime - todayTime);
-            if (count > 0) {
-                dDayTextView.setText("D-" + ((count / dayIntoMilliSecond) + 1));
-            } else {
-                dDayTextView.setText("소집해제");
-            }
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
 

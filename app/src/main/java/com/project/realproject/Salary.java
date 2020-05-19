@@ -13,12 +13,15 @@ import static java.util.Calendar.*;
 public class Salary {
 
     private User user;
-    private MonthlyVacationList vacationList;
+    private SpecificPeriodVacationList vacationList;
     private ArrayList<Vacation> vacations;
     private Date startDate;
     private Date lastDate;
+    private Date maximunDate;
+    private Date minimunDate;
     private boolean isIncludedInPeriod = true;               // 소집일, 소집해제일을 포함하지 않고 넘어갔을 경우 false
     private boolean isBootCampIncludedInOneMonth = false;    // 훈련소가 두달에 걸치지 않고 한달에 다 포함될 경우 true
+    private boolean isEntireMonthIncludedInBootCamp = false; // 훈련소가 한달 전체를 포함하며 시작, 끝이 없을때
     private boolean isBootCampCalculationIncluded = false;   // 이번달에 훈련소비를 넣어야할때 true
     private int searchMonthLength;
 
@@ -37,14 +40,13 @@ public class Salary {
         this.vacations = null;
     }
 
-    private MonthlyVacationList initializeVacationList(Context context, Date today) {
+    private SpecificPeriodVacationList initializeVacationList(Context context, Date today) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.set(DATE, 1);
-        startDate = calendar.getTime();
-        calendar.add(MONTH, 1);
-        calendar.add(DATE, -1);
-        lastDate = calendar.getTime();
+        minimunDate = startDate = calendar.getTime();
+        calendar.set(DATE, calendar.getActualMaximum(DAY_OF_MONTH));
+        maximunDate = lastDate = calendar.getTime();
         searchMonthLength = getDateLength(startDate, lastDate);
 
         if (startDate.compareTo(user.getFirstDateTime()) < 0) {
@@ -63,89 +65,127 @@ public class Salary {
             }
         }
 
+        // 훈련소가 포함되어 있을 때 startDate, lastDate 수정
         if (user.isBootCampCalculationIncluded()) {
+            // 훈련소 시작일만 포함되어 있을 때
             if (isBootCampStartDateIncluded() && !isBootCampEndDateIncluded()) {
                 calendar.setTime(user.getBootCampStartDateTime());
                 calendar.add(DATE, -1);
-                lastDate = calendar.getTime();
-            }
-
-            if (!isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
+                // 훈련소 시작일이 월초일 때 ( == 한달 전체가 훈련소에 포함)
+                if (calendar.getTime().compareTo(startDate) >= 0) {
+                    lastDate = calendar.getTime();
+                } else {
+                    lastDate = maximunDate;
+                    isEntireMonthIncludedInBootCamp = true;
+                }
+            // 훈련소 종료일만 포함되어 있을 때
+            } else if (!isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
                 calendar.setTime(user.getBootCampEndDateTime());
                 calendar.add(DATE, 1);
-                startDate = calendar.getTime();
+                // 훈련소 종료일이 월말일 때 ( == 한달 전체가 훈련소에 포함)
+                if (calendar.getTime().compareTo(lastDate) <= 0) {
+                    startDate = calendar.getTime();
+                } else {
+                    startDate = minimunDate;
+                    isEntireMonthIncludedInBootCamp = true;
+                }
                 isBootCampCalculationIncluded = true;
-            }
-
-            if (isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
+            // 훈련소 시작일, 종료일 모두 포함되어 있을 때
+            } else if (isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
                 isBootCampIncludedInOneMonth = true;
                 isBootCampCalculationIncluded = true;
+            // 훈련소 시작일, 종료일 모두 포함되지 않으며 한달 전체가 훈련소에 포함될 때
+            } else if (isEntireMonthIncludedInBootCamp()){
+                isEntireMonthIncludedInBootCamp = true;
             }
         }
 
-        return new MonthlyVacationList(context, formatter.format(startDate), formatter.format(lastDate));
+        return new SpecificPeriodVacationList(context, formatter.format(startDate), formatter.format(lastDate));
     }
 
-
-    public int calculateTotalBaseSalary(){
-        return user.getBaseSalary(startDate) * getDateLength(startDate, lastDate) / searchMonthLength;
+    private int countDaysInService(){
+        if(isBootCampIncludedInOneMonth) return getDateLength(startDate, user.getBootCampStartDateTime())
+                + getDateLength(user.getBootCampEndDateTime(), lastDate) - 2;
+        if(isEntireMonthIncludedInBootCamp) return 0;
+        return getDateLength(startDate, lastDate);
     }
 
-    public String getBaseSalaryInfo(){
-        return decimalFormat2.format(user.getBaseSalary(startDate)) + " x " + "(" + getDateLength(startDate, lastDate)
-                + "/" + searchMonthLength + "일)";
-    }
+    private int countDaysToWork() {
+        int total = 0;
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        if(isEntireMonthIncludedInBootCamp) return total;
 
-    public String getMealSalaryInfo(){
-        return decimalFormat2.format(user.getMealCost()) + " x " + countNumberOfMeal() + "일";
-    }
-
-    public String getTrafficSalaryInfo(){
-        return decimalFormat2.format(user.getTrafficCost()) + " x " + countNumberOfTraffic() + "일";
-    }
-
-    /*
-    public String getSalaryToolTip() {
-        int searchLength = getDateLength(startDate, lastDate);
-        int sumOfMeal = user.getMealCost() * countNumberOfMeal();
-        int sumOfTraffic = user.getTrafficCost() * countNumberOfTraffic();
-        int sumOfBaseSalary = user.getBaseSalary(startDate) * searchLength / searchMonthLength;
-
-        String toolTipText = ("<b>기본급여</b><br>" + decimalFormat2.format(sumOfBaseSalary) + " <b>|</b> "
-                + decimalFormat2.format(user.getBaseSalary(startDate)) + " x " + "(" + searchLength
-                + "/" + searchMonthLength + "일)" + "<br><br>" + "<b>식비</b><br>"
-                + decimalFormat2.format(sumOfMeal) + " <b>|</b> "
-                + decimalFormat2.format(user.getMealCost()) + " x " + countNumberOfMeal() + "일" + "<br><br>"
-                + "<b>교통비</b><br>" + decimalFormat2.format(sumOfTraffic) + " <b>|</b> "
-                + decimalFormat2.format(user.getTrafficCost()) + " x " + countNumberOfTraffic() + "일");
-
-        if(isBootCampCalculationIncluded){
-            toolTipText += getBootCampToolTip();
+        if (!isBootCampIncludedInOneMonth) {
+            while (calendar.getTime().compareTo(lastDate) <= 0) {
+                if (!isIncludedInHoliday(calendar.getTime())) total++;
+                calendar.add(DATE, 1);
+            }
+        } else {
+            while (calendar.getTime().compareTo(user.getBootCampStartDateTime()) < 0) {
+                if (!isIncludedInHoliday(calendar.getTime())) total++;
+                calendar.add(DATE, 1);
+            }
+            calendar.setTime(user.getBootCampEndDateTime());
+            calendar.add(DATE, 1);
+            while (calendar.getTime().compareTo(lastDate) <= 0) {
+                if (!isIncludedInHoliday(calendar.getTime())) total++;
+                calendar.add(DATE, 1);
+            }
         }
-        toolTipText += "<br><br> 공휴일 출근횟수에서 제외";
-
-        return toolTipText;
-    }
-
-     */
-
-    private int getDateLengthExceptBootCamp() {
-        return searchMonthLength - getDateLength(user.getBootCampStartDateTime(), user.getBootCampEndDateTime());
+        return total;
     }
 
     public int calculateTotalSalary() {
-        int searchLength;
-        if (isBootCampIncludedInOneMonth) {
-            searchLength = getDateLengthExceptBootCamp();
-        } else {
-            searchLength = getDateLength(startDate, lastDate);
-        }
-
-        int sumOfBaseSalary = user.getBaseSalary(startDate) * searchLength / searchMonthLength;
-
-        return (int) Math.round((sumOfBaseSalary + calculateMealSalary() +
-                calculateTrafficSalary() + calculateBootCampSalary()) / 100.0) * 100;
+        return (int) Math.round((calculateTotalBaseSalary() + calculateMealSalary() +
+                calculateTrafficSalary() + calculateBootCampSalary()) / 10.0) * 10;
     }
+
+    public int calculateTotalBaseSalary() {
+        return user.getBaseSalary(startDate) * countDaysInService() / searchMonthLength;
+    }
+
+    public String getBaseSalaryInfo() {
+        return decimalFormat2.format(user.getBaseSalary(startDate)) + " x " + "(" +
+                countDaysInService() + "/" + searchMonthLength + "일)";
+    }
+
+    public int calculateMealSalary() {
+        return user.getMealCost() * countNumberOfMeal();
+    }
+
+    private int countNumberOfMeal() {
+        int total = countDaysToWork();
+        for (Vacation vacation : vacations) {
+            if (vacation.getVacationType().isMealIncluded()) {
+                total--;
+            }
+        }
+        return total;
+    }
+
+    public String getMealSalaryInfo() {
+        return decimalFormat2.format(user.getMealCost()) + " x " + countNumberOfMeal() + "일";
+    }
+
+    public int calculateTrafficSalary() {
+        return user.getTrafficCost() * countNumberOfTraffic();
+    }
+
+    private int countNumberOfTraffic() {
+        int total = countDaysToWork();
+        for (Vacation vacation : vacations) {
+            if (vacation.getVacationType().isTrafficIncluded()) {
+                total--;
+            }
+        }
+        return total;
+    }
+
+    public String getTrafficSalaryInfo() {
+        return decimalFormat2.format(user.getTrafficCost()) + " x " + countNumberOfTraffic() + "일";
+    }
+
 
     public int calculateBootCampSalary() {
 
@@ -155,7 +195,7 @@ public class Salary {
             Date searchDate = user.getBootCampStartDateTime();
             calendar.setTime(searchDate);
             while (searchDate.compareTo(user.getBootCampEndDateTime()) <= 0) {
-                total += ((double)user.getBaseSalary(searchDate) / (double)getMonthLength(searchDate));
+                total += ((double) user.getBaseSalary(searchDate) / (double) getMonthLength(searchDate));
                 calendar.add(DATE, 1);
                 searchDate = calendar.getTime();
             }
@@ -165,7 +205,7 @@ public class Salary {
         }
     }
 
-    public String getBootCampToolTip() {
+    public String getBootCampSalaryInfo() {
         String returnString = "";
         int previousBaseSalary;
         int previousWorkDay = 0;
@@ -213,37 +253,16 @@ public class Salary {
                 lastDate.compareTo(user.getBootCampEndDateTime()) >= 0;
     }
 
-    public boolean isBootCampIncludedThisMonth(){
+    private boolean isEntireMonthIncludedInBootCamp() {
+        return startDate.compareTo(user.getBootCampStartDateTime()) > 0 &&
+                lastDate.compareTo(user.getBootCampEndDateTime()) < 0;
+    }
+
+    public boolean isBootCampIncludedThisMonth() {
         return isBootCampCalculationIncluded;
     }
 
-    public int calculateMealSalary() {
-        return user.getMealCost() * countNumberOfMeal();
-    }
 
-    public int calculateTrafficSalary() {
-        return user.getTrafficCost() * countNumberOfTraffic();
-    }
-
-    public int countNumberOfMeal() {
-        int total = countWorkDayExceptVacation();
-        for (Vacation vacation : vacations) {
-            if (vacation.getVacationType().isMealIncluded()) {
-                total--;
-            }
-        }
-        return total;
-    }
-
-    public int countNumberOfTraffic() {
-        int total = countWorkDayExceptVacation();
-        for (Vacation vacation : vacations) {
-            if (vacation.getVacationType().isTrafficIncluded()) {
-                total--;
-            }
-        }
-        return total;
-    }
 
     public double countNumberOfSickVacation() {
         return vacationList.getSickVacCount();
@@ -257,19 +276,6 @@ public class Salary {
         return vacationList.getOutingVacCount();
     }
 
-    private int countWorkDayExceptVacation() {
-        int total = 0;
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-
-        while (calendar.getTime().compareTo(lastDate) <= 0) {
-            if (!isIncludedInHoliday(calendar.getTime())) {
-                total++;
-            }
-            calendar.add(DATE, 1);
-        }
-        return total;
-    }
 
     private boolean isIncludedInHoliday(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -292,7 +298,7 @@ public class Salary {
         return isIncludedInPeriod;
     }
 
-    public MonthlyVacationList getMonthlyVacationList() {
+    public SpecificPeriodVacationList getMonthlyVacationList() {
         return vacationList;
     }
 
@@ -303,5 +309,13 @@ public class Salary {
         calendar.add(DATE, 1);
         int nextMonth = calendar.get(MONTH) + 1;
         return previousMonth != nextMonth;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public Date getLastDate() {
+        return lastDate;
     }
 }

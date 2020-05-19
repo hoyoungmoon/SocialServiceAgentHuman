@@ -1,15 +1,11 @@
 package com.project.realproject.fragments;
 
-import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.project.realproject.R;
 import com.project.realproject.Salary;
 import com.project.realproject.User;
@@ -83,6 +84,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
     private User user;
     private Salary salary;
     private DBHelper DBmanager;
+    private AdView mAdView;
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
@@ -118,11 +120,20 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_salary_calculator, container, false);
 
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         DBmanager = new DBHelper(getContext());
 
         entireLayout = view.findViewById(R.id.calculatorLayout);
         calculateLinear = view.findViewById(R.id.cal_linear1);
-        resultLinear = view.findViewById(R.id.cal_linear2);
+        resultLinear = view.findViewById(R.id.cal_salary_result);
         startSearchDateTextView = view.findViewById(R.id.cal_first);
         endSearchDateTextView = view.findViewById(R.id.cal_last);
         payTextView = view.findViewById(R.id.cal_pay_text);
@@ -152,9 +163,9 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
         calculateButton.setOnClickListener(this);
 
         Calendar cal = Calendar.getInstance();
+        cal.set(DATE, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
         startSearchDateTextView.setText(formatter.format(cal.getTime()));
-        cal.add(MONTH, 1);
-        cal.add(DATE, -1);
+        cal.set(DATE, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
         endSearchDateTextView.setText(formatter.format(cal.getTime()));
 
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
@@ -230,20 +241,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
                 setDatePickerDialog(startSearchDateTextView).show();
                 break;
             case R.id.cal_last:
-                try {
-                    // 이것 좀 정리..
-                    Calendar cal = Calendar.getInstance();
-                    DatePickerDialog dialog = setDatePickerDialog(endSearchDateTextView);
-                    startDate = formatter.parse(startSearchDateTextView.getText().toString());
-                    cal.setTime(startDate);
-                    cal.add(MONTH, 1);
-                    cal.add(DATE, -1);
-                    //dialog.getDatePicker().setMinDate(startDate.getTime());
-                    //dialog.getDatePicker().setMaxDate(cal.getTimeInMillis());
-                    dialog.show();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                setDatePickerDialog(endSearchDateTextView).show();
                 break;
             case R.id.cal_meal:
                 NumberPickerFragment.newInstance(this, "mealCost", mealSetValue,
@@ -262,24 +260,6 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
                         0, 31, 1).show(fg, "dialog");
                 break;
             case R.id.cal_calculate:
-                /*
-                if (isLessThanOneMonth()) {
-                    if (resultOpen) {
-                        resultOpen = false;
-                        resultLinear.setVisibility(GONE);
-                        calculateLinear.setVisibility(VISIBLE);
-                        calculateButton.setText("계산하기");
-                    } else {
-                        resultOpen = true;
-                        resultLinear.setVisibility(VISIBLE);
-                        calculateLinear.setVisibility(GONE);
-                        calculateButton.setText("다시 계산하기");
-                        salaryCalculate();
-                    }
-                } else {
-                    blankAlert("1달 미만의 기간만 검색 가능합니다");
-                }
-                 */
                 if (resultOpen) {
                     resultOpen = false;
                     resultLinear.setVisibility(GONE);
@@ -446,17 +426,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
         return returnDialog;
     }
 
-    public void blankAlert(String alert) {
-        new AlertDialog.Builder(getContext())
-                .setMessage(alert)
-                .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState)
     {

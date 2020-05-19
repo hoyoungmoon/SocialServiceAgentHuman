@@ -6,6 +6,7 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/splash_linear"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -27,9 +28,21 @@
             android:layout_centerHorizontal="true"
             android:text="공익인간"
             android:textColor="@color/colorMainDark"
-            android:textSize="23sp"/>
+            android:textSize="21sp"/>
 
     </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginBottom="2dp"
+        android:textSize="10sp"
+        android:text="ver 2.0"
+        android:textColor="@color/colorMainDark"
+        android:layout_toEndOf="@+id/splash_linear"
+        android:layout_alignBottom="@+id/splash_linear"/>
+
     <TextView
         android:id="@+id/splash_text"
         android:layout_width="wrap_content"
@@ -39,5 +52,5 @@
         android:layout_marginBottom="20dp"
         android:text="해당 앱은 행정효력이 없습니다"
         android:textColor="@color/colorMainDark"
-        android:textSize="15sp"/>
+        android:textSize="12sp"/>
 </RelativeLayout>

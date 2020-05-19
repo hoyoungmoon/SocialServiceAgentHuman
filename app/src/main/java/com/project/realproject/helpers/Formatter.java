@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -44,7 +45,7 @@ public class Formatter {
     public static final String[] listOfHoliday2022 = new String[]{"0131", "0201", "0202", "0909"};
 
     public static final String toMoneyUnit(double money) {
-        return decimalFormat2.format(Math.round((money) / 100.0) * 100);
+        return decimalFormat2.format(Math.round((money) / 10.0) * 10);
     }
 
     public static void setLayoutTransition(LinearLayout viewGroup) {
@@ -59,7 +60,8 @@ public class Formatter {
     }
 
     public static int getDateLength(Date firstDate, Date lastDate) {
-        return (int) (((lastDate.getTime() - firstDate.getTime()) / dayIntoMilliSecond) + 1);
+        int returnValue = (int) (((lastDate.getTime() - firstDate.getTime()) / dayIntoMilliSecond) + 1);
+        return returnValue > 0 ? returnValue : 0;
     }
 
     public static int getDateLengthExceptSaturdayAndSunday(Date firstDate, Date lastDate){
@@ -78,13 +80,10 @@ public class Formatter {
     public static int getMonthLength(Date searchDate) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(searchDate);
-        calendar.set(DATE, 1);
-        Date firstDayOfTheMonth = calendar.getTime();
-        calendar.add(MONTH, 1);
-        Date endDayOfTheMonth = calendar.getTime();
 
-        return (int) ((endDayOfTheMonth.getTime() - firstDayOfTheMonth.getTime()) / dayIntoMilliSecond);
+        return calendar.getActualMaximum(DAY_OF_MONTH) - calendar.getActualMinimum(DAY_OF_MONTH) + 1;
     }
+
 
     public static int getTagOnlyInt(String tag) {
         if(tag.equals("")) return 0;

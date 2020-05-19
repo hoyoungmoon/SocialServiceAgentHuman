@@ -121,11 +121,6 @@ public class VacListViewAdapter extends BaseAdapter {
         return convertView;
     }
 
-    public int getTagOnlyInt(String tag){
-        String reTag = tag.replaceAll("[^0-9]","");
-        return Integer.parseInt(reTag);
-    }
-
     public String convertMinuteToDate(int minute){
         if(minute == 480){
             return "1일";

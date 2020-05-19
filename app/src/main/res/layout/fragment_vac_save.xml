@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
     android:orientation="vertical">
 
     <LinearLayout
@@ -10,24 +9,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:background="#ffffff"
         android:padding="15dp"
         tools:context=".fragments.VacSaveFragment">
 
-        <View
-            android:layout_width="300dp"
-            android:layout_height="1dp" />
 
-        <EditText
+        <TextView
             android:id="@+id/et_startDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="시작일"
-            android:textSize="15sp" />
+            android:paddingTop="10dp"
+            android:paddingStart="5dp"
+            android:text="시작일"
+            android:textColor="#919191"
+            android:textSize="14sp" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="#5C5C5C"/>
 
         <EditText
             android:id="@+id/et_vacation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:hint="간단한 사유를 입력하세요"
             android:textSize="15sp" />
 
@@ -37,6 +45,9 @@
             android:layout_marginStart="5dp"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="5dp"
+            android:textColor="#919191"
+            android:textStyle="bold"
+            android:textSize="13sp"
             android:text="선택" />
 
         <RelativeLayout
@@ -127,7 +138,7 @@
             android:id="@+id/linear_outingSetter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:orientation="vertical"
             android:visibility="gone">
 
@@ -135,7 +146,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="#919191"
+                android:textStyle="bold"
+                android:textSize="13sp"
                 android:text="외출 시간" />
 
             <LinearLayout
@@ -147,7 +161,7 @@
                     android:id="@+id/button_outing_minus"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:background="#F7F7F7"
+                    android:background="@drawable/button_cancel_bg_selector"
                     android:src="@drawable/ic_minus_black_24dp" />
 
                 <TextView
@@ -162,7 +176,7 @@
                     android:id="@+id/button_outing_plus"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:background="#F7F7F7"
+                    android:background="@drawable/button_cancel_bg_selector"
                     android:src="@drawable/ic_add_black_24dp" />
             </LinearLayout>
         </LinearLayout>
@@ -171,14 +185,17 @@
             android:id="@+id/linear_vacationSetter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="20dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="8dp"
+                android:textColor="#919191"
+                android:textStyle="bold"
+                android:textSize="13sp"
                 android:text="사용 일수" />
 
             <LinearLayout
@@ -190,7 +207,7 @@
                     android:id="@+id/button_vacation_minus"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:background="#F7F7F7"
+                    android:background="@drawable/button_cancel_bg_selector"
                     android:src="@drawable/ic_minus_black_24dp" />
 
                 <TextView
@@ -205,36 +222,28 @@
                     android:id="@+id/button_vacation_plus"
                     android:layout_width="30dp"
                     android:layout_height="30dp"
-                    android:background="#F7F7F7"
+                    android:background="@drawable/button_cancel_bg_selector"
                     android:src="@drawable/ic_add_black_24dp" />
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+
+        <Button
+            android:id="@+id/button_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="end"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/button_cancel"
-                android:layout_width="60dp"
-                android:layout_height="35dp"
-                android:layout_marginEnd="15dp"
-                android:background="#F7F7F7"
-                android:text="취소"
-                android:textSize="17sp"/>
-
-            <Button
-                android:id="@+id/button_save"
-                android:layout_width="60dp"
-                android:layout_height="35dp"
-                android:background="#F7F7F7"
-                android:text="저장"
-                android:textSize="17sp"/>
-        </LinearLayout>
-
+            android:layout_marginTop="30dp"
+            android:background="@color/colorMain"
+            android:textColor="@color/selector_text"
+            android:text="저 장" />
     </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/button_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_close_selector"
+        android:background="@drawable/button_cancel_bg_selector"
+        android:layout_marginTop="10dp"
+        android:layout_gravity="center"/>
 </LinearLayout>

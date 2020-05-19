@@ -7,15 +7,18 @@ import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.project.realproject.R;
-import com.project.realproject.Salary;
 import com.project.realproject.Savings;
 
 import static com.project.realproject.helpers.Formatter.*;
@@ -27,6 +30,7 @@ public class SavingsCalculatorFragment extends Fragment {
     private TextView totalSavingsTextView;
     private TextView principalSumTextView;
     private TextView totalInterestTextView;
+    private AdView mAdView;
 
 
 
@@ -50,6 +54,15 @@ public class SavingsCalculatorFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_savings_calculator, container, false);
+
+        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         savingPeriodEditText = view.findViewById(R.id.et_savingPeriod);
         savingAmountEditText = view.findViewById(R.id.et_savingAmount);
@@ -92,7 +105,7 @@ public class SavingsCalculatorFragment extends Fragment {
 
             Savings savings = new Savings(amount, period, interest);
             totalSavingsTextView.setText(decimalFormat.format(savings.calculateTotalSavings()));
-            principalSumTextView.setText(decimalFormat.format(savings.calculatePrincipalSum()));
+            principalSumTextView.setText(decimalFormat.format(savings.calculateTotalPrincipalSum()));
             totalInterestTextView.setText(decimalFormat.format(savings.calculateTotalInterest()));
 
         }
