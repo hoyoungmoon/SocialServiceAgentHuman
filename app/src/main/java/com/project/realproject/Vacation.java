@@ -12,18 +12,42 @@ public class Vacation implements Parcelable  {
     private String vacation;
     private Date startDate;
     private double count;
+    private VacationType vacationType;
 
     public Vacation(){
-        super();
+
+    }
+
+    public Vacation(int id, String vacation, Date startDate, String type, double count){
+        this.id = id;
+        this.type = type;
+        this.vacation = vacation;
+        this.startDate = startDate;
+        this.count = count;
+        this.vacationType = convertIntoVacationType(type);
     }
 
     private Vacation(Parcel in){
-        super();
         this.id = in.readInt();
         this.type = in.readString();
         this.vacation = in.readString();
         this.startDate = new Date(in.readLong());
         this.count = in.readDouble();
+    }
+
+    private VacationType convertIntoVacationType(String vacationType){
+        if(vacationType.equals("연가") || vacationType.equals("병가")){
+            return new AllDayVacation();
+        } else if (vacationType.equals("오전반가") || vacationType.equals("오전지참")) {
+            return new MorningVacation();
+        } else if (vacationType.equals("오후반가") || vacationType.equals("오후조퇴")) {
+            return new AfternoonVacation();
+        } else if (vacationType.equals("외출") || vacationType.equals("병가외출")) {
+            return new OutingVacation();
+        } else {
+            return new SpecialVacation();
+        }
+
     }
 
     public int getId(){
@@ -64,6 +88,14 @@ public class Vacation implements Parcelable  {
 
     public void setStartDate(Date startDate){
         this.startDate = startDate;
+    }
+
+    public VacationType getVacationType() {
+        return vacationType;
+    }
+
+    public void setVacationType(VacationType vacationType) {
+        this.vacationType = vacationType;
     }
 
 
@@ -109,7 +141,7 @@ public class Vacation implements Parcelable  {
         parcel.writeDouble(getCount());
     }
 
-    public static final Parcelable.Creator<Vacation> CREATOR = new Parcelable.Creator<Vacation>() {
+    public static final Creator<Vacation> CREATOR = new Creator<Vacation>() {
         public Vacation createFromParcel(Parcel in) {
             return new Vacation(in);
         }
@@ -118,5 +150,4 @@ public class Vacation implements Parcelable  {
             return new Vacation[size];
         }
     };
-
 }

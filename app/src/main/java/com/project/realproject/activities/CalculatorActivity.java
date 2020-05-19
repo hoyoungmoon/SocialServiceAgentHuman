@@ -1,391 +1,106 @@
 package com.project.realproject.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentManager;
-
-import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.project.realproject.fragments.NumberPickerFragment;
-import com.project.realproject.PayDependsOnMonth;
+import com.google.android.material.tabs.TabLayout;
+import com.kakao.adfit.ads.ba.BannerAdView;
 import com.project.realproject.R;
-import com.project.realproject.helpers.DBHelper;
-import static com.project.realproject.helpers.Formatter.*;
+import com.project.realproject.adapters.ContentViewPagerAdapter;
+import com.project.realproject.fragments.SalaryCalculatorFragment;
+import com.project.realproject.fragments.SavingsCalculatorFragment;
 
-import java.text.ParseException;
-import java.util.Calendar;
-import java.util.Date;
+import static java.util.Calendar.getInstance;
 
-import static android.text.InputType.TYPE_CLASS_NUMBER;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static com.project.realproject.helpers.DBHelper.TABLE_USER;
-import static java.util.Calendar.*;
+public class CalculatorActivity extends AppCompatActivity implements View.OnClickListener {
 
-public class CalculatorActivity extends AppCompatActivity implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener {
-
-    private static String[] columns = new String[]{"id", "nickName", "firstDate", "lastDate",
-            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
-    private Date startDate;
-    private Date endDate;
-    private int monthlyPay;
-    private int mealCost;
-    private int trafficCost;
-    private int mealSetValue;
-    private int trafficSetValue;
-    private int notWorkNum;
-    private int morningNum;
-    private boolean isOriginalPay = true;
-    private boolean resultOpen = false;
-
-    private LinearLayout entireLayout;
-    private LinearLayout calculateLinear;
-    private LinearLayout resultLinear;
-    private TextView startSearchDateTextView;
-    private TextView endSearchDateTextView;
-    private TextView payTextView;
-    private EditText payEditText;
-    private TextView mealCostTextView;
-    private TextView trafficCostTextView;
-    private TextView notWorkTextView;
-    private TextView morningTextView;
-    private Button calculateButton;
-    private Calendar dateCalendar;
-    private RadioGroup payTypeRadioGroup;
-
-    private TextView resultWorkTextView;
-    private TextView resultPayTextView;
-    private TextView resultMealTextView;
-    private TextView resultTrafficTextView;
-    private TextView resultTotalTextView;
-
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
     private AdView mAdView;
 
-    DBHelper DBmanager;
-    PayDependsOnMonth pay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_calculator);
-        MobileAds.initialize(this, new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        mAdView = findViewById(R.id.banner_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
-
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        DBmanager = new DBHelper(this);
 
 
-        entireLayout = findViewById(R.id.calculatorLayout);
-        calculateLinear = findViewById(R.id.cal_linear1);
-        resultLinear = findViewById(R.id.cal_linear2);
-        startSearchDateTextView = findViewById(R.id.cal_first);
-        endSearchDateTextView = findViewById(R.id.cal_last);
-        payTextView = findViewById(R.id.cal_pay_text);
-        payEditText = findViewById(R.id.cal_pay_edit);
-        payEditText.setInputType(TYPE_CLASS_NUMBER);
-        mealCostTextView = findViewById(R.id.cal_meal);
-        trafficCostTextView = findViewById(R.id.cal_traffic);
-        notWorkTextView = findViewById(R.id.cal_notWork);
-        morningTextView = findViewById(R.id.cal_morning);
-        calculateButton = findViewById(R.id.cal_calculate);
-        payTypeRadioGroup = findViewById(R.id.cal_pay_type);
+        tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.viewPager);
 
-        resultWorkTextView = findViewById(R.id.cal_result_work);
-        resultPayTextView = findViewById(R.id.cal_result_pay);
-        resultMealTextView = findViewById(R.id.cal_result_meal);
-        resultTrafficTextView = findViewById(R.id.cal_result_traffic);
-        resultTotalTextView = findViewById(R.id.cal_result_total);
-
-        setLayoutTransition(entireLayout);
-        startSearchDateTextView.setOnClickListener(this);
-        endSearchDateTextView.setOnClickListener(this);
-        payTextView.setOnClickListener(this);
-        mealCostTextView.setOnClickListener(this);
-        trafficCostTextView.setOnClickListener(this);
-        notWorkTextView.setOnClickListener(this);
-        morningTextView.setOnClickListener(this);
-        calculateButton.setOnClickListener(this);
+        setupViewPager(viewPager);
+        tabLayout.setupWithViewPager(viewPager);
+        setupTabIcons();
 
 
-        if (DBmanager.getDataCount(TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(columns, DBHelper.TABLE_USER, null, null, null, null, null);
-            c.moveToFirst();
-            mealSetValue = c.getInt(4);
-            trafficSetValue = c.getInt(5);
-            Calendar cal = Calendar.getInstance();
-            pay = PayDependsOnMonth.getInstance(c.getString(2));
-            startSearchDateTextView.setText(formatter.format(cal.getTime()));
-            payTextView.setText(decimalFormat.format(pay.payDependsOnMonth(cal.getTime())));
-            cal.add(MONTH, 1);
-            cal.add(DATE, -1);
-            endSearchDateTextView.setText(formatter.format(cal.getTime()));
-            mealCostTextView.setText(mealSetValue + " 원");
-            trafficCostTextView.setText(trafficSetValue + " 원");
+    }
 
-        } else {
-            mealCostTextView.setText("6000 원");
-            trafficCostTextView.setText("2700 원");
-        }
-        notWorkTextView.setText("0 일");
-        morningTextView.setText("0 일");
+    private void setupTabIcons() {
 
-        payTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup radioGroup, int i) {
-                if (i == R.id.cal_pay_type_exist) {
-                    isOriginalPay = true;
-                    payEditText.setVisibility(GONE);
-                    payTextView.setVisibility(VISIBLE);
-                    try {
-                        payTextView.setText(decimalFormat.format(pay.payDependsOnMonth(
-                                formatter.parse(startSearchDateTextView.getText().toString()))));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
-                    }
+        View viewFirst = getLayoutInflater().inflate(R.layout.custom_tab, null);
+        TextView txtFirst = viewFirst.findViewById(R.id.txt_tab);
+        txtFirst.setText("월급계산기");
+        tabLayout.getTabAt(0).setCustomView(viewFirst);
 
-                } else if (i == R.id.cal_pay_type_input) {
-                    isOriginalPay = false;
-                    payEditText.setVisibility(VISIBLE);
-                    payTextView.setVisibility(GONE);
-                }
-            }
-        });
+        View viewSecond = getLayoutInflater().inflate(R.layout.custom_tab, null);
+        TextView txtSecond = viewSecond.findViewById(R.id.txt_tab);
+        txtSecond.setText("적금계산기");
+        tabLayout.getTabAt(1).setCustomView(viewSecond);
+
     }
 
 
-    public DatePickerDialog setDatePickerDialog(TextView dateTextView) {
-        final TextView someDateTextView = dateTextView;
-        Calendar newCalendar = Calendar.getInstance();
-        DatePickerDialog returnDialog = new DatePickerDialog(this,
-                new DatePickerDialog.OnDateSetListener() {
-                    public void onDateSet(DatePicker view, int year,
-                                          int monthOfYear, int dayOfMonth) {
-                        dateCalendar = Calendar.getInstance();
-                        dateCalendar.set(year, monthOfYear, dayOfMonth);
-                        someDateTextView.setText(formatter.format(dateCalendar
-                                .getTime()));
-                        if (payTextView.getVisibility() == VISIBLE) {
-                            payTextView.setText(decimalFormat.format(pay.payDependsOnMonth(dateCalendar.getTime())));
-                        }
-                    }
-                }, newCalendar.get(YEAR),
-                newCalendar.get(MONTH),
-                newCalendar.get(Calendar.DAY_OF_MONTH));
-        return returnDialog;
+    private void setupViewPager(ViewPager viewPager) {
+        ContentViewPagerAdapter adapter = new ContentViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new SalaryCalculatorFragment(), "First");
+        adapter.addFragment(new SavingsCalculatorFragment(), "Second");
+
+        viewPager.setAdapter(adapter);
     }
 
-    public void setNumberPickerDialog(String userInfo, int setValue, int minValue, int maxValue, int step, FragmentManager fg) {
-        NumberPickerFragment dialog = new NumberPickerFragment(this);
-        Bundle bundle = new Bundle(5);
-        // 이미 세팅되어있던 값 넣기
-        bundle.putString("userInfo", userInfo);
-        bundle.putInt("setValue", setValue);
-        bundle.putInt("minValue", minValue);
-        bundle.putInt("maxValue", maxValue);
-        bundle.putInt("step", step);
-        dialog.setArguments(bundle);
-        dialog.show(fg, "dialog");
-    }
-
-    @Override
-    public void onSaveBtnClick(String userInfo, String saveValue) {
-        switch (userInfo) {
-            case "mealCost":
-                mealCostTextView.setText(saveValue + " 원");
-                break;
-            case "trafficCost":
-                trafficCostTextView.setText(saveValue + " 원");
-                break;
-            case "workNum":
-                notWorkTextView.setText(saveValue + " 일");
-                break;
-            case "morningNum":
-                morningTextView.setText(saveValue + "일");
-                break;
-        }
-    }
 
     @Override
     public void onClick(View view) {
-        FragmentManager fg = getSupportFragmentManager();
-        switch (view.getId()) {
-            case R.id.cal_first:
-                setDatePickerDialog(startSearchDateTextView).show();
-                break;
-            case R.id.cal_last:
-                try {
-                    Calendar cal = Calendar.getInstance();
-                    DatePickerDialog dialog = setDatePickerDialog(endSearchDateTextView);
-                    startDate = formatter.parse(startSearchDateTextView.getText().toString());
-                    cal.setTime(startDate);
-                    cal.add(MONTH, 1);
-                    cal.add(DATE, -1);
-                    dialog.getDatePicker().setMinDate(startDate.getTime());
-                    dialog.getDatePicker().setMaxDate(cal.getTimeInMillis());
-                    dialog.show();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-                break;
-            case R.id.cal_meal:
-                setNumberPickerDialog("mealCost", mealSetValue, 0, 10000, 500, fg);
-                break;
-            case R.id.cal_traffic:
-                setNumberPickerDialog("trafficCost", trafficSetValue, 0, 5000, 100, fg);
-                break;
-            case R.id.cal_notWork:
-                setNumberPickerDialog("workNum", 0,0, 31, 1, fg);
-                break;
-            case R.id.cal_morning:
-                setNumberPickerDialog("morningNum", 0,0, 31, 1, fg);
-                break;
-            case R.id.cal_calculate:
-                if (isLessThanOneMonth()) {
 
-                    if (resultOpen) {
-                        resultOpen = false;
-                        resultLinear.setVisibility(GONE);
-                        calculateLinear.setVisibility(VISIBLE);
-                        calculateButton.setText("계산하기");
-                    } else {
-                        resultOpen = true;
-                        resultLinear.setVisibility(VISIBLE);
-                        calculateLinear.setVisibility(GONE);
-                        calculateButton.setText("다시 계산하기");
-                        calculate();
-                    }
-                } else {
-                    blankAlert("1달 미만의 기간만 검색 가능합니다");
-                }
-                break;
-        }
     }
 
-    public void calculate() {
-        Calendar cal = Calendar.getInstance();
-        try {
-            startDate = formatter.parse(startSearchDateTextView.getText().toString());
-            endDate = formatter.parse(endSearchDateTextView.getText().toString());
-            if (payTextView.getVisibility() == VISIBLE) {
-                monthlyPay = getTagOnlyInt(payTextView.getText().toString());
-            } else {
-                monthlyPay = getTagOnlyInt(payEditText.getText().toString());
-            }
-            mealCost = getTagOnlyInt(mealCostTextView.getText().toString());
-            trafficCost = getTagOnlyInt(trafficCostTextView.getText().toString());
-            notWorkNum = getTagOnlyInt(notWorkTextView.getText().toString());
-            morningNum = getTagOnlyInt(morningTextView.getText().toString());
 
-            boolean isPromoted = false;
-            double payBeforePromotion = 0;
-            double payAfterPromotion = 0;
-            int dayAfterPromotion = 0;
-            int workNum = 0;
-            double finalPay;
-            Date searchDate = startDate;
-            int monthLength = getMonthLength(searchDate);
-            double checkPromotion = (double) pay.payDependsOnMonth(searchDate) / monthLength;
-            while (searchDate.compareTo(endDate) <= 0) {
-                cal.setTime(searchDate);
-                if (isOriginalPay && checkPromotion != (double) pay.payDependsOnMonth(searchDate) / monthLength) {
-                    isPromoted = true;
-                    dayAfterPromotion++;
-                    payAfterPromotion += (double) pay.payDependsOnMonth(searchDate) / monthLength;
-                } else {
-                    payBeforePromotion += (double) monthlyPay / monthLength;
-                }
-                if (cal.get(Calendar.DAY_OF_WEEK) != SATURDAY && cal.get(Calendar.DAY_OF_WEEK) != SUNDAY) {
-                    workNum++;
-                }
-                cal.add(DATE, 1);
-                searchDate = cal.getTime();
-            }
-            finalPay = payAfterPromotion + payBeforePromotion + mealCost * (workNum - notWorkNum - morningNum)
-                    + trafficCost * (workNum - notWorkNum);
-            if (isPromoted) {
-                resultPayTextView.setText("인상전   " + toMoneyUnit(pay.payDependsOnMonth(startDate)) + " x (" + (monthLength - dayAfterPromotion) + "일 / " + monthLength + "일) =   " +
-                        toMoneyUnit(payBeforePromotion) + "\n인상후   " + toMoneyUnit(pay.payDependsOnMonth(endDate)) + " x (" + dayAfterPromotion + "일 / " + monthLength + "일) =   " +
-                        toMoneyUnit(payAfterPromotion));
-            } else {
-                resultPayTextView.setText(toMoneyUnit(monthlyPay) + " x (" + getLength(startDate, endDate) + "일/" + monthLength + "일) =   " +
-                        toMoneyUnit(payBeforePromotion));
-            }
-            resultWorkTextView.setText((workNum - notWorkNum) + " 일");
-            resultMealTextView.setText(mealCost + "원 x " + (workNum - notWorkNum - morningNum) + "일 =   "
-                    + toMoneyUnit(mealCost * (workNum - notWorkNum - morningNum)));
-            resultTrafficTextView.setText(trafficCost + "원 x " + (workNum - notWorkNum) + "일 =   "
-                    + toMoneyUnit(trafficCost * (workNum - notWorkNum)));
-            resultTotalTextView.setText(toMoneyUnit(finalPay));
+    /*
+    @Override
+    public void onResume() {
+        super.onResume();
 
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.resume();
     }
 
-    public boolean isLessThanOneMonth(){
-        try {
-            Calendar calendar = getInstance();
-            startDate = formatter.parse(startSearchDateTextView.getText().toString());
-            endDate = formatter.parse(endSearchDateTextView.getText().toString());
-            calendar.setTime(startDate);
-            calendar.add(MONTH, 1);
-            Date pivotDate = calendar.getTime();
-            if(endDate.compareTo(pivotDate) < 0) return true;
-            else return false;
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    public int getMonthLength(Date startDate) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(startDate);
-        calendar.add(MONTH, 1);
-        calendar.add(DATE, -1);
-        Date lastDate = calendar.getTime();
+    @Override
+    public void onPause() {
+        super.onPause();
 
-        return (int) ((lastDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.pause();
     }
 
-    public int getLength(Date startDate, Date endDate) {
-        return (int) ((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000)) + 1;
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        // lifecycle 사용이 불가능한 경우
+        if (mAdView == null) return;
+        mAdView.destroy();
     }
 
-    public int getTagOnlyInt(String tag) {
-        String reTag = tag.replaceAll("[^0-9]", "");
-        return Integer.parseInt(reTag);
-    }
-
-    public void blankAlert(String alert) {
-        new AlertDialog.Builder(this)
-                .setMessage(alert)
-                .setCancelable(false)
-                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }
+     */
 }

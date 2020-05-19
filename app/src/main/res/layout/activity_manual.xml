@@ -17,12 +17,12 @@
             android:id="@+id/manualCardView1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp">
+            app:cardCornerRadius="5dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:padding="15dp">
 
                 <LinearLayout
                     android:id="@+id/manualRotate1"
@@ -40,7 +40,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="월급 규정"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <ImageView
@@ -423,13 +423,13 @@
             android:id="@+id/manualCardView2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
+            app:cardCornerRadius="5dp"
             android:layout_marginTop="10dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:padding="15dp">
 
                 <LinearLayout
                     android:id="@+id/manualRotate2"
@@ -446,7 +446,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="진급 규정"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <ImageView
@@ -779,13 +779,13 @@
             android:id="@+id/manualCardView3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
+            app:cardCornerRadius="5dp"
             android:layout_marginTop="10dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:padding="15dp">
 
                 <LinearLayout
                     android:id="@+id/manualRotate3"
@@ -802,7 +802,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="휴가 종류"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <ImageView
@@ -840,14 +840,14 @@
             android:id="@+id/manualCardView4"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp"
+            app:cardCornerRadius="5dp"
             android:layout_marginTop="10dp"
             android:layout_marginBottom="50dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp">
+                android:padding="15dp">
 
                 <LinearLayout
                     android:id="@+id/manualRotate4"
@@ -864,7 +864,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="월급 계산 방식"
-                        android:textSize="20sp"
+                        android:textSize="17sp"
                         android:textStyle="bold" />
 
                     <ImageView

@@ -36,7 +36,6 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_TOTAL_FIRST_VAC = "totalFirstVac";
     private static final String COLUMN_USER_TOTAL_SECOND_VAC = "totalSecondVac";
     private static final String COLUMN_USER_TOTAL_SICK_VAC = "totalSickVac";
-    private static final String COLUMN_USER_PAYDAY = "payDay";
     private static final String COMMA_SEP = ", ";
 
 
@@ -56,8 +55,7 @@ public class DBHelper extends SQLiteOpenHelper {
             COLUMN_USER_TRAFFIC_COST + " INTEGER" + COMMA_SEP +
             COLUMN_USER_TOTAL_FIRST_VAC + " INTEGER" + COMMA_SEP +
             COLUMN_USER_TOTAL_SECOND_VAC + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_TOTAL_SICK_VAC + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_PAYDAY + " INTEGER" + " );";
+            COLUMN_USER_TOTAL_SICK_VAC + " INTEGER" + " );";
 
     public DBHelper(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -89,15 +87,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public long insertUser(User user){
         SQLiteDatabase mDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
+        String firstDate = formatter.format(user.getFirstDateTime());
+        String lastDate = formatter.format(user.getLastDateTime());
         values.put(COLUMN_USER_NICKNAME, user.getNickName());
-        values.put(COLUMN_USER_FIRST_DATE, formatter.format(user.getFirstDate()));
-        values.put(COLUMN_USER_LAST_DATE, formatter.format(user.getLastDate()));
+        values.put(COLUMN_USER_FIRST_DATE, firstDate);
+        values.put(COLUMN_USER_LAST_DATE, lastDate);
         values.put(COLUMN_USER_MEAL_COST, user.getMealCost());
         values.put(COLUMN_USER_TRAFFIC_COST, user.getTrafficCost());
         values.put(COLUMN_USER_TOTAL_FIRST_VAC, user.getTotalFirstVac());
         values.put(COLUMN_USER_TOTAL_SECOND_VAC, user.getTotalSecondVac());
         values.put(COLUMN_USER_TOTAL_SICK_VAC, user.getTotalSickVac());
-        values.put(COLUMN_USER_PAYDAY, user.getPayDay());
         return mDatabase.insert(TABLE_USER, null, values);
     }
 
@@ -115,9 +114,18 @@ public class DBHelper extends SQLiteOpenHelper {
                 new String[] { String.valueOf(id) });
     }
 
-    public void updateUser (int id, ContentValues addRowValue){
+    public void updateUser (int id, User user){
         SQLiteDatabase mDatabase = getWritableDatabase();
-        mDatabase.update(TABLE_USER, addRowValue, "id =?",
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_USER_NICKNAME, user.getNickName());
+        values.put(COLUMN_USER_FIRST_DATE, formatter.format(user.getFirstDateTime()));
+        values.put(COLUMN_USER_LAST_DATE, formatter.format(user.getLastDateTime()));
+        values.put(COLUMN_USER_MEAL_COST, user.getMealCost());
+        values.put(COLUMN_USER_TRAFFIC_COST, user.getTrafficCost());
+        values.put(COLUMN_USER_TOTAL_FIRST_VAC, user.getTotalFirstVac());
+        values.put(COLUMN_USER_TOTAL_SECOND_VAC, user.getTotalSecondVac());
+        values.put(COLUMN_USER_TOTAL_SICK_VAC, user.getTotalSickVac());
+        mDatabase.update(TABLE_USER, values, "id =?",
                 new String[] { String.valueOf(id) });
     }
 

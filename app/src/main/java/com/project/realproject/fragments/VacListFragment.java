@@ -3,7 +3,6 @@ package com.project.realproject.fragments;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -13,58 +12,41 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 
-import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.project.realproject.helpers.Formatter.*;
 
-import com.project.realproject.Vacation;
 import com.project.realproject.R;
+import com.project.realproject.Vacation;
+import com.project.realproject.VacationList;
 import com.project.realproject.adapters.VacListViewAdapter;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
 import com.project.realproject.helpers.DBHelper;
 
+import java.util.Calendar;
+
 
 public class VacListFragment extends Fragment implements VacListViewAdapter.ListBtnClickListener {
 
-    public DBHelper DBmanager = null;
+    public DBHelper DBmanager;
     private ListView mListView = null;
     private VacListViewAdapter mAdapter = null;
 
-    private Date lowerDate;
-    private Date upperDate;
-    private long lowerDiff = -1;
-    private long upperDiff = -1;
-    private String limitStartDate;
-    private String limitLastDate;
-    private String firstDate;
-    private String lastDate;
     private vacType typeOfVac;
-    private String searchStartDate;
+    private VacationList vacationList;
 
-    public VacListFragment() {
-    }
 
-    public static VacListFragment newInstance(String param1, String param2, String param3, String param4,
-                                              vacType param5, String param6) {
+    public VacListFragment(){}
+
+    public static VacListFragment newInstance(VacationList vacationList, vacType vacType) {
         VacListFragment dialog = new VacListFragment();
-        Bundle bundle = new Bundle(6);
-        bundle.putString("limitStartDate", param1);
-        bundle.putString("limitLastDate", param2);
-        bundle.putString("firstDate", param3);
-        bundle.putString("lastDate", param4);
-        bundle.putSerializable("typeOfVac", param5);
-        bundle.putString("searchStartDate", param6);
+        Bundle bundle = new Bundle(2);
+        bundle.putParcelable("vacationList", vacationList);
+        bundle.putSerializable("typeOfVac", vacType);
         dialog.setArguments(bundle);
         return dialog;
     }
@@ -73,12 +55,8 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            limitStartDate = getArguments().getString("limitStartDate");
-            limitLastDate = getArguments().getString("limitLastDate");
-            firstDate = getArguments().getString("firstDate");
-            lastDate = getArguments().getString("lastDate");
+            vacationList = getArguments().getParcelable("vacationList");
             typeOfVac = (vacType) getArguments().getSerializable("typeOfVac");
-            searchStartDate = getArguments().getString("searchStartDate");
         }
     }
 
@@ -88,6 +66,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
         View rootView = inflater.inflate(R.layout.fragment_vac_list, container, false);
         mListView = rootView.findViewById(R.id.listview);
+        DBmanager = new DBHelper(getActivity());
 
         mAdapter = new VacListViewAdapter(this);
         setListItemView(mAdapter);
@@ -142,9 +121,6 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                 .setPositiveButton("확인", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         DBmanager.deleteVacation(vacation);
-                        ((MainActivity) getActivity()).setRemainVac();
-                        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
-
                         reloadListView();
                         dialog.dismiss();
                     }
@@ -154,65 +130,29 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
                         dialog.dismiss();
                     }
                 })
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        ((MainActivity) getActivity()).onDismiss(dialogInterface);
+                    }
+                })
                 .show();
     }
 
     @Override
     public void onReviseBtnClick(int position) {
         Vacation vacation = (Vacation) mAdapter.getItem(position);
-        int id = vacation.getId();
         FragmentManager fg = getFragmentManager();
-        VacReviseFragment dialog = new VacReviseFragment().newInstance(limitStartDate, limitLastDate, firstDate,
-                lastDate, typeOfVac, vacation, id, searchStartDate);
+        VacReviseFragment dialog = new VacReviseFragment().newInstance(typeOfVac, vacation);
         dialog.show(fg, "dialog");
     }
 
-    public void setListItemView(VacListViewAdapter mAdapter) {
-        DBmanager = new DBHelper(getActivity());
-        Cursor c = DBmanager.query(vacationColumns, DBHelper.TABLE_VACATION,
-                null, null, null, null, null);
-
-        try {
-            lowerDate = formatter.parse(limitStartDate);
-            upperDate = formatter.parse(limitLastDate);
-
-            while (c.moveToNext()) {
-                String type = c.getString(3);
-                Date startDate = formatter.parse(c.getString(2));
-                if (startDate != null) {
-                    lowerDiff = startDate.getTime() - lowerDate.getTime();
-                    upperDiff = upperDate.getTime() - startDate.getTime();
-
-                    if (typeOfVac == vacType.sickVac) {
-                        if (lowerDiff >= 0 && upperDiff >= 0) {
-                            if (Arrays.asList(listOfSickVac).contains(type)) {
-                                int id = c.getInt(0);
-                                String vacation = c.getString(1);
-                                double count = c.getDouble(4);
-                                mAdapter.addItem(id, vacation, startDate, type, count);
-                            }
-                        }
-                    } else {
-                        if (lowerDiff >= 0 && upperDiff >= 0) {
-                            if (Arrays.asList(listOfVac).contains(type)) {
-                                int id = c.getInt(0);
-                                String vacation = c.getString(1);
-                                double count = c.getDouble(4);
-                                mAdapter.addItem(id, vacation, startDate, type, count);
-                            }
-                        }
-                    }
-                } else {
-                    break;
-                }
-            }
-            c.close();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+    private void setListItemView(VacListViewAdapter mAdapter) {
+        mAdapter.setListItems(vacationList.getVacations());
     }
 
     public void reloadListView() {
+        vacationList.refreshVacationList();
         mAdapter = new VacListViewAdapter(this);
         setListItemView(mAdapter);
         mListView.setAdapter(mAdapter);

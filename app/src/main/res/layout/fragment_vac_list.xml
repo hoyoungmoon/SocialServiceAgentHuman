@@ -14,12 +14,13 @@
         android:layout_height="wrap_content"
         android:padding="3dp"
         android:text="사용 내역"
-        android:textSize="13sp"
+        android:textSize="11sp"
+        android:background="#f6f6f6"
         android:textAlignment="center"/>
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#D1CECE"/>
+        android:background="#E9E6E6"/>
     <ListView
         android:id="@+id/listview"
         android:layout_width="match_parent"

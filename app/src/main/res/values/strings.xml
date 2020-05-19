@@ -3,7 +3,7 @@
     <string name="admob_app_id">ca-app-pub-3723763991551830~8452664302</string>
     <string name="admob_ad_test_id">ca-app-pub-3940256099942544/6300978111</string>
     <!-- ca-app-pub-3723763991551830/2105380826 -->
-    <string name="admob_ad_unit_id">ca-app-pub-3723763991551830/2105380826</string>
+    <string name="admob_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="reset_alert">초기화하면 모든 기록이 삭제되고 복구가 불가능합니다. 그래도 초기화 하시겠습니까?</string>
@@ -28,6 +28,9 @@
         교통두절, 그 밖의 사유로 출근이 불가능한 경우
     </string>
 
-    <string name="cal_manual">* 한달 이하의 기간동안 급여를 계산할 수 있습니다\n* 주말(토, 일)을 제외한 날은 모두 출근일로 포함하고 있습니다</string>
+    <string name="cal_salary_manual">* 복무 기간 동안의 급여를 계산할 수 있습니다\n* 주말(토, 일)을 제외한 날은 모두 출근일로 포함하고 있습니다</string>
+    <string name="cal_savings_manual">* 복무 기간 동안 납입한 적금의 만기지급액을 계산할 수 있습니다\n* 군적금 이자계산은 단리이며, 비과세로 계산됩니다</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
 

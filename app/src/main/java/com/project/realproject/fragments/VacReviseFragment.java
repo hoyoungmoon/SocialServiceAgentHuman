@@ -1,15 +1,22 @@
 package com.project.realproject.fragments;
 
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.graphics.Point;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.InputType;
+import android.view.Display;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -21,6 +28,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -30,24 +38,26 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static com.project.realproject.helpers.Formatter.*;
 
-import com.project.realproject.Vacation;
 import com.project.realproject.R;
+import com.project.realproject.User;
+import com.project.realproject.Vacation;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.activities.MainActivity.vacType;
 import com.project.realproject.helpers.DBHelper;
 
 public class VacReviseFragment extends DialogFragment implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
 
-    private EditText startDateEditText;
+    private TextView startDateEditText;
     private EditText vacationEditText;
     private TextView outingLengthTextView;
     private Button saveButton;
-    private Button cancelButton;
+    private ImageButton cancelButton;
     private ImageButton plusOutingButton;
     private ImageButton minusOutingButton;
     private RadioGroup vacationTypeRadioGroup;
@@ -55,55 +65,63 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     private Spinner specialVacationTypeSpinner;
     private RelativeLayout vacationTypeRelative;
     private LinearLayout outingSetter;
-    private AdView mAdView;
 
     DatePickerDialog datePickerDialog;
     Calendar dateCalendar;
 
-    private String limitStartDate;
-    private String limitLastDate;
-    private String firstDate;
-    private String lastDate;
+    private Date firstDate;
+    private Date lastDate;
     private vacType typeOfVac;
     private int outingLength = 10;
     private Vacation vacation;
-    private int id;
-    private String searchStartDate;
-    public DBHelper DBmanager = null;
+    private DBHelper DBmanager = null;
+    private User user;
 
     public VacReviseFragment() {
     }
 
-    public static VacReviseFragment newInstance(String param1, String param2, String param3, String param4,
-                                                vacType param5, Vacation param6, int param7, String param8) {
+    public static VacReviseFragment newInstance(vacType vacType, Vacation vacation) {
         VacReviseFragment dialog = new VacReviseFragment();
         dialog.setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        Bundle bundle = new Bundle(8);
-        bundle.putString("limitStartDate", param1);
-        bundle.putString("limitLastDate", param2);
-        bundle.putString("firstDate", param3);
-        bundle.putString("lastDate", param4);
-        bundle.putSerializable("typeOfVac", param5);
-        bundle.putParcelable("vacation", param6);
-        bundle.putInt("id", param7);
-        bundle.putString("searchStartDate", param8);
+        Bundle bundle = new Bundle(2);
+        bundle.putSerializable("typeOfVac", vacType);
+        bundle.putParcelable("vacation", vacation);
         dialog.setArguments(bundle);
         return dialog;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Window window;
+        if (getDialog() == null) {
+            return;
+        } else {
+            window = getDialog().getWindow();
+        }
+        window.setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+
+
+        Display display = window.getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+
+        window.setLayout((int) (size.x * 0.85), WindowManager.LayoutParams.WRAP_CONTENT);
+        window.setGravity(Gravity.CENTER);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         DBmanager = new DBHelper(getActivity());
+        user = new User(getActivity());
+        firstDate = user.getFirstDateTime();
+        lastDate = user.getLastDateTime();
+
         if (getArguments() != null) {
-            limitStartDate = getArguments().getString("limitStartDate");
-            limitLastDate = getArguments().getString("limitLastDate");
-            firstDate = getArguments().getString("firstDate");
-            lastDate = getArguments().getString("lastDate");
             typeOfVac = (vacType) getArguments().getSerializable("typeOfVac");
             vacation = getArguments().getParcelable("vacation");
-            id = getArguments().getInt("id");
-            searchStartDate = getArguments().getString("searchStartDate");
         }
     }
 
@@ -112,14 +130,6 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_vac_save, container, false);
 
-        MobileAds.initialize(getActivity(), new OnInitializationCompleteListener() {
-            @Override
-            public void onInitializationComplete(InitializationStatus initializationStatus) {
-            }
-        });
-        mAdView = view.findViewById(R.id.banner_ad);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
 
         startDateEditText = view.findViewById(R.id.et_startDate);
         startDateEditText.setInputType(InputType.TYPE_NULL);
@@ -128,6 +138,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
 
         saveButton = view.findViewById(R.id.button_save);
         cancelButton = view.findViewById(R.id.button_cancel);
+        saveButton.setText("수 정");
         plusOutingButton = view.findViewById(R.id.button_outing_plus);
         minusOutingButton = view.findViewById(R.id.button_outing_minus);
 
@@ -163,6 +174,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
         minusOutingButton.setOnClickListener(this);
         startDateEditText.setOnClickListener(this);
         Calendar newCalendar = Calendar.getInstance();
+        newCalendar.setTime(vacation.getStartDate());
         datePickerDialog = new DatePickerDialog(getActivity(),
                 new DatePickerDialog.OnDateSetListener() {
                     public void onDateSet(DatePicker view, int year,
@@ -176,13 +188,10 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
                 }, newCalendar.get(Calendar.YEAR),
                 newCalendar.get(Calendar.MONTH),
                 newCalendar.get(Calendar.DAY_OF_MONTH));
-        try {
-            // VacSaveFragment 와 달리 수정은 모든 구간(복무일 ~ 복무해제일)에서 선택가능하도록 하기 위해
-            datePickerDialog.getDatePicker().setMinDate(formatter.parse(firstDate).getTime());
-            datePickerDialog.getDatePicker().setMaxDate(formatter.parse(lastDate).getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
+
+        // VacSaveFragment 와 달리 수정은 모든 구간(복무일 ~ 복무해제일)에서 선택가능하도록 하기 위해
+        datePickerDialog.getDatePicker().setMinDate(firstDate.getTime());
+        datePickerDialog.getDatePicker().setMaxDate(lastDate.getTime());
 
         return view;
     }
@@ -278,18 +287,6 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
         }
 
         revise(vacation);
-        ((MainActivity) getActivity()).setRemainVac();
-        ((MainActivity) getActivity()).setThisMonthInfo(searchStartDate);
-        if (typeOfVac == vacType.firstYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.firstYearVac);
-        } else if (typeOfVac == vacType.secondYearVac) {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.secondYearVac);
-        } else {
-            ((MainActivity) getActivity()).refreshListView(limitStartDate, limitLastDate,
-                    MainActivity.vacType.sickVac);
-        }
         dismiss();
     }
 
@@ -299,7 +296,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
         values.put("startDate", formatter.format(vacation.getStartDate()));
         values.put("type", vacation.getType());
         values.put("count", vacation.getCount());
-        DBmanager.updateVacation(id, values);
+        DBmanager.updateVacation(vacation.getId(), values);
     }
 
     private String getOnlyNumber(String string) {
@@ -347,4 +344,13 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
         }
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
+
+        final Activity activity = getActivity();
+        if (activity instanceof DialogInterface.OnDismissListener) {
+            ((DialogInterface.OnDismissListener) activity).onDismiss(dialog);
+        }
+    }
 }
