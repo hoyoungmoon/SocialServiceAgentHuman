@@ -690,7 +690,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             ads:adSize="BANNER"
-            ads:adUnitId="@string/admob_ad_test_id" />
+            ads:adUnitId="@string/admob_ad_unit_id" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

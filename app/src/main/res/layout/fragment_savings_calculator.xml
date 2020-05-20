@@ -317,6 +317,6 @@
         android:layout_height="wrap_content"
         android:background="#19404855"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/admob_ad_test_id" />
+        ads:adUnitId="@string/admob_ad_unit_id" />
 
 </LinearLayout>
