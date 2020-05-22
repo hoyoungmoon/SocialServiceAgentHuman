@@ -154,7 +154,7 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
         savingsPeriodTextView.setText(preferences.getInt("savingsPeriod", 21) + " 개월");
         savingsStartMonthTextView.setText(preferences.getInt("savingsYear", 2020) + "년 "
                 + preferences.getInt("savingsMonth", 1) + "월");
-        savingsInterestEditText.setText(preferences.getFloat("savingsInterestRate", (float) 1.5) + "");
+        savingsInterestEditText.setText(preferences.getFloat("savingsInterestRate", (float) 5.0) + "");
         savingsPaymentEditText.setText(preferences.getInt("savingsPayment", 200000) + "");
         setSavingsEndMonth(preferences.getInt("savingsYear", 2020), preferences.getInt("savingsMonth", 1));
 
@@ -179,8 +179,6 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
             public void onFocusChange(View view, boolean b) {
                 if (view.isFocused()) {
                     savingsInterestEditText.setCursorVisible(true);
-                    //savingsInterestEditText.setSelection(savingsInterestEditText.length());
-                    Log.d("selection", savingsInterestEditText.getText().length() + ", " + savingsInterestEditText.length());
                 }
             }
         });
@@ -193,8 +191,10 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                editor.putFloat("savingsInterestRate", Float.parseFloat(charSequence.toString()));
-                editor.apply();
+                if((!charSequence.toString().equals("")) && (!charSequence.toString().equals("."))) {
+                    editor.putFloat("savingsInterestRate", Float.parseFloat(charSequence.toString()));
+                    editor.apply();
+                }
             }
 
             @Override
@@ -211,8 +211,10 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                editor.putInt("savingsPayment", Integer.parseInt(charSequence.toString()));
-                editor.apply();
+                if(!charSequence.toString().equals("")) {
+                    editor.putInt("savingsPayment", Integer.parseInt(charSequence.toString()));
+                    editor.apply();
+                }
             }
 
             @Override

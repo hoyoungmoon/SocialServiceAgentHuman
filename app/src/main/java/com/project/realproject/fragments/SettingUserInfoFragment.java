@@ -8,6 +8,8 @@ import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -124,6 +126,31 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             lastDateEditText.setText(formatter.format(calendar.getTime()));
         }
 
+        firstDateEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if(!charSequence.toString().equals("")){
+                    try {
+                        calendar.setTime(formatter.parse(charSequence.toString()));
+                        calendar.add(YEAR, 1);
+                        calendar.add(MONTH, 9);
+                        lastDateEditText.setText(formatter.format(calendar.getTime()));
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
         mealCostEditText.setText(mealCost + " 원");
         trafficCostEditText.setText(trafficCost + " 원");
         totalFirstVacEditText.setText(totalFirstVac + " 일");
@@ -264,12 +291,12 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     public void onSaveInstanceState(Bundle outState) {
     }
 
-    public int getTagOnlyInt(String tag) {
+    private int getTagOnlyInt(String tag) {
         String reTag = tag.replaceAll("[^0-9]", "");
         return Integer.parseInt(reTag);
     }
 
-    public void blankAlert(String alert) {
+    private void blankAlert(String alert) {
         new AlertDialog.Builder(getActivity())
                 .setMessage(alert)
                 .setCancelable(false)

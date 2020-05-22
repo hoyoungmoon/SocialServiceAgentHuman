@@ -17,8 +17,8 @@ public class Salary {
     private ArrayList<Vacation> vacations;
     private Date startDate;
     private Date lastDate;
-    private Date maximunDate;
-    private Date minimunDate;
+    private Date maximumDate;
+    private Date minimumDate;
     private boolean isIncludedInPeriod = true;               // 소집일, 소집해제일을 포함하지 않고 넘어갔을 경우 false
     private boolean isBootCampIncludedInOneMonth = false;    // 훈련소가 두달에 걸치지 않고 한달에 다 포함될 경우 true
     private boolean isEntireMonthIncludedInBootCamp = false; // 훈련소가 한달 전체를 포함하며 시작, 끝이 없을때
@@ -44,9 +44,9 @@ public class Salary {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(today);
         calendar.set(DATE, 1);
-        minimunDate = startDate = calendar.getTime();
+        minimumDate = startDate = calendar.getTime();
         calendar.set(DATE, calendar.getActualMaximum(DAY_OF_MONTH));
-        maximunDate = lastDate = calendar.getTime();
+        maximumDate = lastDate = calendar.getTime();
         searchMonthLength = getDateLength(startDate, lastDate);
 
         if (startDate.compareTo(user.getFirstDateTime()) < 0) {
@@ -75,10 +75,10 @@ public class Salary {
                 if (calendar.getTime().compareTo(startDate) >= 0) {
                     lastDate = calendar.getTime();
                 } else {
-                    lastDate = maximunDate;
+                    lastDate = maximumDate;
                     isEntireMonthIncludedInBootCamp = true;
                 }
-            // 훈련소 종료일만 포함되어 있을 때
+                // 훈련소 종료일만 포함되어 있을 때
             } else if (!isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
                 calendar.setTime(user.getBootCampEndDateTime());
                 calendar.add(DATE, 1);
@@ -86,16 +86,16 @@ public class Salary {
                 if (calendar.getTime().compareTo(lastDate) <= 0) {
                     startDate = calendar.getTime();
                 } else {
-                    startDate = minimunDate;
+                    startDate = minimumDate;
                     isEntireMonthIncludedInBootCamp = true;
                 }
                 isBootCampCalculationIncluded = true;
-            // 훈련소 시작일, 종료일 모두 포함되어 있을 때
+                // 훈련소 시작일, 종료일 모두 포함되어 있을 때
             } else if (isBootCampStartDateIncluded() && isBootCampEndDateIncluded()) {
                 isBootCampIncludedInOneMonth = true;
                 isBootCampCalculationIncluded = true;
-            // 훈련소 시작일, 종료일 모두 포함되지 않으며 한달 전체가 훈련소에 포함될 때
-            } else if (isEntireMonthIncludedInBootCamp()){
+                // 훈련소 시작일, 종료일 모두 포함되지 않으며 한달 전체가 훈련소에 포함될 때
+            } else if (isEntireMonthIncludedInBootCamp()) {
                 isEntireMonthIncludedInBootCamp = true;
             }
         }
@@ -103,10 +103,11 @@ public class Salary {
         return new SpecificPeriodVacationList(context, formatter.format(startDate), formatter.format(lastDate));
     }
 
-    private int countDaysInService(){
-        if(isBootCampIncludedInOneMonth) return getDateLength(startDate, user.getBootCampStartDateTime())
-                + getDateLength(user.getBootCampEndDateTime(), lastDate) - 2;
-        if(isEntireMonthIncludedInBootCamp) return 0;
+    private int countDaysInService() {
+        if (isBootCampIncludedInOneMonth)
+            return getDateLength(startDate, user.getBootCampStartDateTime())
+                    + getDateLength(user.getBootCampEndDateTime(), lastDate) - 2;
+        if (isEntireMonthIncludedInBootCamp) return 0;
         return getDateLength(startDate, lastDate);
     }
 
@@ -114,7 +115,7 @@ public class Salary {
         int total = 0;
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
-        if(isEntireMonthIncludedInBootCamp) return total;
+        if (isEntireMonthIncludedInBootCamp) return total;
 
         if (!isBootCampIncludedInOneMonth) {
             while (calendar.getTime().compareTo(lastDate) <= 0) {
@@ -261,7 +262,6 @@ public class Salary {
     public boolean isBootCampIncludedThisMonth() {
         return isBootCampCalculationIncluded;
     }
-
 
 
     public double countNumberOfSickVacation() {

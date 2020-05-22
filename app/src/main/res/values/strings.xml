@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">공익인간</string>
     <string name="admob_app_id">ca-app-pub-3723763991551830~8452664302</string>
+    <string name="admob_ad_test_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="admob_ad_unit_id">ca-app-pub-3723763991551830/2105380826</string>
 
     <!-- TODO: Remove or change this placeholder text -->

@@ -174,7 +174,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
             trafficSetValue = user.getTrafficCost();
             mealCostTextView.setText(mealSetValue + " 원");
             trafficCostTextView.setText(trafficSetValue + " 원");
-            payTextView.setText(decimalFormat.format(baseSalary) + " 원");
+            payTextView.setText(decimalFormat.format(user.getBaseSalary(cal.getTime())) + " 원");
 
         } else {
             mealSetValue = 6000;
@@ -205,29 +205,6 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
             }
         });
 
-/*
-        payEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                String result = charSequence.toString();
-                if(!charSequence.toString().equals(result)){     // StackOverflow를 막기위해,
-                    result = decimalFormat.format(Long.parseLong(result.replaceAll(" 원", "")));   // 에딧텍스트의 값을 변환하여, result에 저장.
-                    payEditText.setText(result+" 원");    // 결과 텍스트 셋팅.// 커서를 제일 끝으로 보냄.
-                }
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-            }
-        });
-*/
 
         return view;
     }

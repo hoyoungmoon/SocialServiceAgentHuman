@@ -336,10 +336,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             case R.id.spendButton_1:
                 // 1년 이하의 복무기간일 경우 1년차 연가사용 기간 조정 (pivotDate 대신 lastDate)
-                if (lastDate.compareTo(pivotDate) >= 0) {
+                if (lastDate.compareTo(pivotDate) > 0) {
                     dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, pivotDate));
                 } else {
-                    dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, pivotDate));
+                    dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, lastDate));
                 }
                 dialog.show(fg, "dialog");
                 break;
