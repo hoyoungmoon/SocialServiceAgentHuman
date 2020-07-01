@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string-array name="special_vacation_type">
-        <item>특별휴가</item>
-        <item>청원휴가</item>
-        <item>공가</item>
-    </string-array>
-</resources>
