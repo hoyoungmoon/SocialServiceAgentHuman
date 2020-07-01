@@ -10,15 +10,30 @@
         android:background="#ffffff"
         android:orientation="vertical">
 
-        <TextView
-            android:layout_width="350dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingTop="20dp"
-            android:paddingBottom="20dp"
-            android:text="프로필 정보"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingStart="20dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:layout_weight="1"
+                android:text="프로필 정보"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btn_cancel"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:background="#ffffff"
+                android:src="@drawable/ic_close_selector" />
+        </LinearLayout>
 
         <ScrollView
             android:layout_width="match_parent"
@@ -31,7 +46,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="13dp"
                     android:layout_gravity="center"
                     android:background="#f6f6f6" />
 
@@ -119,11 +134,40 @@
                             android:paddingBottom="15dp"
                             android:textColor="#666666" />
                     </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center"
+                        android:background="#f6f6f6" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="진급일" />
+
+                        <TextView
+                            android:id="@+id/tv_promotionDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:text="조정하기"
+                            android:paddingTop="15dp"
+                            android:paddingEnd="20dp"
+                            android:paddingBottom="15dp"
+                            android:textColor="#666666" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="13dp"
                     android:layout_gravity="center"
                     android:background="#f6f6f6" />
 
@@ -185,7 +229,7 @@
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="20dp"
+                    android:layout_height="13dp"
                     android:layout_gravity="center"
                     android:background="#f6f6f6" />
 
@@ -270,31 +314,57 @@
                             android:paddingBottom="15dp"
                             android:textColor="#666666" />
                     </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_gravity="center"
+                        android:background="#f6f6f6" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="월급 계산" />
+
+                        <TextView
+                            android:id="@+id/tv_payDay"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="end"
+                            android:paddingTop="15dp"
+                            android:paddingEnd="20dp"
+                            android:paddingBottom="10dp"
+                            android:textColor="#666666" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tv_payDay_example"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingEnd="20dp"
+                        android:gravity="end"
+                        android:textColor="#868686"
+                        android:textSize="11sp" />
                 </LinearLayout>
-
-
+                <Button
+                    android:id="@+id/btn_save"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginBottom="15dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:background="@color/colorMain"
+                    android:text="저 장"
+                    android:textColor="@color/selector_text" />
             </LinearLayout>
         </ScrollView>
 
-        <Button
-            android:id="@+id/btn_save"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:layout_marginBottom="15dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:background="@color/colorMain"
-            android:text="저 장"
-            android:textColor="@color/selector_text" />
     </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/btn_cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/button_cancel_bg_selector"
-        android:src="@drawable/ic_close_selector" />
 </LinearLayout>

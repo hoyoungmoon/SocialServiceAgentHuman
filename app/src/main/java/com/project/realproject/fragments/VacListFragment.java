@@ -2,6 +2,7 @@ package com.project.realproject.fragments;
 
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -35,10 +36,16 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
     public DBHelper DBmanager;
     private ListView mListView = null;
     private VacListViewAdapter mAdapter = null;
+    private Context mContext;
 
     private vacType typeOfVac;
     private VacationList vacationList;
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
 
     public VacListFragment(){}
 
@@ -66,7 +73,7 @@ public class VacListFragment extends Fragment implements VacListViewAdapter.List
 
         View rootView = inflater.inflate(R.layout.fragment_vac_list, container, false);
         mListView = rootView.findViewById(R.id.listview);
-        DBmanager = new DBHelper(getActivity());
+        DBmanager = DBHelper.getInstance(mContext);
 
         mAdapter = new VacListViewAdapter(this);
         setListItemView(mAdapter);

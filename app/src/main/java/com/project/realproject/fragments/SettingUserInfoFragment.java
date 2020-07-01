@@ -4,10 +4,12 @@ package com.project.realproject.fragments;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Point;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Display;
@@ -26,17 +28,19 @@ import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 
-import com.kakao.adfit.ads.ba.BannerAdView;
 import com.project.realproject.R;
 import com.project.realproject.User;
+import com.project.realproject.Vacation;
 import com.project.realproject.activities.MainActivity;
 import com.project.realproject.helpers.DBHelper;
 
 import java.text.ParseException;
 import java.util.Calendar;
+import java.util.Date;
 
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static com.project.realproject.helpers.DBHelper.TABLE_USER;
+import static java.util.Calendar.DATE;
 import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import static com.project.realproject.helpers.Formatter.*;
@@ -45,13 +49,16 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
         NumberPickerFragment.NumberPickerSaveListener {
 
     private EditText nickNameEditText;
-    private TextView firstDateEditText;
-    private TextView lastDateEditText;
-    private TextView mealCostEditText;
-    private TextView trafficCostEditText;
-    private TextView totalFirstVacEditText;
-    private TextView totalSecondVacEditText;
-    private TextView totalSickVacEditText;
+    private TextView firstDateTextView;
+    private TextView lastDateTextView;
+    private TextView mealCostTextView;
+    private TextView trafficCostTextView;
+    private TextView totalFirstVacTextView;
+    private TextView totalSecondVacTextView;
+    private TextView totalSickVacTextView;
+    private TextView promotionDateTextView;
+    private TextView payDayTextView;
+    private TextView payDayExampleTextView;
     private Button saveButton;
     private ImageButton cancelButton;
 
@@ -60,18 +67,25 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private int totalFirstVac;
     private int totalSecondVac;
     private int totalSickVac;
+    private int payDay;
 
     private Calendar calendar;
     private DBHelper DBmanager;
+    private SharedPreferences preferences;
+    private SharedPreferences.Editor editor;
 
     public SettingUserInfoFragment() {
+    }
+
+    public static SettingUserInfoFragment newInstance() {
+        return new SettingUserInfoFragment();
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
-        DBmanager = new DBHelper(getActivity());
+        DBmanager = DBHelper.getInstance(getActivity());
     }
 
     @Override
@@ -87,19 +101,25 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
 
         nickNameEditText = view.findViewById(R.id.et_nickName);
         nickNameEditText.setInputType(TYPE_CLASS_TEXT);
-        firstDateEditText = view.findViewById(R.id.tv_firstDate);
-        lastDateEditText = view.findViewById(R.id.tv_lastDate);
-        mealCostEditText = view.findViewById(R.id.tv_mealCost);
-        trafficCostEditText = view.findViewById(R.id.tv_trafficCost);
-        totalFirstVacEditText = view.findViewById(R.id.tv_totalFirstVac);
-        totalSecondVacEditText = view.findViewById(R.id.tv_totalSecondVac);
-        totalSickVacEditText = view.findViewById(R.id.tv_totalSickVac);
+        firstDateTextView = view.findViewById(R.id.tv_firstDate);
+        lastDateTextView = view.findViewById(R.id.tv_lastDate);
+        mealCostTextView = view.findViewById(R.id.tv_mealCost);
+        trafficCostTextView = view.findViewById(R.id.tv_trafficCost);
+        totalFirstVacTextView = view.findViewById(R.id.tv_totalFirstVac);
+        totalSecondVacTextView = view.findViewById(R.id.tv_totalSecondVac);
+        totalSickVacTextView = view.findViewById(R.id.tv_totalSickVac);
+        promotionDateTextView = view.findViewById(R.id.tv_promotionDate);
+        payDayTextView = view.findViewById(R.id.tv_payDay);
+        payDayExampleTextView = view.findViewById(R.id.tv_payDay_example);
+        
         saveButton = view.findViewById(R.id.btn_save);
         cancelButton = view.findViewById(R.id.btn_cancel);
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        editor = preferences.edit();
 
         if (DBmanager.getDataCount(TABLE_USER) != 0) {
-            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
+            Cursor c = DBmanager.query(userColumns_ver_2, DBHelper.TABLE_USER,
                     null, null, null, null, null);
             c.moveToFirst();
 
@@ -108,25 +128,28 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
             totalFirstVac = c.getInt(6);
             totalSecondVac = c.getInt(7);
             totalSickVac = c.getInt(8);
+            payDay = c.getInt(9);
 
             nickNameEditText.setText(c.getString(1));
-            firstDateEditText.setText(c.getString(2));
-            lastDateEditText.setText(c.getString(3));
+            firstDateTextView.setText(c.getString(2));
+            lastDateTextView.setText(c.getString(3));
         } else {
             mealCost = 6000;
             trafficCost = 2700;
             totalFirstVac = 15;
             totalSecondVac = 13;
             totalSickVac = 30;
+            payDay = 1;
 
             cancelButton.setVisibility(View.GONE);
             calendar.add(YEAR, 1);
             calendar.add(MONTH, 9);
-            firstDateEditText.setText(formatter.format(Calendar.getInstance().getTime()));
-            lastDateEditText.setText(formatter.format(calendar.getTime()));
+            firstDateTextView.setText(formatter.format(Calendar.getInstance().getTime()));
+            lastDateTextView.setText(formatter.format(calendar.getTime()));
         }
 
-        firstDateEditText.addTextChangedListener(new TextWatcher() {
+        setSalaryPeriodExample(payDay);
+        firstDateTextView.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -139,7 +162,9 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                         calendar.setTime(formatter.parse(charSequence.toString()));
                         calendar.add(YEAR, 1);
                         calendar.add(MONTH, 9);
-                        lastDateEditText.setText(formatter.format(calendar.getTime()));
+                        lastDateTextView.setText(formatter.format(calendar.getTime()));
+                        editor.putBoolean("isPromotionDateChanged", false);
+                        editor.apply();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
@@ -151,22 +176,25 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
 
             }
         });
-        mealCostEditText.setText(mealCost + " 원");
-        trafficCostEditText.setText(trafficCost + " 원");
-        totalFirstVacEditText.setText(totalFirstVac + " 일");
-        totalSecondVacEditText.setText(totalSecondVac + " 일");
-        totalSickVacEditText.setText(totalSickVac + " 일");
+        mealCostTextView.setText(mealCost + " 원");
+        trafficCostTextView.setText(trafficCost + " 원");
+        totalFirstVacTextView.setText(totalFirstVac + " 일");
+        totalSecondVacTextView.setText(totalSecondVac + " 일");
+        totalSickVacTextView.setText(totalSickVac + " 일");
+        payDayTextView.setText(payDay + " 일");
 
         nickNameEditText.setOnClickListener(this);
-        firstDateEditText.setOnClickListener(this);
-        lastDateEditText.setOnClickListener(this);
+        firstDateTextView.setOnClickListener(this);
+        lastDateTextView.setOnClickListener(this);
         saveButton.setOnClickListener(this);
         cancelButton.setOnClickListener(this);
-        mealCostEditText.setOnClickListener(this);
-        trafficCostEditText.setOnClickListener(this);
-        totalFirstVacEditText.setOnClickListener(this);
-        totalSecondVacEditText.setOnClickListener(this);
-        totalSickVacEditText.setOnClickListener(this);
+        mealCostTextView.setOnClickListener(this);
+        trafficCostTextView.setOnClickListener(this);
+        totalFirstVacTextView.setOnClickListener(this);
+        totalSecondVacTextView.setOnClickListener(this);
+        totalSickVacTextView.setOnClickListener(this);
+        promotionDateTextView.setOnClickListener(this);
+        payDayTextView.setOnClickListener(this);
 
         return view;
     }
@@ -194,19 +222,23 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     public void onSaveBtnClick(String userInfo, String saveValue) {
         switch (userInfo) {
             case "mealCost":
-                mealCostEditText.setText(saveValue + " 원");
+                mealCostTextView.setText(saveValue + " 원");
                 break;
             case "trafficCost":
-                trafficCostEditText.setText(saveValue + " 원");
+                trafficCostTextView.setText(saveValue + " 원");
                 break;
             case "totalFirstVac":
-                totalFirstVacEditText.setText(saveValue + " 일");
+                totalFirstVacTextView.setText(saveValue + " 일");
                 break;
             case "totalSecondVac":
-                totalSecondVacEditText.setText(saveValue + " 일");
+                totalSecondVacTextView.setText(saveValue + " 일");
                 break;
             case "totalSickVac":
-                totalSickVacEditText.setText(saveValue + " 일");
+                totalSickVacTextView.setText(saveValue + " 일");
+                break;
+            case "payDay":
+                payDayTextView.setText(saveValue + " 일");
+                setSalaryPeriodExample(Integer.parseInt(saveValue));
                 break;
         }
     }
@@ -220,30 +252,37 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     nickNameEditText.setSelection(nickNameEditText.length());
                     break;
                 case R.id.tv_firstDate:
-                    setDatePickerDialog(firstDateEditText, firstDateEditText.getText().toString()).show();
+                    setDatePickerDialog(firstDateTextView, firstDateTextView.getText().toString()).show();
                     break;
                 case R.id.tv_lastDate:
-                    setDatePickerDialog(lastDateEditText, lastDateEditText.getText().toString()).show();
+                    setDatePickerDialog(lastDateTextView, lastDateTextView.getText().toString()).show();
+                    break;
+                case R.id.tv_promotionDate:
+                    calendar.setTime(formatter.parse(firstDateTextView.getText().toString()));
+                    FragmentManager fragmentManager = getChildFragmentManager();
+                    SettingPromotionFragment infoFragment1 = SettingPromotionFragment.newInstance(calendar.getTimeInMillis());
+                    infoFragment1.show(fragmentManager, "dialog");
                     break;
                 case R.id.btn_save:
 
-                    if ((formatter.parse(lastDateEditText.getText().toString()).getTime() <=
-                            formatter.parse(firstDateEditText.getText().toString()).getTime())) {
+                    if ((formatter.parse(lastDateTextView.getText().toString()).getTime() <=
+                            formatter.parse(firstDateTextView.getText().toString()).getTime())) {
                         blankAlert("소집해제일을 다시 설정해주세요");
                     } else {
                         User user = new User(nickNameEditText.getText().toString(),
-                                firstDateEditText.getText().toString(),
-                                lastDateEditText.getText().toString(),
-                                getTagOnlyInt(mealCostEditText.getText().toString()),
-                                getTagOnlyInt(trafficCostEditText.getText().toString()),
-                                getTagOnlyInt(totalFirstVacEditText.getText().toString()),
-                                getTagOnlyInt(totalSecondVacEditText.getText().toString()),
-                                getTagOnlyInt(totalSickVacEditText.getText().toString()));
+                                firstDateTextView.getText().toString(),
+                                lastDateTextView.getText().toString(),
+                                getTagOnlyInt(mealCostTextView.getText().toString()),
+                                getTagOnlyInt(trafficCostTextView.getText().toString()),
+                                getTagOnlyInt(totalFirstVacTextView.getText().toString()),
+                                getTagOnlyInt(totalSecondVacTextView.getText().toString()),
+                                getTagOnlyInt(totalSickVacTextView.getText().toString()),
+                                getTagOnlyInt(payDayTextView.getText().toString()));
 
                         if (DBmanager.getDataCount(TABLE_USER) == 0) {
                             DBmanager.insertUser(user);
                         } else {
-                            Cursor c = DBmanager.query(userColumns, DBHelper.TABLE_USER,
+                            Cursor c = DBmanager.query(userColumns_ver_2, DBHelper.TABLE_USER,
                                     null, null, null, null, null);
                             c.moveToFirst();
                             int id = c.getInt(0);
@@ -262,7 +301,7 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                     break;
                 case R.id.tv_trafficCost:
                     NumberPickerFragment.newInstance(this, "trafficCost", trafficCost,
-                            0, 5000, 50).show(fg, "dialog");
+                            0, 10000, 50).show(fg, "dialog");
                     break;
                 case R.id.tv_totalFirstVac:
                     NumberPickerFragment.newInstance(this, "totalFirstVac", totalFirstVac,
@@ -275,6 +314,10 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
                 case R.id.tv_totalSickVac:
                     NumberPickerFragment.newInstance(this, "totalSickVac", totalSickVac,
                             0, 50, 1).show(fg, "dialog");
+                    break;
+                case R.id.tv_payDay:
+                    NumberPickerFragment.newInstance(this, "payDay", payDay,
+                            1, 26, 1).show(fg, "dialog");
                     break;
                 case R.id.btn_cancel:
                     ((MainActivity) getActivity()).resetTimer();
@@ -294,6 +337,16 @@ public class SettingUserInfoFragment extends DialogFragment implements View.OnCl
     private int getTagOnlyInt(String tag) {
         String reTag = tag.replaceAll("[^0-9]", "");
         return Integer.parseInt(reTag);
+    }
+
+    private void setSalaryPeriodExample(int payDay){
+        calendar.set(DATE, payDay);
+        Date start = calendar.getTime();
+        calendar.add(MONTH, 1);
+        calendar.add(DATE, -1);
+        Date end = calendar.getTime();
+
+        payDayExampleTextView.setText("계산 예시  " + dateFormat_dot.format(start) + " ~ " + dateFormat_dot.format(end));
     }
 
     private void blankAlert(String alert) {

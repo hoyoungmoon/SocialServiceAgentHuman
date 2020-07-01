@@ -29,6 +29,7 @@ import com.project.realproject.fragments.MonthPickerDialog;
 import com.project.realproject.fragments.NumberPickerFragment;
 import com.xw.repo.BubbleSeekBar;
 
+import java.time.Month;
 import java.util.Calendar;
 
 import static android.view.View.GONE;
@@ -38,7 +39,8 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import static com.project.realproject.helpers.Formatter.*;
 
-public class SettingExtraActivity extends AppCompatActivity implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener{
+public class SettingExtraActivity extends AppCompatActivity implements View.OnClickListener, NumberPickerFragment.NumberPickerSaveListener,
+        MonthPickerDialog.NumberPickerSaveListener {
 
     private Switch percentSwitch;
     private Switch bootCampSwitch;
@@ -253,20 +255,10 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
 
             case R.id.tv_savingsStartMonth:
                 MonthPickerDialog monthPickerDialog =
-                        new MonthPickerDialog(preferences.getInt("savingsYear", 2020), preferences.getInt("savingsMonth", 1));
-                monthPickerDialog.setListener(dateSetListener);
+                        new MonthPickerDialog(this, "savingsStartMonth", preferences.getInt("savingsYear", 2020), preferences.getInt("savingsMonth", 1));
+                //monthPickerDialog.setListener(dateSetListener);
                 monthPickerDialog.show(getSupportFragmentManager(), "savingsStartMonth");
                 break;
-
-//            case R.id.et_interestRate:
-//                savingsInterestEditText.requestFocus();
-//                savingsInterestEditText.setSelection(savingsInterestEditText.length());
-//                break;
-
-//            case R.id.linear_interestRate:
-//                savingsInterestEditText.setCursorVisible(true);
-//                savingsInterestEditText.setSelection(savingsInterestEditText.length());
-//                break;
         }
     }
 
@@ -325,6 +317,19 @@ public class SettingExtraActivity extends AppCompatActivity implements View.OnCl
                 editor.apply();
                 savingsPeriodTextView.setText(saveValue + " 개월");
                 setSavingsEndMonth(preferences.getInt("savingsYear", 2020), preferences.getInt("savingsMonth", 1));
+                break;
+        }
+    }
+
+    @Override
+    public void onSaveBtnClick(String userInfo, int year, int month) {
+        switch (userInfo) {
+            case "savingsStartMonth":
+                editor.putInt("savingsYear", year);
+                editor.putInt("savingsMonth", month);
+                editor.apply();
+                savingsStartMonthTextView.setText(year + "년 " + month + "월");
+                setSavingsEndMonth(year, month);
                 break;
         }
     }

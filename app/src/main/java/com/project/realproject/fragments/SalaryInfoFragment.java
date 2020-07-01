@@ -23,6 +23,11 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.project.realproject.R;
 import com.project.realproject.Salary;
 import com.project.realproject.Savings;
@@ -42,9 +47,9 @@ import static com.project.realproject.helpers.Formatter.*;
 
 public class SalaryInfoFragment extends DialogFragment {
 
+    private AdView mAdView;
     private LinearLayout bootCampContainer;
     private LinearLayout savingsContainer;
-    private LinearLayout calendarContainer;
     private GridView grid;
 
     private TextView currentMonthTextView;
@@ -67,26 +72,44 @@ public class SalaryInfoFragment extends DialogFragment {
     private User user;
     private Savings savings;
 
+    private long searchDateTime;
     private Date searchDate;
     private Date startDate;
     private Date lastDate;
 
     private Context mContext;
 
-    public SalaryInfoFragment(Context context, Date searchDate) {
-//         Required empty public constructor
+    public SalaryInfoFragment(){
+
+    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
         mContext = context;
-        user = new User(context);
-        salary = new Salary(context, searchDate);
-        savings = new Savings(context);
-        this.searchDate = searchDate;
-        this.startDate = salary.getStartDate();
-        this.lastDate = salary.getLastDate();
+    }
+
+
+    public static SalaryInfoFragment newInstance(long searchDateTime) {
+        SalaryInfoFragment fragment = new SalaryInfoFragment();
+        Bundle args = new Bundle();
+        args.putLong("searchDateTime", searchDateTime);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            searchDateTime = getArguments().getLong("searchDateTime");
+        }
+        this.searchDate = new Date(searchDateTime);
+
+        user = new User(mContext);
+        salary = new Salary(mContext, searchDate);
+        savings = new Savings(mContext);
+        this.startDate = salary.getStartDate();
+        this.lastDate = salary.getLastDate();
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
     }
@@ -97,10 +120,17 @@ public class SalaryInfoFragment extends DialogFragment {
         View view =  inflater.inflate(R.layout.fragment_salary_info, container, false);
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
+        MobileAds.initialize(getContext(), new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = view.findViewById(R.id.banner_ad);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         bootCampContainer = view.findViewById(R.id.bootCampContainer);
         savingsContainer = view.findViewById(R.id.savingsContainer);
-        calendarContainer = view.findViewById(R.id.calendar);
         grid = view.findViewById(R.id.calendar_grid);
 
         currentMonthTextView = view.findViewById(R.id.tv_currentMonth);
@@ -173,14 +203,14 @@ public class SalaryInfoFragment extends DialogFragment {
         try {
             final ArrayList<Date> cells = new ArrayList<>();
             Calendar calendar = Calendar.getInstance();
-            calendar.setTime(searchDate);
 
-            calendar.set(Calendar.DAY_OF_MONTH, 1);
-            calendar.set(Calendar.HOUR_OF_DAY, 0); calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0); calendar.set(Calendar.MILLISECOND, 0);
+            calendar.setTime(salary.getStartDate());
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
             int monthBeginningCell = calendar.get(Calendar.DAY_OF_WEEK) - 1;
-            int monthEndingCell = monthBeginningCell + getMonthLength(searchDate) - 1;
-
+            int monthEndingCell = monthBeginningCell + getDateLength(salary.getStartDate(), salary.getLastDate()) - 1;
             calendar.add(Calendar.DAY_OF_MONTH, -monthBeginningCell);
 
             // fill cells

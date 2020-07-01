@@ -28,6 +28,9 @@
 
     <string name="cal_salary_manual">* 복무 기간 동안의 급여를 계산할 수 있습니다\n* 주말(토, 일)을 제외한 날은 모두 출근일로 포함하고 있습니다</string>
     <string name="cal_savings_manual">* 복무 기간 동안 납입한 적금의 만기지급액을 계산할 수 있습니다\n* 군적금 이자계산은 단리이며, 비과세로 계산됩니다</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- TODO: Remove or change this placeholder text -->
 </resources>
 

@@ -50,12 +50,12 @@ public class CalendarAdapter extends ArrayAdapter {
         super(context, R.layout.dialog_calendar_item, days);
         try {
             this.mContext = context;
-            user = new User(context);
+            this.user = new User(context);
             this.days = days;
             this.vacations = vacations;
-            inflater = LayoutInflater.from(context);
             this.startPosition = startPosition;
             this.dailyBaseSalary = user.getBaseSalary(searchDate) / getMonthLength(searchDate);
+            inflater = LayoutInflater.from(context);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -72,7 +72,9 @@ public class CalendarAdapter extends ArrayAdapter {
     public View getView(int position, View view, ViewGroup parent) {
 
         final ViewHolder holder;
-        cal.setTime(days.get(position));
+        Date current = days.get(position);
+        int dailyBaseSalary = user.getBaseSalary(current) /  getMonthLength(current);
+        cal.setTime(current);
 
         if (view == null) {
             holder = new ViewHolder();
@@ -88,7 +90,7 @@ public class CalendarAdapter extends ArrayAdapter {
         holder.dateTextView.setText(cal.get(DATE) + "");
 
         if (cal.get(DAY_OF_WEEK) == SATURDAY || cal.get(DAY_OF_WEEK) == SUNDAY
-                || isIncludedInHoliday(days.get(position)) || isIncludedInBootCamp(days.get(position))) {
+                || isIncludedInHoliday(current) || isIncludedInBootCamp(current)) {
             holder.salaryTextView.setText("+" + decimalFormat.format(Math.round((dailyBaseSalary) / 10.0) * 10));
         } else {
             holder.salaryTextView.setText(
@@ -99,18 +101,18 @@ public class CalendarAdapter extends ArrayAdapter {
 
             int totalDailySalary = dailyBaseSalary;
 
-            if (isIncludedInHoliday(days.get(position))) holder.dateTextView.setTextColor(
+            if (isIncludedInHoliday(current)) holder.dateTextView.setTextColor(
                     mContext.getResources().getColor(R.color.colorCalendarHoliday));
 
             if (user.isBootCampCalculationIncluded()) {
-                if (isIncludedInBootCamp(days.get(position))) {
+                if (isIncludedInBootCamp(current)) {
                     holder.dateTextView.setBackgroundColor(
                             mContext.getResources().getColor(R.color.colorCalendarBootCamp));
                 }
             }
 
             for (final Vacation vacation : vacations) {
-                if (vacation.getStartDate().compareTo(days.get(position)) == 0) {
+                if (vacation.getStartDate().compareTo(current) == 0) {
                     holder.dateTextView.setTextColor(mContext.getResources().getColor(R.color.colorCalendarVacation));
                     if (!vacation.getVacationType().isMealIncluded())
                         totalDailySalary += user.getMealCost();
@@ -128,12 +130,12 @@ public class CalendarAdapter extends ArrayAdapter {
                     break;
                 }
             }
-
-            if ((user.getFirstDateTime().compareTo(days.get(position)) > 0) || (user.getLastDateTime().compareTo(days.get(position)) < 0)) {
-                holder.dateTextView.setTextColor(
-                        mContext.getResources().getColor(R.color.colorCalendarOutOfRange));
-                holder.salaryTextView.setVisibility(View.GONE);
-            }
+//
+//            if ((user.getFirstDateTime().compareTo(days.get(position)) > 0) || (user.getLastDateTime().compareTo(days.get(position)) < 0)) {
+//                holder.dateTextView.setTextColor(
+//                        mContext.getResources().getColor(R.color.colorCalendarOutOfRange));
+//                holder.salaryTextView.setVisibility(View.GONE);
+//            }
             return view;
         } else {
             holder.dateTextView.setText("");

@@ -3,11 +3,11 @@ package com.project.realproject;
 public class SpecialVacation extends VacationType {
     @Override
     public boolean isMealIncluded() {
-        return false;
+        return true;
     }
 
     @Override
     public boolean isTrafficIncluded() {
-        return false;
+        return true;
     }
 }

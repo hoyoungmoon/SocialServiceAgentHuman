@@ -25,7 +25,6 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
-    private AdView mAdView;
 
 
     @Override
@@ -61,8 +60,8 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
 
     private void setupViewPager(ViewPager viewPager) {
         ContentViewPagerAdapter adapter = new ContentViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new SalaryCalculatorFragment(), "First");
-        adapter.addFragment(new SavingsCalculatorFragment(), "Second");
+        adapter.addFragment(SalaryCalculatorFragment.newInstance(), "First");
+        adapter.addFragment(SavingsCalculatorFragment.newInstance(), "Second");
 
         viewPager.setAdapter(adapter);
     }
@@ -72,35 +71,4 @@ public class CalculatorActivity extends AppCompatActivity implements View.OnClic
     public void onClick(View view) {
 
     }
-
-
-    /*
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.resume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.pause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.destroy();
-    }
-
-     */
 }

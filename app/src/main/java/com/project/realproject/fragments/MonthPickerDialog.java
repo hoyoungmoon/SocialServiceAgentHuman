@@ -12,28 +12,31 @@ import android.widget.NumberPicker;
 import androidx.fragment.app.DialogFragment;
 
 import com.project.realproject.R;
+import com.project.realproject.User;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class MonthPickerDialog extends DialogFragment {
     private static final int MAX_YEAR = 2099;
     private static final int MIN_YEAR = 2010;
     private int setYear;
     private int setMonth;
+    private String userInfo;
+    private NumberPickerSaveListener numberPickerSaveListener;
 
     public MonthPickerDialog(){
     }
 
-    public MonthPickerDialog(int setYear, int setMonth){
+    public MonthPickerDialog(NumberPickerSaveListener saveListener, String userInfo, int setYear, int setMonth){
+        this.numberPickerSaveListener = saveListener;
+        this.userInfo = userInfo;
         this.setYear = setYear;
         this.setMonth = setMonth;
     }
 
-    private DatePickerDialog.OnDateSetListener listener;
-    //public Calendar cal = Calendar.getInstance();
-
-    public void setListener(DatePickerDialog.OnDateSetListener listener) {
-        this.listener = listener;
+    public interface NumberPickerSaveListener{
+        void onSaveBtnClick(String userInfo, int year, int month);
     }
 
     Button saveButton;
@@ -55,15 +58,17 @@ public class MonthPickerDialog extends DialogFragment {
         cancelButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                MonthPickerDialog.this.getDialog().cancel();
+                dismiss();
             }
         });
 
-        saveButton.setOnClickListener(new View.OnClickListener(){
+        saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onDateSet(null, yearPicker.getValue(), monthPicker.getValue(), 0);
-                MonthPickerDialog.this.getDialog().cancel();
+                if (numberPickerSaveListener != null) {
+                    numberPickerSaveListener.onSaveBtnClick(userInfo, yearPicker.getValue(), monthPicker.getValue());
+                }
+                dismiss();
             }
         });
 

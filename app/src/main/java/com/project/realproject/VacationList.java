@@ -15,6 +15,7 @@ import java.util.Date;
 
 public abstract class VacationList implements Parcelable {
 
+
     public static final int CLASS_TYPE_FIRST_VACATION = 1;
     public static final int CLASS_TYPE_SECOND_VACATION = 2;
     public static final int CLASS_TYPE_SICK_VACATION = 3;
@@ -30,18 +31,18 @@ public abstract class VacationList implements Parcelable {
 
     public VacationList(Context context, String startDate, String lastDate) {
         this.context = context;
+        this.dbHelper = DBHelper.getInstance(context);
         this.startDate = startDate;
         this.lastDate = lastDate;
-        this.vacations = initializeVacationList(context);
+        this.vacations = initializeVacationList();
     }
 
     public void refreshVacationList(){
-        vacations = initializeVacationList(context);
+        vacations = initializeVacationList();
     }
 
-    private ArrayList<Vacation> initializeVacationList(Context context) {
+    private ArrayList<Vacation> initializeVacationList() {
         try {
-            dbHelper = new DBHelper(context);
             ArrayList<Vacation> initialVacationList = new ArrayList<>();
             Cursor c = dbHelper.query(vacationColumns, DBHelper.TABLE_VACATION,
                     null, null, null, null, null);
@@ -119,9 +120,6 @@ public abstract class VacationList implements Parcelable {
         return vacations;
     }
 
-    public void setVacations(ArrayList<Vacation> vacations) {
-        this.vacations = vacations;
-    }
 
     protected VacationList(Parcel in) {
         startDate = in.readString();

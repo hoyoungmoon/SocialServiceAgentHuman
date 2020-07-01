@@ -6,6 +6,8 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +28,6 @@ import com.project.realproject.R;
 import com.project.realproject.Salary;
 import com.project.realproject.User;
 import com.project.realproject.helpers.DBHelper;
-import com.project.realproject.helpers.FontChangeCrawler;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -86,33 +87,18 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
     private DBHelper DBmanager;
     private AdView mAdView;
 
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     public SalaryCalculatorFragment() {
         // Required empty public constructor
     }
 
-    public static SalaryCalculatorFragment newInstance(String param1, String param2) {
+    public static SalaryCalculatorFragment newInstance() {
         SalaryCalculatorFragment fragment = new SalaryCalculatorFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -129,7 +115,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        DBmanager = new DBHelper(getContext());
+        DBmanager = DBHelper.getInstance(getActivity());
 
         entireLayout = view.findViewById(R.id.calculatorLayout);
         calculateLinear = view.findViewById(R.id.cal_linear1);
@@ -151,16 +137,6 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
         resultMealTextView = view.findViewById(R.id.cal_result_meal);
         resultTrafficTextView = view.findViewById(R.id.cal_result_traffic);
         resultTotalTextView = view.findViewById(R.id.cal_result_total);
-
-        setLayoutTransition(entireLayout);
-        startSearchDateTextView.setOnClickListener(this);
-        endSearchDateTextView.setOnClickListener(this);
-        payTextView.setOnClickListener(this);
-        mealCostTextView.setOnClickListener(this);
-        trafficCostTextView.setOnClickListener(this);
-        notWorkTextView.setOnClickListener(this);
-        morningTextView.setOnClickListener(this);
-        calculateButton.setOnClickListener(this);
 
         Calendar cal = Calendar.getInstance();
         cal.set(DATE, cal.getActualMinimum(Calendar.DAY_OF_MONTH));
@@ -191,7 +167,7 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
                     payEditText.setVisibility(GONE);
                     payTextView.setVisibility(VISIBLE);
                     try {
-                        payTextView.setText(decimalFormat.format(user.getBaseSalary(
+                        payTextView.setText(decimalFormat2.format(user.getBaseSalary(
                                 formatter.parse(startSearchDateTextView.getText().toString()))));
                     } catch (ParseException e) {
                         e.printStackTrace();
@@ -205,6 +181,15 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
             }
         });
 
+        setLayoutTransition(entireLayout);
+        startSearchDateTextView.setOnClickListener(this);
+        endSearchDateTextView.setOnClickListener(this);
+        payTextView.setOnClickListener(this);
+        mealCostTextView.setOnClickListener(this);
+        trafficCostTextView.setOnClickListener(this);
+        notWorkTextView.setOnClickListener(this);
+        morningTextView.setOnClickListener(this);
+        calculateButton.setOnClickListener(this);
 
         return view;
     }
@@ -403,14 +388,5 @@ public class SalaryCalculatorFragment extends Fragment implements View.OnClickLi
         return returnDialog;
     }
 
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
-        super.onActivityCreated(savedInstanceState);
-
-        FontChangeCrawler fontChanger = new FontChangeCrawler(getActivity().getAssets(), "nanum_bareun_font.ttf");
-        fontChanger.replaceFonts((ViewGroup) this.getView());
-    }
 
 }

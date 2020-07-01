@@ -114,7 +114,7 @@ public class VacReviseFragment extends DialogFragment implements View.OnClickLis
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBmanager = new DBHelper(getActivity());
+        DBmanager = DBHelper.getInstance(getActivity());
         user = new User(getActivity());
         firstDate = user.getFirstDateTime();
         lastDate = user.getLastDateTime();

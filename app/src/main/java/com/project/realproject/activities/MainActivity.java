@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -40,6 +41,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.project.realproject.FirstYearVacationList;
 import com.project.realproject.SpecificPeriodVacationList;
 import com.project.realproject.Salary;
@@ -50,6 +52,7 @@ import com.project.realproject.VacationList;
 import com.project.realproject.fragments.BlankFragment;
 import com.project.realproject.R;
 import com.project.realproject.fragments.SalaryInfoFragment;
+import com.project.realproject.fragments.SettingPromotionFragment;
 import com.project.realproject.fragments.SettingUserInfoFragment;
 import com.project.realproject.fragments.VacListFragment;
 import com.project.realproject.fragments.VacSaveFragment;
@@ -100,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ImageView toolTipRank;
     private ImageView toolTipPay;
 
-    private CardView vacCardView;
     private LinearLayout vacCard1;
     private LinearLayout vacCard2;
     private LinearLayout vacCard3;
@@ -127,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private int totalSecondVac;
     private int totalSickVac;
 
+    private FirebaseAnalytics mFirebaseAnalytics;
+
     // private String searchStartDate;
     private Date searchDate;
     private String toolTipText;
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean isPercentChanging;
     private int decimalPlaces;
 
+    private Vibrator mVibe;
     private static Handler mHandler;
     private User user;
     private Salary salary;
@@ -159,8 +164,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
 
-        dbHelper = new DBHelper(this);
+        mFirebaseAnalytics = FirebaseAnalytics.getInstance(this);
+        dbHelper = DBHelper.getInstance(getApplicationContext());
         mContext = this;
+        mVibe = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         nav_button = findViewById(R.id.navigation_drawer_button);
@@ -205,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         salaryTextSwitcher.setFactory(new ViewSwitcher.ViewFactory() {
             @Override
-            public View makeView()  {
+            public View makeView() {
                 LayoutInflater inflater = LayoutInflater.from(MainActivity.this);
                 return inflater.inflate(R.layout.item_text_switcher, null);
             }
@@ -303,13 +310,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         switch (view.getId()) {
             case R.id.btn_pay_info:
-                SalaryInfoFragment infoFragment1 = new SalaryInfoFragment(mContext, searchDate);
+                calendar.setTime(searchDate);
+                SalaryInfoFragment infoFragment1 = SalaryInfoFragment.newInstance(calendar.getTimeInMillis());
                 infoFragment1.show(fg, "dialog");
                 break;
 
             case R.id.ts_salary:
-                SalaryInfoFragment infoFragment2 = new SalaryInfoFragment(mContext, searchDate);
+                mVibe.vibrate(1);
+                calendar.setTime(searchDate);
+                SalaryInfoFragment infoFragment2 = SalaryInfoFragment.newInstance(calendar.getTimeInMillis());
                 infoFragment2.show(fg, "dialog");
+                Bundle bundle = new Bundle();
+
+                bundle.putString(FirebaseAnalytics.Param.ITEM_ID, "salaryInfoClick");
+                mFirebaseAnalytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle);
+
                 break;
 
             case R.id.vacCardView_1:
@@ -335,6 +350,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
             case R.id.spendButton_1:
+                mVibe.vibrate(1);
                 // 1년 이하의 복무기간일 경우 1년차 연가사용 기간 조정 (pivotDate 대신 lastDate)
                 if (lastDate.compareTo(pivotDate) > 0) {
                     dialog = new VacSaveFragment().newInstance(new FirstYearVacationList(this, firstDate, pivotDate));
@@ -345,6 +361,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.spendButton_2:
+                mVibe.vibrate(1);
                 if (lastDate.compareTo(pivotDate) < 0) {
                     Toast.makeText(this, "복무기간이 1년 이하인 경우 2년차 연가를 사용할 수 없습니다", Toast.LENGTH_SHORT).show();
                 } else {
@@ -354,11 +371,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.spendButton_3:
+                mVibe.vibrate(1);
                 dialog = new VacSaveFragment().newInstance(new SickVacationList(this, firstDate, lastDate));
                 dialog.show(fg, "dialog");
                 break;
 
             case R.id.iv_search_next_period:
+                mVibe.vibrate(1);
                 calendar.setTime(searchDate);
                 calendar.add(MONTH, 1);
                 searchDate = calendar.getTime();
@@ -377,6 +396,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.iv_search_previous_period:
+                mVibe.vibrate(1);
                 calendar.setTime(searchDate);
                 calendar.add(MONTH, -1);
                 searchDate = calendar.getTime();
@@ -395,6 +415,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
 
             case R.id.calculator_button:
+                mVibe.vibrate(1);
                 Intent calculator = new Intent(MainActivity.this, CalculatorActivity.class);
                 startActivity(calculator);
                 break;
@@ -486,17 +507,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void onClickToolTip(View view) {
 
-        if (view == toolTipRank || view == gradeTextView) {
-            view = toolTipRank;
-            toolTipText = user.getRankToolTip();
-        } else {
-            return;
-        }
-
+        toolTipText = user.getRankToolTip();
         Tooltip toolTip = new Tooltip.Builder(this)
                 .styleId(R.style.ToolTipLayoutCustomStyle)
                 .text(toolTipText)
-                .anchor(view, 0, 0, false)
+                .anchor(toolTipRank, 0, 0, false)
                 .activateDelay(0)
                 .showDuration(20000)
                 .closePolicy(new ClosePolicy.Builder()
@@ -505,23 +520,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         .build())
                 .arrow(true)
                 .create();
-        if (view == toolTipRank) {
-            if (nickNameTextView.getText().length() <= 2) {
-                toolTip.show(view, Tooltip.Gravity.RIGHT, false);
-            } else {
-                toolTip.show(view, Tooltip.Gravity.BOTTOM, false);
-            }
+
+        if (nickNameTextView.getText().length() <= 2) {
+            toolTip.show(view, Tooltip.Gravity.RIGHT, false);
+        } else {
+            toolTip.show(view, Tooltip.Gravity.BOTTOM, false);
         }
+
     }
 
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-        SettingUserInfoFragment dialog = new SettingUserInfoFragment();
         FragmentManager fg = getSupportFragmentManager();
         switch (menuItem.getItemId()) {
             case R.id.profile:
-                dialog.show(fg, "dialog");
+                SettingUserInfoFragment.newInstance().show(fg, "dialog");
                 if (timerIsRunning) pauseTimer();
                 break;
             case R.id.setting:
@@ -612,10 +626,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void setMonthlyInfo(Date today) {
         salary = new Salary(mContext, today);
-        SpecificPeriodVacationList monthlyVacationList = salary.getMonthlyVacationList();
 
-        searchPeriodTextView.setText(dateFormat_dot.format(monthlyVacationList.getStartDateTime())
-                + " ~ " + dateFormat_dot.format(monthlyVacationList.getLastDateTime()));
+        searchPeriodTextView.setText(dateFormat_dot.format(salary.getStartDate())
+                + " ~ " + dateFormat_dot.format(salary.getLastDate()));
         thisMonthVac.setText(convertMinuteToProperUnit((int) salary.countNumberOfGeneralVacation()));
         thisMonthSickVac.setText(convertMinuteToProperUnit((int) salary.countNumberOfSickVacation()));
         thisMonthOuting.setText(convertMinuteToProperUnit((int) salary.countNumberOfOutingVacation()));
@@ -725,35 +738,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         dDayTextView.setText(count > 0 ? "D-" + count : "소집해제");
 
     }
-
-
-    /*
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.resume();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.pause();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // lifecycle 사용이 불가능한 경우
-        if (mAdView == null) return;
-        mAdView.destroy();
-    }
-
-     */
 }

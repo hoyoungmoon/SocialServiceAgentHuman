@@ -255,7 +255,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:cursorVisible="false"
-                    android:text=" 원"
                     android:textAlignment="textEnd"
                     android:textSize="13sp"
                     android:visibility="gone" />

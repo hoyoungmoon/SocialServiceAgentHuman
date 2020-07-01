@@ -1,6 +1,9 @@
 package com.project.realproject.helpers;
 
 import android.animation.LayoutTransition;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -31,8 +34,10 @@ public class Formatter {
     public static final String[] listOfVac = new String[]{"연가", "오전반가", "오후반가", "외출", "특별휴가", "청원휴가", "공가"};
 
     public static final int dayIntoMilliSecond = 60 * 60 * 24 * 1000;
-    public static String[] userColumns = new String[]{"id", "nickName", "firstDate", "lastDate",
+    public static String[] userColumns_ver_1 = new String[]{"id", "nickName", "firstDate", "lastDate",
             "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac"};
+    public static String[] userColumns_ver_2 = new String[]{"id", "nickName", "firstDate", "lastDate",
+            "mealCost", "trafficCost", "totalFirstVac", "totalSecondVac", "totalSickVac", "payDay"};
     public static String[] vacationColumns = new String[]{"id", "vacation", "startDate", "type", "count"};
     public static final int[] payDependsOnRankBefore2020 = new int[]{306100, 331300, 366200, 405700};
     public static final int[] payDependsOnRankAfter2020 = new int[]{408100, 441700, 488200, 540900};
@@ -89,5 +94,17 @@ public class Formatter {
         if(tag.equals("")) return 0;
         String reTag = tag.replaceAll("[^0-9]", "");
         return Integer.parseInt(reTag);
+    }
+
+    public static void blankAlert(Context context, String alert) {
+        new AlertDialog.Builder(context)
+                .setMessage(alert)
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
     }
 }

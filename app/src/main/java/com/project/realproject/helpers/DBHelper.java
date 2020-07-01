@@ -14,14 +14,17 @@ import static com.project.realproject.helpers.Formatter.*;
 public class DBHelper extends SQLiteOpenHelper {
 
     private Context mContext;
+    private static DBHelper mInstance = null;
 
     // 주의 DATABASE_NAME 바꾸면 db 달라져서 초기화.
     private static final String DATABASE_NAME = "FirstVacation.db";
 
     public static final String TABLE_VACATION = "FirstVacation";
     public static final String TABLE_USER = "User";
+    private static final String TABLE_TEMPORARY_USER = "temporaryUser";
 
-    static final int DATABASE_VERSION = 1;
+
+    private static final int DATABASE_VERSION = 3;
 
     private static final String COLUMN_VACATION_NAME = "vacation";
     private static final String COLUMN_VACATION_START_DATE = "startDate";
@@ -36,28 +39,45 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String COLUMN_USER_TOTAL_FIRST_VAC = "totalFirstVac";
     private static final String COLUMN_USER_TOTAL_SECOND_VAC = "totalSecondVac";
     private static final String COLUMN_USER_TOTAL_SICK_VAC = "totalSickVac";
+    private static final String COLUMN_USER_PAY_DAY = "payDay";
     private static final String COMMA_SEP = ", ";
+
+
+    private static final String TABLE_USER_COLUMNS_VER_1 =
+            "id INTEGER PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
+                    COLUMN_USER_NICKNAME             + " TEXT" + COMMA_SEP +
+                    COLUMN_USER_FIRST_DATE           + " DATE" + COMMA_SEP +
+                    COLUMN_USER_LAST_DATE            + " DATE" + COMMA_SEP +
+                    COLUMN_USER_MEAL_COST            + " INTEGER" + COMMA_SEP +
+                    COLUMN_USER_TRAFFIC_COST         + " INTEGER" + COMMA_SEP +
+                    COLUMN_USER_TOTAL_FIRST_VAC      + " INTEGER" + COMMA_SEP +
+                    COLUMN_USER_TOTAL_SECOND_VAC     + " INTEGER" + COMMA_SEP +
+                    COLUMN_USER_TOTAL_SICK_VAC       + " INTEGER";
+
+    private static final String TABLE_USER_COLUMNS_VER_3 =
+            TABLE_USER_COLUMNS_VER_1 + COMMA_SEP +
+                    COLUMN_USER_PAY_DAY + " INTEGER DEFAULT 1";
 
 
     private static final String CREATE_TABLE_VACATION = "CREATE TABLE IF NOT EXISTS " + TABLE_VACATION + " (" +
             "id INTEGER PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
-            COLUMN_VACATION_NAME + " TEXT" + COMMA_SEP +
-            COLUMN_VACATION_START_DATE + " DATE" + COMMA_SEP +
-            COLUMN_VACATION_TYPE + " TEXT" + COMMA_SEP +
-            COLUMN_VACATION_COUNT + " DOUBLE" + " );";
+            COLUMN_VACATION_NAME        + " TEXT" + COMMA_SEP +
+            COLUMN_VACATION_START_DATE  + " DATE" + COMMA_SEP +
+            COLUMN_VACATION_TYPE        + " TEXT" + COMMA_SEP +
+            COLUMN_VACATION_COUNT       + " DOUBLE" + " );";
 
     private static final String CREATE_TABLE_USER = "CREATE TABLE IF NOT EXISTS " + TABLE_USER + "(" +
-            "id INTEGER PRIMARY KEY AUTOINCREMENT" + COMMA_SEP +
-            COLUMN_USER_NICKNAME + " TEXT" + COMMA_SEP +
-            COLUMN_USER_FIRST_DATE + " DATE" + COMMA_SEP +
-            COLUMN_USER_LAST_DATE + " DATE" + COMMA_SEP +
-            COLUMN_USER_MEAL_COST + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_TRAFFIC_COST + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_TOTAL_FIRST_VAC + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_TOTAL_SECOND_VAC + " INTEGER" + COMMA_SEP +
-            COLUMN_USER_TOTAL_SICK_VAC + " INTEGER" + " );";
+            TABLE_USER_COLUMNS_VER_3 + " );";
 
-    public DBHelper(Context context){
+
+    public static DBHelper getInstance(Context context) {
+        if (mInstance == null) {
+            mInstance = new DBHelper(context.getApplicationContext());
+        }
+        return mInstance;
+    }
+
+    private DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         mContext = context;
     }
@@ -70,11 +90,40 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion < 3) {
+            try {
+                db.beginTransaction();
+                db.execSQL("CREATE TEMPORARY TABLE " +
+                        TABLE_TEMPORARY_USER + "(" + TABLE_USER_COLUMNS_VER_1 + " );");
+                db.execSQL("INSERT INTO " + TABLE_TEMPORARY_USER + " SELECT " + "id" + COMMA_SEP +
+                        COLUMN_USER_NICKNAME + COMMA_SEP + COLUMN_USER_FIRST_DATE + COMMA_SEP +
+                        COLUMN_USER_LAST_DATE + COMMA_SEP + COLUMN_USER_MEAL_COST + COMMA_SEP +
+                        COLUMN_USER_TRAFFIC_COST + COMMA_SEP + COLUMN_USER_TOTAL_FIRST_VAC + COMMA_SEP +
+                        COLUMN_USER_TOTAL_SECOND_VAC + COMMA_SEP + COLUMN_USER_TOTAL_SICK_VAC +
+                        " FROM " + TABLE_USER + ";");
+                db.execSQL("DROP TABLE " + TABLE_USER + ";");
+                db.execSQL("CREATE TABLE " + TABLE_USER + "(" +
+                        TABLE_USER_COLUMNS_VER_3 + " );");
+                db.execSQL("INSERT INTO " + TABLE_USER + "(id, " +
+                        COLUMN_USER_NICKNAME + COMMA_SEP + COLUMN_USER_FIRST_DATE + COMMA_SEP +
+                        COLUMN_USER_LAST_DATE + COMMA_SEP + COLUMN_USER_MEAL_COST + COMMA_SEP +
+                        COLUMN_USER_TRAFFIC_COST + COMMA_SEP + COLUMN_USER_TOTAL_FIRST_VAC + COMMA_SEP +
+                        COLUMN_USER_TOTAL_SECOND_VAC + COMMA_SEP + COLUMN_USER_TOTAL_SICK_VAC +
+                        ") SELECT * FROM " + TABLE_TEMPORARY_USER + ";");
+                db.execSQL("DROP TABLE " + TABLE_TEMPORARY_USER + ";");
+                db.setTransactionSuccessful();
+            } catch (IllegalStateException e) {
+
+            } finally {
+                db.endTransaction();
+            }
+        }
+
 
     }
 
     //data 추가
-    public long insertVacation(Vacation vacation){
+    public long insertVacation(Vacation vacation) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_VACATION_NAME, vacation.getVacation());
@@ -84,7 +133,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return mDatabase.insert(TABLE_VACATION, null, values);
     }
 
-    public long insertUser(User user){
+    public long insertUser(User user) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
         String firstDate = formatter.format(user.getFirstDateTime());
@@ -97,6 +146,7 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_FIRST_VAC, user.getTotalFirstVac());
         values.put(COLUMN_USER_TOTAL_SECOND_VAC, user.getTotalSecondVac());
         values.put(COLUMN_USER_TOTAL_SICK_VAC, user.getTotalSickVac());
+        values.put(COLUMN_USER_PAY_DAY, user.getPayDay());
         return mDatabase.insert(TABLE_USER, null, values);
     }
 
@@ -104,17 +154,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public void deleteVacation(Vacation vacation) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         mDatabase.delete(TABLE_VACATION, "id =?",
-                new String[] { String.valueOf(vacation.getId()) });
+                new String[]{String.valueOf(vacation.getId())});
     }
 
     // data 수정
-    public void updateVacation (int id, ContentValues addRowValue){
+    public void updateVacation(int id, ContentValues addRowValue) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         mDatabase.update(TABLE_VACATION, addRowValue, "id =?",
-                new String[] { String.valueOf(id) });
+                new String[]{String.valueOf(id)});
     }
 
-    public void updateUser (int id, User user){
+    public void updateUser(int id, User user) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_USER_NICKNAME, user.getNickName());
@@ -125,18 +175,17 @@ public class DBHelper extends SQLiteOpenHelper {
         values.put(COLUMN_USER_TOTAL_FIRST_VAC, user.getTotalFirstVac());
         values.put(COLUMN_USER_TOTAL_SECOND_VAC, user.getTotalSecondVac());
         values.put(COLUMN_USER_TOTAL_SICK_VAC, user.getTotalSickVac());
-        mDatabase.update(TABLE_USER, values, "id =?",
-                new String[] { String.valueOf(id) });
+        values.put(COLUMN_USER_PAY_DAY, user.getPayDay());
+        mDatabase.update(TABLE_USER, values, "id =?", new String[]{String.valueOf(id)});
     }
 
-    public Cursor query (String[] columns, String tableName, String selection, String[] selectionArgs,
-                         String groupBy, String having, String orderBy)
-    {
+    public Cursor query(String[] columns, String tableName, String selection, String[] selectionArgs,
+                        String groupBy, String having, String orderBy) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         return mDatabase.query(tableName, columns, selection, selectionArgs, groupBy, having, orderBy);
     }
 
-    public int getDataCount(String tableName){
+    public int getDataCount(String tableName) {
         SQLiteDatabase mDatabase = getWritableDatabase();
         String countQuery = "SELECT * FROM " + tableName;
         Cursor cursor = mDatabase.rawQuery(countQuery, null);
@@ -145,11 +194,10 @@ public class DBHelper extends SQLiteOpenHelper {
         return count;
     }
 
-    public void deleteAll(){
+    public void deleteAll() {
         SQLiteDatabase mDatabase = getWritableDatabase();
         mDatabase.delete(TABLE_VACATION, null, null);
         mDatabase.delete(TABLE_USER, null, null);
     }
-
 
 }

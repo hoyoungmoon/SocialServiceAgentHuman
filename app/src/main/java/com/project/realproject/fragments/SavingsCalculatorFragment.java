@@ -40,8 +40,7 @@ public class SavingsCalculatorFragment extends Fragment {
     }
 
     public static SavingsCalculatorFragment newInstance() {
-        SavingsCalculatorFragment fragment = new SavingsCalculatorFragment();
-        return fragment;
+        return new SavingsCalculatorFragment();
     }
 
     @Override

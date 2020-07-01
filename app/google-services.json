@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "133272943665",
+    "firebase_url": "https://social-agent-app.firebaseio.com",
+    "project_id": "social-agent-app",
+    "storage_bucket": "social-agent-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133272943665:android:a2965cfbac13bf310c2910",
+        "android_client_info": {
+          "package_name": "com.project.realproject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "133272943665-jtvd9ob2931p1mic7cu835rd25hodcmq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCB7HgcPoVRPgGz_5XFOPWwcCDF0ERfBdM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133272943665-jtvd9ob2931p1mic7cu835rd25hodcmq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

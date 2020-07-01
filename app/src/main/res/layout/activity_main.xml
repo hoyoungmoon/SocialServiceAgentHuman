@@ -487,8 +487,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp"
+                            android:layout_marginStart="17dp"
+                            android:layout_marginEnd="17dp"
                             android:background="#E9E6E6" />
                     </LinearLayout>
                     <LinearLayout
@@ -574,8 +574,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp"
+                            android:layout_marginStart="17dp"
+                            android:layout_marginEnd="17dp"
                             android:layout_alignParentBottom="true"
                             android:background="#E9E6E6" />
                     </LinearLayout>
@@ -663,8 +663,8 @@
                         <View
                             android:layout_width="match_parent"
                             android:layout_height="1dp"
-                            android:layout_marginStart="20dp"
-                            android:layout_marginEnd="20dp"
+                            android:layout_marginStart="17dp"
+                            android:layout_marginEnd="17dp"
                             android:layout_alignParentBottom="true"
                             android:background="#E9E6E6" />
                     </LinearLayout>
@@ -673,6 +673,8 @@
                         android:id="@+id/expandableListViewContainer"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
+                        android:layout_marginStart="17dp"
+                        android:layout_marginEnd="17dp"
                         android:layout_weight="2"
                         android:orientation="vertical"
                         android:visibility="gone"/>

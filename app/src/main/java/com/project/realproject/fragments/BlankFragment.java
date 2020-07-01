@@ -22,6 +22,7 @@ public class BlankFragment extends Fragment implements DialogInterface.OnDismiss
 
     public BlankFragment() {
         // Required empty public constructor
+
     }
 
 

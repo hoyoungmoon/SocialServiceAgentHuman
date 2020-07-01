@@ -123,7 +123,7 @@ public class VacSaveFragment extends DialogFragment implements View.OnClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        DBmanager = new DBHelper(getActivity());
+        DBmanager = DBHelper.getInstance(getActivity());
         setStyle(DialogFragment.STYLE_NO_TITLE, 0);
 
         if (getArguments() != null) {
